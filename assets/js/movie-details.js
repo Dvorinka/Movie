@@ -303,6 +303,135 @@ try {
         });
     };
 
+    const fetchImdbId = async (movieId) => {
+        const url = `https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${apiKey}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.imdb_id; // Return IMDb ID from TMDB response
+        } catch (error) {
+            console.error('Error fetching IMDb ID:', error);
+            return null;
+        }
+    };
+
+    const fetchAndDisplayMovieDetails = async (movieId) => {
+        try {
+            // Fetch IMDb ID using TMDB API
+            const imdbId = await fetchImdbId(movieId);
+
+            if (imdbId) {
+                const omdbUrl = `https://www.omdbapi.com/?i=${imdbId}&apikey=${omdbApiKey}`;
+
+                // Fetch data from OMDB API
+                const response = await fetch(omdbUrl);
+                const data = await response.json();
+
+                // Check if the data is valid and update UI accordingly
+                if (data.Response === "True") {
+                    const ratings = data.Ratings;
+                    let criticsScore = 'N/A';
+                    let audienceScore = 'N/A';
+
+                    ratings.forEach(rating => {
+                        if (rating.Source === 'Rotten Tomatoes') {
+                            criticsScore = rating.Value;
+                        }
+                        if (rating.Source === 'Internet Movie Database') {
+                            audienceScore = `${parseFloat(rating.Value) * 10}%`;
+                        }
+                    });
+
+                    const criticsScoreElement = document.getElementById('tomatometer');
+                    if (criticsScoreElement) {
+                        criticsScoreElement.classList.add('tomatometer');
+                        criticsScoreElement.innerHTML = `
+                        <img src="${getCriticsScoreImage(criticsScore)}" alt="Critics Score">
+                        <p>${criticsScore}</p>
+                        <a href="#" class="tomatometer-link">Tomatometer</a>
+                        `;
+                        
+                        const tomatometerLink = criticsScoreElement.querySelector('.tomatometer-link');
+                        if (tomatometerLink) {
+                            tomatometerLink.addEventListener('click', function(event) {
+                                event.preventDefault();
+                                const tomatometerInfo = document.querySelector('.tomatometer-info');
+                                if (tomatometerInfo) {
+                                    tomatometerInfo.style.display = 'inline-block';
+                                }
+                            });
+                        }
+                    }
+                    
+                    // Function to toggle display of audience-info div
+                    const audienceScoreElement = document.getElementById('audience-score');
+                    if (audienceScoreElement) {
+                        audienceScoreElement.classList.add('audience-score');
+                        audienceScoreElement.innerHTML = `
+                        <img src="${getAudienceScoreImage(audienceScore)}" alt="Audience Score">
+                        <p>${audienceScore}</p>
+                        <a href="#" class="audienceScore-link">Audience Score</a>
+                        `;
+                        
+                        const audienceScoreLink = audienceScoreElement.querySelector('.audienceScore-link');
+                        if (audienceScoreLink) {
+                            audienceScoreLink.addEventListener('click', function(event) {
+                                event.preventDefault();
+                                const audienceInfo = document.querySelector('.audience-info');
+                                if (audienceInfo) {
+                                    audienceInfo.style.display = 'inline-block';
+                                }
+                            });
+                        }
+                    }
+                    document.addEventListener('click', function(event) {
+                        const tomatometerInfo = document.querySelector('.tomatometer-info');
+                        if (tomatometerInfo && !event.target.closest('#tomatometer')) {
+                            tomatometerInfo.style.display = 'none';
+                        }
+                    
+                        const audienceInfo = document.querySelector('.audience-info');
+                        if (audienceInfo && !event.target.closest('#audience-score')) {
+                            audienceInfo.style.display = 'none';
+                        }});
+                } else {
+                    console.log('OMDB API returned no valid data.');
+                    // Handle case where data.Response is not true
+                }
+            } else {
+                console.error('IMDb ID not found.');
+                // Handle case where IMDb ID is not found
+            }
+        } catch (error) {
+            console.error('Error fetching or displaying movie details:', error);
+            // Handle other errors related to fetching or displaying
+        }
+    };
+
+    const getAudienceScoreImage = (score) => {
+        if (score === 'N/A') {
+            return 'assets/images/unknown-audience.svg';
+        } else {
+            const scoreValue = parseFloat(score);
+            return scoreValue >= 60 ? 'assets/images/fresh-audience.svg' : 'assets/images/rotten-audience.svg';
+        }
+    };
+
+    const getCriticsScoreImage = (score) => {
+        if (score === 'N/A') {
+            return 'assets/images/unknown-critics.svg';
+        } else {
+            const scoreValue = parseInt(score); // Assuming score is in percentage
+            if (scoreValue < 60) {
+                return 'assets/images/rotten-critics.svg';
+            } else if (scoreValue < 90) {
+                return 'assets/images/mid-critics.svg';
+            } else {
+                return 'assets/images/fresh-critics.svg';
+            }
+        }
+    };
+
     const formatRuntime = (minutes) => {
         if (!minutes) return 'N/A'; // Return N/A if no runtime available
         const hours = Math.floor(minutes / 60);
@@ -313,5 +442,6 @@ try {
     const movieId = getMovieIdFromUrl();
     if (movieId) {
         fetchMovieDetails(movieId);
+        fetchAndDisplayMovieDetails(movieId);
     }
 });
