@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Show Details</title>
+
+  <!-- favicon -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!-- custom css link -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+
+  <!-- google font link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/tv-details.js"></script>
+</head>
+
+<body id="top">
+
+  <!-- HEADER -->
+  <header class="header" data-header>
+    <div class="container">
+      <div class="overlay" data-overlay></div>
+
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/logo.svg" alt="Filmlane logo">
+      </a>
+
+      <div class="header-actions">
+        <button class="search-btn">
+          <ion-icon name="search-outline"></ion-icon>
+        </button>
+
+        <div class="lang-wrapper">
+          <label for="language">
+            <ion-icon name="globe-outline"></ion-icon>
+          </label>
+
+          <select name="language" id="language">
+            <option value="en">EN</option>
+            <option value="au">AU</option>
+            <option value="ar">AR</option>
+            <option value="tu">TU</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="menu-open-btn" data-menu-open-btn>
+        <ion-icon name="reorder-two"></ion-icon>
+      </button>
+
+      <nav class="navbar" data-navbar>
+        <div class="navbar-top">
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/logo.svg" alt="Filmlane logo">
+          </a>
+
+          <button class="menu-close-btn" data-menu-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+
+        <ul class="navbar-list">
+          <li><a href="./index.html" class="navbar-link">Home</a></li>
+          <li><a href="#" class="navbar-link">Movie</a></li>
+          <li><a href="#" class="navbar-link">Tv Show</a></li>
+          <li><a href="#" class="navbar-link">Web Series</a></li>
+          <li><a href="#" class="navbar-link">Pricing</a></li>
+        </ul>
+
+        <ul class="navbar-social-list">
+          <li><a href="#" class="navbar-social-link"><ion-icon name="logo-twitter"></ion-icon></a></li>
+          <li><a href="#" class="navbar-social-link"><ion-icon name="logo-facebook"></ion-icon></a></li>
+          <li><a href="#" class="navbar-social-link"><ion-icon name="logo-pinterest"></ion-icon></a></li>
+          <li><a href="#" class="navbar-social-link"><ion-icon name="logo-instagram"></ion-icon></a></li>
+          <li><a href="#" class="navbar-social-link"><ion-icon name="logo-youtube"></ion-icon></a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <article>
+      <!-- SHOW DETAIL -->
+      <section class="show-detail">
+        <div class="container">
+          <figure class="show-detail-banner">
+            <img src="" alt="Show Poster"> <!-- Show Poster -->
+            <div id="trailerModal" class="modal">
+              <div class="modal-content">
+              </div>
+            </div>
+
+            <button class="play-btn">
+              <ion-icon name="play-circle-outline"></ion-icon> <!-- Plays trailer of the show -->
+            </button>
+          </figure>
+
+          <div class="show-detail-content">
+            <h1 class="h1 detail-title">Show Name</h1> <!-- Show Name -->
+            <div class="meta-wrapper">
+              <div class="badge-wrapper">
+                <div class="badge badge-fill">Rating</div>
+                <div class="badge badge-outline">Age Certification</div>
+              </div>
+
+              <div class="ganre-wrapper"> <!-- Genres -->
+              </div>
+
+              <div class="date-time">
+                <div>
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <time datetime="">First Air Year</time> <!-- First Air Date -->
+                </div>
+              </div>
+            </div>
+
+            <p class="storyline">Short show recap</p> <!-- Short show recap -->
+
+            <div class="cast">
+    
+              <div class="actors">
+                <p>Stars:</p>
+                <!-- Actor cards will be dynamically populated here -->
+              </div>
+              </div>
+
+            <a href="#" class="download-btn"> <!-- Download button -->
+              <span>Download</span>
+              <ion-icon name="download-outline"></ion-icon>
+            </a>
+
+            <a href="#"class="stream-btn"> <!-- Download button -->
+              <span>Stream</span>
+              <ion-icon name="play-circle-outline"></ion-icon>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="tv-series">
+        <div class="container">
+          <p class="section-subtitle">Similar Shows</p>
+          <h2 class="h2 section-title">You May Also Like</h2>
+          <ul class="shows-list">
+            <!-- Similar shows will be dynamically populated here -->
+          </ul>
+        </div>
+      </section>
+
+    </article>
+  </main>
+
+    <footer class="footer">
+
+      <div class="footer-bottom">
+        <div class="container">
+  
+          <p class="copyright">
+            &copy; 2024 <a href="https://tdvorak.site" target="_blank">TDvorak</a>. All Rights Reserved
+          </p>
+          <p class="powered-by">Powered by <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>, 
+          <a href="https://yts.mx/" target="_blank">YTS</a>, 
+          <a href="https://rivestream.vercel.app/" target="_blank">Rive</a> & <a href="https://torrentgalaxy.to/" target="_blank">TorrentGalaxy</a>.</p>
+          <!-- && Google Gemini -->
+  
+  
+        </div>
+      </div>
+  
+    </footer>
+
+  <a href="#top" class="go-top" data-go-top>
+    <ion-icon name="chevron-up"></ion-icon>
+  </a>
+
+  <!-- custom js link -->
+  <script src="./assets/js/script.js"></script>
+  <!-- ionicon link -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+
+</html>

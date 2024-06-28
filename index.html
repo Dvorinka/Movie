@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FilmFuse</title>
+  <meta name="keywords" content="Movies, TV Shows, Streaming, Reviews, Actors, Actresses, Photos, User Ratings, Synopsis, Trailers, Teasers, Credits, Cast">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="msapplication-TileImage" content="favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.svg">
+  <meta name="msapplication-TileColor" content="#00b7ff">
+  <link rel="canonical" href="https://www.filmfuse.org">
+  <meta name="theme-color" content="#00b7ff">
+
+
+  <!-- 
+    - favicon
+  -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!-- 
+    - custom css link
+  -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+
+  <!-- 
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/handling.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const trendingList = document.querySelector('.trending-list'); // Select the trending list UL element
+    
+        // Function to fetch trending items for today
+        const fetchTrendingToday = async () => {
+            try {
+                const url = `https://api.themoviedb.org/3/trending/all/day?api_key=${apiKey}`;
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch trending items');
+                }
+                const data = await response.json();
+                const items = data.results.slice(0, 8);
+                const detailedItems = await fetchDetailedTrending(items);
+                displayTrendingItems(detailedItems);
+            } catch (error) {
+                console.error('Error fetching trending data:', error);
+            }
+        };
+    
+        // Function to fetch detailed information for each trending item
+        const fetchDetailedTrending = async (items) => {
+            const detailedItems = await Promise.all(items.map(async item => {
+                try {
+                    const response = await fetch(`https://api.themoviedb.org/3/${item.media_type}/${item.id}?api_key=${apiKey}`);
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch detailed item for ${item.id}`);
+                    }
+                    const detailedItem = await response.json();
+                    // Include media_type in detailed item for reference
+                    detailedItem.media_type = item.media_type;
+                    return detailedItem;
+                } catch (error) {
+                    console.error('Error fetching detailed item:', error);
+                    return null; // Handle fetch error gracefully
+                }
+            }));
+            return detailedItems.filter(item => item !== null); // Filter out null items
+        };
+    
+        // Function to display trending items in the trending list
+        const displayTrendingItems = (items) => {
+            trendingList.innerHTML = '';
+            items.forEach(item => {
+                let title = item.title || item.name; // Handle different titles for movies and TV shows
+                const posterPath = item.poster_path ? `${imageBaseUrl}${item.poster_path}` : 'placeholder-image-url';
+    
+                // For people (if included), adjust as needed
+                if (item.media_type === 'person') {
+                    title = item.name;
+                }
+    
+                const cardHTML = `
+                    <li>
+                        <div class="movie-card" data-id="${item.id}" data-media-type="${item.media_type}">
+                            <figure class="card-banner">
+                                <img src="${posterPath}" alt="${title}">
+                            </figure>
+                            <div class="title-wrapper">
+                                <h3 class="card-title">${title}</h3>
+                            </div>
+                        </div>
+                    </li>
+                `;
+                trendingList.insertAdjacentHTML('beforeend', cardHTML);
+            });
+    
+            // Add event listeners to movie cards in trending list
+            const trendingCards = trendingList.querySelectorAll('.movie-card');
+            trendingCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const movieId = card.getAttribute('data-id');
+                    const mediaType = card.getAttribute('data-media-type');
+    
+                    // Debugging: Log click details
+                    console.log(`Clicked card - Movie ID: ${movieId}, Media Type: ${mediaType}`);
+    
+                    // Redirect based on media_type
+                    if (mediaType === 'movie') {
+                        window.location.href = `./movie-details.html?id=${movieId}`;
+                    } else if (mediaType === 'tv') {
+                        window.location.href = `./tv-details.html?id=${movieId}`;
+                    } else {
+                        console.error(`Unknown media type: ${mediaType}`);
+                    }
+                });
+            });
+        };
+    
+        // Load trending items for today
+        fetchTrendingToday();
+    });
+    </script>
+  
+
+</head>
+
+<body>
+
+  <!-- 
+    - #HEADER
+  -->
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <div class="overlay" data-overlay></div>
+
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/logo.svg" alt="Filmlane logo">
+      </a>
+
+      <div class="header-actions">
+        <div class="search-btn-container">
+          <button class="search-btn">
+            <ion-icon name="search-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+      
+
+
+      <button class="menu-open-btn" data-menu-open-btn>
+        <ion-icon name="reorder-two"></ion-icon>
+      </button>
+
+      <nav class="navbar" data-navbar>
+
+        <div class="navbar-top">
+
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/logo.svg" alt="FilFuse logo">
+          </a>
+
+          <button class="menu-close-btn" data-menu-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+
+        </div>
+
+        <ul class="navbar-list">
+
+          <li>
+            <a href="./index.html" class="navbar-link">Home</a>
+          </li>
+
+          <li>
+            <a href="./discover.html" class="navbar-link">Discover</a>
+          </li>
+
+          <li>
+            <a href="./suggestions.html" class="navbar-link">Suggestions</a>
+          </li>
+
+          <li>
+            <a href="./date-night.html" class="navbar-link">Date Night</a>
+          </li>
+
+          <li>
+            <a href="./top-100.html" class="navbar-link">Top 100</a>
+          </li>
+
+          <li>
+            <a href="./best-of-2023.html" class="navbar-link">Find lost movies</a>
+          </li>
+
+
+          <li>
+            <a href="./about.html" class="navbar-link">About</a>
+          </li>
+
+        </ul>
+
+        <ul class="navbar-social-list">
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-github"></ion-icon>
+            </a>
+          </li>
+
+        </ul>
+
+      </nav>
+
+    </div>
+    <div data-overlay class="overlay"></div>
+  </header>
+
+
+
+
+
+  <main  id="top">
+    <article>
+
+      <!-- 
+        - #HERO
+      -->
+
+      <section class="hero">
+        <div class="hero-movie"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="h1 hero-title">Recommendation for <strong>Movies</strong>, TVs Shows, & More.</h1>
+                <h2 style="color: white; padding-bottom: 30px;">Movie Name</h2>
+                <div class="meta-wrapper">
+                    <div class="date-time">
+                        <div>
+                            <ion-icon name="time-outline"></ion-icon>
+                            <time>Movie length</time>
+                        </div>
+                        <div class="rating">
+                            <ion-icon name="star"></ion-icon>
+                            <data>2.5</data>
+                        </div>
+                    </div>
+                </div>
+                <a href="./movie-details.html" class="btn btn-primary" style="width: 195px; height: 56px;">
+                    <ion-icon name="play"></ion-icon>
+                    <span>Watch now</span>
+                </a>
+            </div>
+        </div>
+    </section>
+      
+      
+
+
+    <section class="special">
+      <div class="special-wrap">
+      <div class="special-wrap2">
+      <div class="special-wrap3">
+      <div class="special-wrap4">
+      <div class="container special-container">
+        <div class="flex-wrapper">
+          <div class="title-wrapper">
+            <h1 class="special-h1">Best Movies<br> of 2023</h1>
+            <div class="special-line"></div>
+            <p class="special-p">List of the best movies released in 2023.</p>
+            <a class="special-a" href="best-movies-2023.html">Check It Out</a>
+          </div>
+        </div>
+      </div>
+      </div>
+      </div>
+    </div>
+      </div>
+    </section>
+
+      <section class="upcoming">
+        <div class="container">
+          <div class="flex-wrapper">
+            <div class="title-wrapper">
+              <p class="section-subtitle">Online Streaming</p>
+              <h2 class="h2 section-title">Upcoming <span style="color: #00b7ff; display: inline;">Movies</h2>
+            </div>
+          </div>
+          <ul class="movies-list has-scrollbar">
+          </ul>
+        </div>
+      </section>
+
+
+
+
+      <!-- 
+        - #SERVICE
+      -->
+
+      <section class="service">
+        <div class="container">
+
+          <div class="service-banner">
+            <figure>
+              <img src="./assets/images/service-banner.png" alt="Free & Open Source" class="service-banner-img">
+            </figure>
+            
+            <a class="service-btn">
+              <span>Download</span>
+
+              <ion-icon name="download-outline"></ion-icon>
+            </a>
+          </div>
+
+          <div class="service-content">
+
+            <p class="service-subtitle">Our Services</p>
+
+            <h2 class="h2 service-title">Download Your Shows Watch Offline.</h2>
+
+            <p class="service-text">
+              Lorem ipsum dolor sit amet, consecetur adipiscing elseddo eiusmod tempor.There are many variations of
+              passages of lorem
+              Ipsum available, but the majority have suffered alteration in some injected humour.
+            </p>
+
+            <ul class="service-list">
+
+              <li>
+                <div class="service-card">
+
+                  <div class="card-icon">
+                    <ion-icon name="tv"></ion-icon>
+                  </div>
+
+                  <div class="card-content">
+                    <h3 class="h3 card-title">Enjoy on Your TV.</h3>
+
+                    <p class="card-text">
+                      Lorem ipsum dolor sit amet, consecetur adipiscing elit, sed do eiusmod tempor.
+                    </p>
+                  </div>
+
+                </div>
+              </li>
+
+              <li>
+                <div class="service-card">
+
+                  <div class="card-icon">
+                    <ion-icon name="videocam"></ion-icon>
+                  </div>
+
+                  <div class="card-content">
+                    <h3 class="h3 card-title">Watch Everywhere.</h3>
+
+                    <p class="card-text">
+                      Lorem ipsum dolor sit amet, consecetur adipiscing elit, sed do eiusmod tempor.
+                    </p>
+                  </div>
+
+                </div>
+              </li>
+
+            </ul>
+
+          </div>
+
+        </div>
+      </section>
+
+      <section class="trending">
+        <div class="container">
+          <div class="flex-wrapper">
+            <div class="title-wrapper">
+              <p class="section-subtitle">Currently Popular</p>
+              <h2 class="h2 section-title">Trending <span style="color: #00b7ff; display: inline;">Today</span></h2>
+            </div>
+          </div>
+          <ul class="trending-list movies-list">
+            <!-- Trending items will be dynamically added here -->
+          </ul>
+        </div>
+      </section>      
+      
+
+    </article>
+  </main>
+
+
+
+
+
+  <!-- 
+    - #FOOTER
+  -->
+
+  <footer class="footer">
+
+    <div class="footer-bottom">
+      <div class="container">
+
+        <p class="copyright">
+          &copy; 2024 <a href="https://tdvorak.site" target="_blank">TDvorak</a>. All Rights Reserved
+        </p>
+        <p class="powered-by">Powered by <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>, 
+        <a href="https://yts.mx/" target="_blank">YTS</a>, 
+        <a href="https://rivestream.vercel.app/" target="_blank">Rive</a> & <a href="https://torrentgalaxy.to/" target="_blank">TorrentGalaxy</a>.</p>
+        <!-- && Google Gemini -->
+
+
+      </div>
+    </div>
+
+  </footer>
+
+  <a href="#top" class="go-top" data-go-top>
+    <ion-icon name="chevron-up"></ion-icon>
+  </a>
+
+
+
+
+
+  <!-- 
+    - custom js link
+  -->
+  <script src="./assets/js/script.js"></script>
+
+  <!-- 
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script>
+ document.addEventListener('DOMContentLoaded', function () {
+        async function fetchMostPopularMovie() {
+            try {
+                const response = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`);
+                const data = await response.json();
+                const movie = data.results[0]; // Assuming the first result is the most popular movie
+
+                const hero = document.querySelector('.hero');
+
+                if (window.innerWidth >= 768) { // Adjust this value based on your breakpoint for phones
+                    hero.style.backgroundImage = `url(hero-bg.png), url(https://image.tmdb.org/t/p/original/${movie.backdrop_path})`;
+                } else {
+                    // Handle case for phones
+                    hero.style.backgroundColor = `#0d1013`; // Only the default background
+                }
+
+
+
+                const movieName = document.querySelector('h2');
+                movieName.textContent = movie.title;
+
+                const movieLengthResponse = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}&language=en-US`);
+                const movieLengthData = await movieLengthResponse.json();
+                const movieLength = document.querySelectorAll('time')[0];
+                movieLength.textContent = `${movieLengthData.runtime} min`;
+
+                const rating = document.querySelector('.rating data');
+                rating.textContent = movie.vote_average.toFixed(1);
+
+                const watchNowButton = document.querySelector('.btn-primary');
+                watchNowButton.href = `./movie-details.html?id=${movie.id}`;
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        fetchMostPopularMovie();
+    });
+    </script>
+
+</body>
+
+</html>

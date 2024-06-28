@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FilmFuse</title>
+  <meta name="keywords" content="Movies, TV Shows, Streaming, Reviews, Actors, Actresses, Photos, User Ratings, Synopsis, Trailers, Teasers, Credits, Cast">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="msapplication-TileImage" content="favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.svg">
+  <meta name="msapplication-TileColor" content="#00b7ff">
+  <link rel="canonical" href="https://www.filmfuse.org">
+  <meta name="theme-color" content="#00b7ff">
+
+  <!-- 
+    - favicon
+  -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!-- 
+    - custom css link
+  -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+
+  <!-- 
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="./assets/js/api.js"></script>
+</head>
+
+<body>
+
+    <!-- 
+      - #HEADER
+    -->
+  
+    <header class="header" data-header>
+      <div class="container">
+  
+        <div class="overlay" data-overlay></div>
+  
+        <a href="./index.html" class="logo">
+          <img src="./assets/images/logo.svg" alt="Filmlane logo">
+        </a>
+  
+        <div class="header-actions">
+  
+          <button class="search-btn">
+            <ion-icon name="search-outline"></ion-icon>
+          </button>
+  
+          <div class="lang-wrapper">
+            <label for="language">
+              <ion-icon name="globe-outline"></ion-icon>
+            </label>
+  
+            <select name="language" id="language">
+              <option value="en">EN</option>
+              <option value="au">AU</option>
+              <option value="ar">AR</option>
+              <option value="tu">TU</option>
+            </select>
+          </div>
+  
+        </div>
+  
+        <button class="menu-open-btn" data-menu-open-btn>
+          <ion-icon name="reorder-two"></ion-icon>
+        </button>
+  
+        <nav class="navbar" data-navbar>
+  
+          <div class="navbar-top">
+  
+            <a href="./index.html" class="logo">
+              <img src="./assets/images/logo.svg" alt="FilFuse logo">
+            </a>
+  
+            <button class="menu-close-btn" data-menu-close-btn>
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+  
+          </div>
+  
+          <ul class="navbar-list">
+  
+            <li>
+              <a href="./index.html" class="navbar-link">Home</a>
+            </li>
+  
+            <li>
+              <a href="./discover.html" class="navbar-link">Discover</a>
+            </li>
+  
+            <li>
+              <a href="./suggestions.html" class="navbar-link">Suggestions</a>
+            </li>
+  
+            <li>
+              <a href="./date-night.html" class="navbar-link">Date Night</a>
+            </li>
+  
+            <li>
+              <a href="./about.html" class="navbar-link">About</a>
+            </li>
+  
+          </ul>
+  
+          <ul class="navbar-social-list">
+  
+            <li>
+              <a href="#" class="navbar-social-link">
+                <ion-icon name="logo-instagram"></ion-icon>
+              </a>
+            </li>
+  
+            <li>
+              <a href="#" class="navbar-social-link">
+                <ion-icon name="logo-github"></ion-icon>
+              </a>
+            </li>
+  
+          </ul>
+  
+        </nav>
+  
+      </div>
+    </header>
+
+    <footer class="footer">
+
+        <div class="footer-top">
+          <div class="container">
+    
+            <div class="footer-brand-wrapper">
+    
+              <a href="./index.html" class="logo">
+                <img src="./assets/images/logo.svg" alt="FilmFuse logo">
+              </a>
+    
+              <ul class="footer-list">
+    
+                <li>
+                  <a href="./index.html" class="footer-link">Home</a>
+                </li>
+    
+                <li>
+                  <a href="./discover.html" class="footer-link">Discover</a>
+                </li>
+    
+                <li>
+                  <a href="./suggestions.html" class="footer-link">Suggestions</a>
+                </li>
+    
+                <li>
+                  <a href="./date-night.html" class="footer-link">Date Night</a>
+                </li>
+    
+                <li>
+                  <a href="./about.html" class="footer-link">About</a>
+                </li>
+    
+                <li>
+                  <a href="./about.html" class="footer-link">Source Code</a>
+                </li>
+    
+    
+              </ul>
+    
+            </div>
+    
+            <div class="divider"></div>
+    
+            <div class="quicklink-wrapper">
+    
+              <ul class="quicklink-list">
+    
+                <!-- <li>
+                  <a href="#" class="quicklink-link">Faq</a>
+                </li>
+    
+                <li>
+                  <a href="#" class="quicklink-link">Help center</a>
+                </li>
+    
+                <li>
+                  <a href="#" class="quicklink-link">Terms of use</a>
+                </li>
+    
+                <li>
+                  <a href="#" class="quicklink-link">Privacy</a>
+                </li> -->
+    
+              </ul>
+    
+              <ul class="social-list">
+    
+                <li>
+                  <a href="#" class="social-link">
+                    <ion-icon name="logo-instagram"></ion-icon>
+                  </a>
+                </li>
+    
+                <li>
+                  <a href="#" class="social-link">
+                    <ion-icon name="logo-github"></ion-icon>
+                  </a>
+                </li>
+    
+              </ul>
+    
+            </div>
+    
+          </div>
+        </div>
+    
+        <div class="footer-bottom">
+          <div class="container">
+    
+            <p class="copyright">
+              &copy; 2024 <a href="https://tdvorak.site" target="_blank">TDvorak</a>. All Rights Reserved
+            </p>
+    
+    
+          </div>
+        </div>
+    
+      </footer>
+    
+      <a href="#top" class="go-top" data-go-top>
+        <ion-icon name="chevron-up"></ion-icon>
+      </a>
+    
+    
+    
+    
+    
+      <!-- 
+        - custom js link
+      -->
+      <script src="./assets/js/script.js"></script>
+    
+      <!-- 
+        - ionicon link
+      -->
+      <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+      <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    </body>
+    
+    </html>
