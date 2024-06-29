@@ -151,14 +151,12 @@
 
       <div class="header-actions">
         <div class="search-btn-container">
-          <button class="search-btn">
+          <button class="search-btn" onclick="toggleSearchInput()">
             <ion-icon name="search-outline"></ion-icon>
           </button>
         </div>
       </div>
       
-
-
       <button class="menu-open-btn" data-menu-open-btn>
         <ion-icon name="reorder-two"></ion-icon>
       </button>
@@ -209,7 +207,6 @@
             <a href="./best-of-2023.html" class="navbar-link">Find lost movies</a>
           </li>
 
-
           <li>
             <a href="./about.html" class="navbar-link">About</a>
           </li>
@@ -233,10 +230,10 @@
         </ul>
 
       </nav>
-
     </div>
-    <div data-overlay class="overlay"></div>
-  </header>
+    <input name="query" type="text" tabindex="1" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false" id="search-input" placeholder="Search for a movie, tv show, person..." style="display: none;">
+    <div id="default-results" class="results-container" style="display: none;"></div>
+</header>
 
 
 

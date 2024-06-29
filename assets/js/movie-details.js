@@ -73,23 +73,55 @@ try {
     const directorName = director ? director.name : 'Director Not Found';
     const directorId = director ? director.id : '#';
 
+    const producer = creditsData.crew.find(member => member.job === 'Producer');
+    const producerName = producer ? producer.name : 'Producer Not Found';
+    const producerId = producer ? producer.id : '#';
+
+    const writer = creditsData.crew.find(member => member.job === 'Writer');
+    const writerName = writer ? writer.name : null; // Use null instead of 'Writer Not Found'
+    const writerId = writer ? writer.id : '#';
+    
+    // Find the editor
+    const editor = creditsData.crew.find(member => member.job === 'Editor');
+    const editorName = editor ? editor.name : 'Editor Not Found'; // Default editor to 'Editor Not Found'
+    const editorId = editor ? editor.id : '#';
+
     // Update director's name in HTML
     const movieDetailDirector = document.querySelector('.director');
-    movieDetailDirector.innerHTML = `<span>Director:</span> <a href="./people-details.html?id=${directorId}" target="_blank">${directorName}</a>`;
+    movieDetailDirector.innerHTML = `<span>Director:</span> <a href="./people-details.html?id=${directorId}" target="_blank">${directorName}</a><br>`;
 
-    // Get top 5 billed actors
+    const movieDetailProducer = document.querySelector('.producer');
+    movieDetailProducer.innerHTML = `<span>Producer:</span> <a href="./people-details.html?id=${producerId}" target="_blank">${producerName}</a><br>`;
+
+    const movieDetailWriter = document.querySelector('.writer');
+    movieDetailWriter.innerHTML = writerName
+            ? `<span>Writer:</span> <a href="./people-details.html?id=${writerId}" target="_blank">${writerName}</a>`
+            : `<span>Editor:</span> <a href="./people-details.html?id=${editorId}" target="_blank">${editorName}</a>`;
+
     const actors = creditsData.cast.slice(0, 4);
 
-    // Create links for actor names
-    const actorLinks = actors.map(actor => `<a href="./people-details.html?id=${actor.id}" target="_blank">${actor.name}</a>`).join(', ');
-
+    // Create links for actor names and images
+    const actorElements = actors.map(actor => {
+        // Assuming actor has a profile_path or image_url property
+        const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
+        return `
+            <div>
+                <a href="./people-details.html?id=${actor.id}" target="_blank">
+                    <img src="${imageUrl}" alt="${actor.name}">
+                    <p>${actor.name}</p>
+                </a>
+                <p>${actor.character}</p>
+            </div>`;
+    }).join('');
+    
     // Update actors in HTML
     const actorsContainer = document.querySelector('.actors');
     actorsContainer.innerHTML = ''; // Clear existing content
-
-    const starsElement = document.createElement('p');
-    starsElement.innerHTML = `<span>Stars:</span> ${actorLinks}`;
+    
+    const starsElement = document.createElement('div');
+    starsElement.innerHTML += actorElements;
     actorsContainer.appendChild(starsElement);
+    
 
 } catch (error) {
     console.error('Error fetching credits:', error);
