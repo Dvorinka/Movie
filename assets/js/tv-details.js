@@ -65,18 +65,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const actors = creditsData.cast.slice(0, 5);
         
             // Create comma-separated list of actor names with links
-            const actorLinks = actors.map(actor => {
-                const actorUrl = `./people-details.html?id=${actor.id}`;
-                return `<a href="${actorUrl}" target="_blank">${actor.name}</a>`;
-            }).join(', ');
-        
+            const actorElements = actors.map(actor => {
+                // Assuming actor has a profile_path or image_url property
+                const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
+                return `
+                    <div>
+                        <a href="./people-details.html?id=${actor.id}" target="_blank">
+                            <img src="${imageUrl}" alt="${actor.name}">
+                            <p>${actor.name}</p>
+                        </a>
+                        <p>${actor.character}</p>
+                    </div>`;
+            }).join('');
+            
             // Update actors in HTML
             const actorsContainer = document.querySelector('.actors');
             actorsContainer.innerHTML = ''; // Clear existing content
-        
-            const namesElement = document.createElement('p');
-            namesElement.innerHTML = `<span>Actors:</span> ${actorLinks}`;
-            actorsContainer.appendChild(namesElement);
+            
+            const starsElement = document.createElement('div');
+            starsElement.innerHTML += actorElements;
+            actorsContainer.appendChild(starsElement);
+            
         
         } catch (error) {
             console.error('Error fetching credits:', error);

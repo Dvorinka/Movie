@@ -348,23 +348,25 @@ try {
     };
 
     const fetchAndDisplayMovieDetails = async (movieId) => {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
         try {
             // Fetch IMDb ID using TMDB API
             const imdbId = await fetchImdbId(movieId);
-
+    
             if (imdbId) {
                 const omdbUrl = `https://www.omdbapi.com/?i=${imdbId}&apikey=${omdbApiKey}`;
-
+    
                 // Fetch data from OMDB API
                 const response = await fetch(omdbUrl);
                 const data = await response.json();
-
+    
                 // Check if the data is valid and update UI accordingly
                 if (data.Response === "True") {
                     const ratings = data.Ratings;
                     let criticsScore = 'N/A';
                     let audienceScore = 'N/A';
-
+    
                     ratings.forEach(rating => {
                         if (rating.Source === 'Rotten Tomatoes') {
                             criticsScore = rating.Value;
@@ -373,25 +375,27 @@ try {
                             audienceScore = `${parseFloat(rating.Value) * 10}%`;
                         }
                     });
-
+    
                     const criticsScoreElement = document.getElementById('tomatometer');
                     if (criticsScoreElement) {
                         criticsScoreElement.classList.add('tomatometer');
                         criticsScoreElement.innerHTML = `
                         <img src="${getCriticsScoreImage(criticsScore)}" alt="Critics Score">
                         <p>${criticsScore}</p>
-                        <a href="#" class="tomatometer-link">Tomatometer</a>
+                        ${isMobile ? '<p class="tomatometer-link">Tomatometer</p>' : '<a href="#" class="tomatometer-link">Tomatometer</a>'}
                         `;
                         
-                        const tomatometerLink = criticsScoreElement.querySelector('.tomatometer-link');
-                        if (tomatometerLink) {
-                            tomatometerLink.addEventListener('click', function(event) {
-                                event.preventDefault();
-                                const tomatometerInfo = document.querySelector('.tomatometer-info');
-                                if (tomatometerInfo) {
-                                    tomatometerInfo.style.display = 'inline-block';
-                                }
-                            });
+                        if (!isMobile) {
+                            const tomatometerLink = criticsScoreElement.querySelector('.tomatometer-link');
+                            if (tomatometerLink) {
+                                tomatometerLink.addEventListener('click', function(event) {
+                                    event.preventDefault();
+                                    const tomatometerInfo = document.querySelector('.tomatometer-info');
+                                    if (tomatometerInfo) {
+                                        tomatometerInfo.style.display = 'inline-block';
+                                    }
+                                });
+                            }
                         }
                     }
                     
@@ -402,20 +406,23 @@ try {
                         audienceScoreElement.innerHTML = `
                         <img src="${getAudienceScoreImage(audienceScore)}" alt="Audience Score">
                         <p>${audienceScore}</p>
-                        <a href="#" class="audienceScore-link">Audience Score</a>
+                        ${isMobile ? '<p class="audienceScore-link">Audience Score</p>' : '<a href="#" class="audienceScore-link">Audience Score</a>'}
                         `;
                         
-                        const audienceScoreLink = audienceScoreElement.querySelector('.audienceScore-link');
-                        if (audienceScoreLink) {
-                            audienceScoreLink.addEventListener('click', function(event) {
-                                event.preventDefault();
-                                const audienceInfo = document.querySelector('.audience-info');
-                                if (audienceInfo) {
-                                    audienceInfo.style.display = 'inline-block';
-                                }
-                            });
+                        if (!isMobile) {
+                            const audienceScoreLink = audienceScoreElement.querySelector('.audienceScore-link');
+                            if (audienceScoreLink) {
+                                audienceScoreLink.addEventListener('click', function(event) {
+                                    event.preventDefault();
+                                    const audienceInfo = document.querySelector('.audience-info');
+                                    if (audienceInfo) {
+                                        audienceInfo.style.display = 'inline-block';
+                                    }
+                                });
+                            }
                         }
                     }
+                    
                     document.addEventListener('click', function(event) {
                         const tomatometerInfo = document.querySelector('.tomatometer-info');
                         if (tomatometerInfo && !event.target.closest('#tomatometer')) {
@@ -425,7 +432,8 @@ try {
                         const audienceInfo = document.querySelector('.audience-info');
                         if (audienceInfo && !event.target.closest('#audience-score')) {
                             audienceInfo.style.display = 'none';
-                        }});
+                        }
+                    });
                 } else {
                     console.log('OMDB API returned no valid data.');
                     // Handle case where data.Response is not true
@@ -439,6 +447,7 @@ try {
             // Handle other errors related to fetching or displaying
         }
     };
+    
 
     const getAudienceScoreImage = (score) => {
         if (score === 'N/A') {
@@ -464,6 +473,7 @@ try {
         }
     };
 
+    
     const formatRuntime = (minutes) => {
         if (!minutes) return 'N/A'; // Return N/A if no runtime available
         const hours = Math.floor(minutes / 60);
