@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const movieDetailRuntime = document.querySelector('.date-time time[datetime="PT115M"]');
         const movieDetailStoryline = document.querySelector('.storyline');
         const movieDetailCertification = document.querySelector('.badge-outline');
-        const movieDetailPosterPath = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'placeholder-image-url';
+        const movieDetailPosterPath = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'assets/images/person.svg';
         const movieDetailYear = new Date(movie.release_date).getFullYear();
         const movieDetailTrailer = movie.videos.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
 
@@ -348,7 +348,6 @@ try {
     };
 
     const fetchAndDisplayMovieDetails = async (movieId) => {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     
         try {
             // Fetch IMDb ID using TMDB API
@@ -377,63 +376,57 @@ try {
                     });
     
                     const criticsScoreElement = document.getElementById('tomatometer');
-                    if (criticsScoreElement) {
-                        criticsScoreElement.classList.add('tomatometer');
-                        criticsScoreElement.innerHTML = `
-                        <img src="${getCriticsScoreImage(criticsScore)}" alt="Critics Score">
-                        <p>${criticsScore}</p>
-                        ${isMobile ? '<p class="tomatometer-link">Tomatometer</p>' : '<a href="#" class="tomatometer-link">Tomatometer</a>'}
-                        `;
-                        
-                        if (!isMobile) {
+                        if (criticsScoreElement) {
+                            criticsScoreElement.classList.add('tomatometer');
+                            criticsScoreElement.innerHTML = `
+                                <img src="${getCriticsScoreImage(criticsScore)}" alt="Critics Score">
+                                <p>${criticsScore}</p>
+                                <a href="#" class="tomatometer-link">Tomatometer</a>
+                            `;
+                            
                             const tomatometerLink = criticsScoreElement.querySelector('.tomatometer-link');
                             if (tomatometerLink) {
                                 tomatometerLink.addEventListener('click', function(event) {
                                     event.preventDefault();
-                                    const tomatometerInfo = document.querySelector('.tomatometer-info');
-                                    if (tomatometerInfo) {
-                                        tomatometerInfo.style.display = 'inline-block';
-                                    }
+                                    if (criticsScore !== 'N/A') {
+                                        window.location.href = `discover.html?critics=${criticsScore.replace('%', '')}`;
+                                }
                                 });
                             }
                         }
-                    }
-                    
-                    // Function to toggle display of audience-info div
-                    const audienceScoreElement = document.getElementById('audience-score');
-                    if (audienceScoreElement) {
-                        audienceScoreElement.classList.add('audience-score');
-                        audienceScoreElement.innerHTML = `
-                        <img src="${getAudienceScoreImage(audienceScore)}" alt="Audience Score">
-                        <p>${audienceScore}</p>
-                        ${isMobile ? '<p class="audienceScore-link">Audience Score</p>' : '<a href="#" class="audienceScore-link">Audience Score</a>'}
-                        `;
-                        
-                        if (!isMobile) {
+
+                        // Function to toggle display of audience-info div
+                        const audienceScoreElement = document.getElementById('audience-score');
+                        if (audienceScoreElement) {
+                            audienceScoreElement.classList.add('audience-score');
+                            audienceScoreElement.innerHTML = `
+                                <img src="${getAudienceScoreImage(audienceScore)}" alt="Audience Score">
+                                <p>${audienceScore}</p>
+                                <a href="#" class="audienceScore-link">Audience Score</a>
+                            `;
+                            
                             const audienceScoreLink = audienceScoreElement.querySelector('.audienceScore-link');
                             if (audienceScoreLink) {
                                 audienceScoreLink.addEventListener('click', function(event) {
                                     event.preventDefault();
-                                    const audienceInfo = document.querySelector('.audience-info');
-                                    if (audienceInfo) {
-                                        audienceInfo.style.display = 'inline-block';
-                                    }
+                                    if (audienceScore !== 'N/A') {
+                                        window.location.href = `discover.html?audience=${audienceScore.replace('%', '')}`;
+            }
                                 });
                             }
                         }
-                    }
-                    
-                    document.addEventListener('click', function(event) {
-                        const tomatometerInfo = document.querySelector('.tomatometer-info');
-                        if (tomatometerInfo && !event.target.closest('#tomatometer')) {
-                            tomatometerInfo.style.display = 'none';
-                        }
-                    
-                        const audienceInfo = document.querySelector('.audience-info');
-                        if (audienceInfo && !event.target.closest('#audience-score')) {
-                            audienceInfo.style.display = 'none';
-                        }
-                    });
+
+                        document.addEventListener('click', function(event) {
+                            const tomatometerInfo = document.querySelector('.tomatometer-info');
+                            if (tomatometerInfo && !event.target.closest('#tomatometer')) {
+                                tomatometerInfo.style.display = 'none';
+                            }
+
+                            const audienceInfo = document.querySelector('.audience-info');
+                            if (audienceInfo && !event.target.closest('#audience-score')) {
+                                audienceInfo.style.display = 'none';
+                            }
+                        });
                 } else {
                     console.log('OMDB API returned no valid data.');
                     // Handle case where data.Response is not true

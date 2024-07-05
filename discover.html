@@ -17,6 +17,7 @@
   <link rel="canonical" href="https://www.filmfuse.org">
   <meta name="theme-color" content="#00b7ff">
 
+
   <!-- 
     - favicon
   -->
@@ -34,6 +35,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/search.js"></script>
+  <script src="./assets/js/discover.js"></script>
 </head>
 
 <body>
@@ -52,26 +55,13 @@
         </a>
   
         <div class="header-actions">
-  
-          <button class="search-btn">
-            <ion-icon name="search-outline"></ion-icon>
-          </button>
-  
-          <div class="lang-wrapper">
-            <label for="language">
-              <ion-icon name="globe-outline"></ion-icon>
-            </label>
-  
-            <select name="language" id="language">
-              <option value="en">EN</option>
-              <option value="au">AU</option>
-              <option value="ar">AR</option>
-              <option value="tu">TU</option>
-            </select>
+          <div class="search-btn-container">
+            <button class="search-btn" onclick="toggleSearchInput()">
+              <ion-icon name="search-outline"></ion-icon>
+            </button>
           </div>
-  
         </div>
-  
+        
         <button class="menu-open-btn" data-menu-open-btn>
           <ion-icon name="reorder-two"></ion-icon>
         </button>
@@ -98,14 +88,28 @@
   
             <li>
               <a href="./discover.html" class="navbar-link">Discover</a>
+              <ul>
+                <li>
+                  <a href="./top-100.html" class="navbar-link">Top 100</a>
+                </li>
+                <li>
+                  <a href="./best-movies-2023.html" class="navbar-link">Best Movies of 2023</a>
+                </li>
+              </ul>
+  
             </li>
   
             <li>
               <a href="./suggestions.html" class="navbar-link">Suggestions</a>
+              <ul>
+                <li>
+                  <a href="./date-night.html" class="navbar-link">Date Night</a>
+                </li>
+              </ul>
             </li>
   
             <li>
-              <a href="./date-night.html" class="navbar-link">Date Night</a>
+              <a href="./lost-movies.html" class="navbar-link">Find lost movies</a>
             </li>
   
             <li>
@@ -131,128 +135,75 @@
           </ul>
   
         </nav>
-  
       </div>
-    </header>
+  </header>
+  
+    <div class="search-el">
+      <div class="input-main-div">
+      <input name="query" type="text" tabindex="1" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false" id="search-input" placeholder="Search for a movie, tv show, person..." class="input-main">
+      </div>
+      <div id="default-results" class="results-container"></div>
+    </div>
+
+    <main>
+      <section class="discover-wrapper">
+        <h1 class="discover-title">Popular Movies</h1>
+        <div class="filters">
+          <div class="sort"></div>
+          <div class="media"></div>
+          <div class="genres"></div>
+          <div class="release"></div>
+          <div class="tomato-ratings">
+            <div class="tomatometer"></div>
+            <div class="audience-score"></div>
+          </div>
+          <div class="production"></div>
+          <div class="certification"></div>
+        </div>
+
+        <div class="fetched-sorted"></div>
+      </section>
+    </main>  
 
     <footer class="footer">
 
-        <div class="footer-top">
-          <div class="container">
-    
-            <div class="footer-brand-wrapper">
-    
-              <a href="./index.html" class="logo">
-                <img src="./assets/images/logo.svg" alt="FilmFuse logo">
-              </a>
-    
-              <ul class="footer-list">
-    
-                <li>
-                  <a href="./index.html" class="footer-link">Home</a>
-                </li>
-    
-                <li>
-                  <a href="./discover.html" class="footer-link">Discover</a>
-                </li>
-    
-                <li>
-                  <a href="./suggestions.html" class="footer-link">Suggestions</a>
-                </li>
-    
-                <li>
-                  <a href="./date-night.html" class="footer-link">Date Night</a>
-                </li>
-    
-                <li>
-                  <a href="./about.html" class="footer-link">About</a>
-                </li>
-    
-                <li>
-                  <a href="./about.html" class="footer-link">Source Code</a>
-                </li>
-    
-    
-              </ul>
-    
-            </div>
-    
-            <div class="divider"></div>
-    
-            <div class="quicklink-wrapper">
-    
-              <ul class="quicklink-list">
-    
-                <!-- <li>
-                  <a href="#" class="quicklink-link">Faq</a>
-                </li>
-    
-                <li>
-                  <a href="#" class="quicklink-link">Help center</a>
-                </li>
-    
-                <li>
-                  <a href="#" class="quicklink-link">Terms of use</a>
-                </li>
-    
-                <li>
-                  <a href="#" class="quicklink-link">Privacy</a>
-                </li> -->
-    
-              </ul>
-    
-              <ul class="social-list">
-    
-                <li>
-                  <a href="#" class="social-link">
-                    <ion-icon name="logo-instagram"></ion-icon>
-                  </a>
-                </li>
-    
-                <li>
-                  <a href="#" class="social-link">
-                    <ion-icon name="logo-github"></ion-icon>
-                  </a>
-                </li>
-    
-              </ul>
-    
-            </div>
-    
-          </div>
+      <div class="footer-bottom">
+        <div class="container">
+  
+          <p class="copyright">
+            &copy; 2024 <a href="https://tdvorak.site" target="_blank">TDvorak</a>. All Rights Reserved
+          </p>
+          <p class="powered-by">Powered by <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>, 
+          <a href="https://www.justwatch.com/" target="_blank">JustWatch</a>, 
+          <a href="https://www.rottentomatoes.com/" target="_blank">RottenTomatoes</a>, 
+          <a href="https://yts.mx/" target="_blank">YTS</a>, 
+          <a href="https://rivestream.vercel.app/" target="_blank">Rive</a> & <a href="https://1337x.to/" target="_blank">1337x</a>.</p>
+          <!-- && Google Gemini -->
+  
+  
         </div>
-    
-        <div class="footer-bottom">
-          <div class="container">
-    
-            <p class="copyright">
-              &copy; 2024 <a href="https://tdvorak.site" target="_blank">TDvorak</a>. All Rights Reserved
-            </p>
-    
-    
-          </div>
-        </div>
-    
-      </footer>
-    
-      <a href="#top" class="go-top" data-go-top>
-        <ion-icon name="chevron-up"></ion-icon>
-      </a>
-    
-    
-    
-    
-    
-      <!-- 
-        - custom js link
-      -->
-      <script src="./assets/js/script.js"></script>
-    
-      <!-- 
-        - ionicon link
-      -->
-      <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-      <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+      </div>
+  
+    </footer>
+  
+    <a href="#top" class="go-top" data-go-top>
+      <ion-icon name="chevron-up"></ion-icon>
+    </a>
+  
+  
+  
+  
+  
+    <!-- 
+      - custom js link
+    -->
+    <script src="./assets/js/script.js"></script>
+  
+    <!-- 
+      - ionicon link
+    -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     </body>
     
     </html>
