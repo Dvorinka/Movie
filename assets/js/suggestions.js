@@ -95,10 +95,10 @@ function clearSearchResults() {
 
 function updateMovieBox(index, movie) {
     const movieBox = document.querySelector(`#input-wrapper .input-container:nth-child(${index}) .movie-box`);
-    const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
+    const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
     movieBox.innerHTML = `
-        <img src="${posterUrl}" alt="${movie.title}" width="200">
-        <div style="background-color: #ffffff00; width: 100%; height: 100%;">${movie.title} (${movie.release_date ? movie.release_date.substring(0, 4) : '-'})</div>
+        <img src="${posterUrl}" alt="${movie.title}">
+        <div style="background: #ffffff00; width: 100%; height: 100%;">${movie.title} (${movie.release_date ? movie.release_date.substring(0, 4) : '-'})</div>
     `;
 }
 
