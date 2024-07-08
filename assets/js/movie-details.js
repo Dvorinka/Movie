@@ -270,7 +270,7 @@ try {
     };
 
     const redirectToStream = () => {
-        const streamUrl = `https://rivestream.vercel.app/watch?type=movie&id=${movieId}`;
+        const streamUrl = `https://rivestream.live/watch?type=movie&id=${movieId}`;
     
         // Open the stream URL in a new tab
         window.open(streamUrl, '_blank');
