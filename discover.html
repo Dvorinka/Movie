@@ -45,7 +45,7 @@
       - #HEADER
     -->
   
-    <header class="header" data-header>
+    <header class="header" data-header style="position:relative">
       <div class="container">
   
         <div class="overlay" data-overlay></div>
@@ -147,23 +147,46 @@
 
     <main>
       <section class="discover-wrapper">
-        <h1 class="discover-title">Popular Movies</h1>
-        <div class="filters">
-          <div class="sort"></div>
-          <div class="media"></div>
-          <div class="genres"></div>
-          <div class="release"></div>
-          <div class="tomato-ratings">
-            <div class="tomatometer"></div>
-            <div class="audience-score"></div>
+          <h1 class="discover-title">Popular Movies</h1>
+          <div class="filters">
+              <div class="media">
+                <h3>Sort By Format</h3> 
+                  <select id="media-type">
+                      <option value="movie">Movies</option>
+                      <option value="tv">TV Shows</option>
+                  </select>
+              </div>
+              <div class="genres">
+                <h3>Genres</h3>
+                  <span value="28" class="movie-only">Action</span>
+                  <span value="12" class="movie-only">Adventure</span>
+                  <span value="16">Animation</span>
+                  <span value="35">Comedy</span>
+                  <span value="80">Crime</span>
+                  <span value="99">Documentary</span>
+                  <span value="18">Drama</span>
+                  <span value="10751">Family</span>
+                  <span value="14" class="movie-only">Fantasy</span>
+                  <span value="36">History</span>
+                  <span value="27" class="movie-only">Horror</span>
+                  <span value="10402">Music</span>
+                  <span value="9648">Mystery</span>
+                  <span value="10749">Romance</span>
+                  <span value="878" class="movie-only">Sci-Fi</span>
+                  <span value="53" class="movie-only">Thriller</span>
+                  <span value="10752" class="movie-only">War</span>
+                  <span value="37">Western</span>
+                  <span value="10759" class="tv-only">Action & Adventure</span>
+                  <span value="10765" class="tv-only">Fantasy & Sci-Fi</span>
+                  <span value="10768" class="tv-only">War & Politics</span>
+              </div>                                                     
           </div>
-          <div class="production"></div>
-          <div class="certification"></div>
-        </div>
-
-        <div class="fetched-sorted"></div>
+          <div class="fetched-sorted">
+              <!-- Results will be displayed here -->
+          </div>
       </section>
-    </main>  
+  </main>
+  
 
     <footer class="footer">
 

@@ -5,3 +5,4 @@ const popularMoviesUrl = `https://api.themoviedb.org/3/movie/popular?api_key=${a
 const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
 const imageBannerUrl = 'https://image.tmdb.org/t/p/w500';
 const baseApiUrl = 'https://api.themoviedb.org/3';
+const ytsBaseUrl = 'https://yts.mx/api/v2';
