@@ -2461,6 +2461,7 @@ iframe{
 
 #app {
   text-align: center;
+  color:  var(--white);
 }
 
 .input-container {
@@ -2522,6 +2523,20 @@ iframe{
   cursor: pointer;
   color: var(--white);
   background: linear-gradient(309deg, rgba(0,99,255,1) 0%, rgba(0,198,255,1) 100%);
+  width: 55px;
+  text-align: center;
+}
+
+.remove-button {
+  position: absolute;
+  top: 198px;
+  left: -87px;
+  font-size: 2.2rem;
+  border-radius: 50%;
+  border: 1px solid #0000003d;
+  cursor: pointer;
+  color: var(--white);
+  background: linear-gradient(309deg, rgb(119, 0, 255) 0%, rgb(195, 0, 255) 100%);
   width: 55px;
   text-align: center;
 }

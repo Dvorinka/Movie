@@ -1,8 +1,9 @@
 let inputCount = 1;
 let selectedMovies = [];
+let overlayCounter = 0; // Counter to switch between overlay images
 
 function addInputField() {
-    if (inputCount >= 5) return;
+    if (inputCount >= 6) return;
 
     inputCount++;
     const inputWrapper = document.getElementById('input-wrapper');
@@ -13,8 +14,8 @@ function addInputField() {
         <div class="movie-box" onclick="activateSearch(${inputCount})">
             <div class="plus-button">+</div>
         </div>
-        <input type="text" id="movie${inputCount}" placeholder="Enter Movie Name" oninput="searchMovie(${inputCount})" style="display:none;">
-        ${inputCount < 5 ? '<div class="add-button" onclick="addInputField()">&#43;</div>' : ''}
+        <input type="text" id="movie${inputCount}" placeholder="Enter Movie Name" oninput="searchMovie(${inputCount})" style="display:none; autocorrect="off" autofill="off" autocomplete="off" spellcheck="false">
+        ${inputCount < 6 ? '<div class="add-button" onclick="addInputField()">&#43;</div>' : ''}
     `;
     inputWrapper.appendChild(newInputContainer);
 
@@ -87,7 +88,6 @@ function selectMovie(movie, index) {
     }
 }
 
-
 function clearSearchResults() {
     const moviesList = document.getElementById('movies-list');
     moviesList.innerHTML = '';
@@ -96,11 +96,36 @@ function clearSearchResults() {
 function updateMovieBox(index, movie) {
     const movieBox = document.querySelector(`#input-wrapper .input-container:nth-child(${index}) .movie-box`);
     const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
+
+    // Define the overlay images
+    const overlayImages = [
+        'assets/images/banner-overlay-first.png',
+        'assets/images/banner-overlay-second.png',
+        'assets/images/banner-overlay-third.png',
+        'assets/images/banner-overlay-fourth.png',
+        'assets/images/banner-overlay-fifth.png',
+        'assets/images/banner-overlay-sixth.png'
+    ];
+
+    // Select the overlay image based on the counter
+    const overlayUrl = overlayImages[overlayCounter % overlayImages.length];
     movieBox.innerHTML = `
-        <img src="${posterUrl}" alt="${movie.title}">
-        <div style="background: #ffffff00; width: 100%; height: 100%;">${movie.title} (${movie.release_date ? movie.release_date.substring(0, 4) : '-'})</div>
+        <div style="
+            background: 
+                url('${overlayUrl}'), /* overlay image */
+                url('${posterUrl}') no-repeat center top; /* movie poster */
+            background-size: cover;
+            width: 100%;
+            height: 100%;
+            border-radius: 0px;"></div>
+            <div style="background: #ffffff00; padding: 10px; width: 100%; height: 100%;">
+                ${movie.title} (${movie.release_date ? movie.release_date.substring(0, 4) : '-'})
+            </div>
     `;
+    overlayCounter++; // Increment counter to alternate overlays
 }
+
+
 
 async function fetchRecommendations() {
     const movieIds = selectedMovies.map(movie => movie.id);
