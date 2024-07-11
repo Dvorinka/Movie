@@ -82,7 +82,7 @@
             trendingList.innerHTML = '';
             items.forEach(item => {
                 let title = item.title || item.name; // Handle different titles for movies and TV shows
-                const posterPath = item.poster_path ? `${imageBaseUrl}${item.poster_path}` : 'placeholder-image-url';
+                const posterPath = item.poster_path ? `${imageBannerUrl}${item.poster_path}` : 'placeholder-image-url';
     
                 // For people (if included), adjust as needed
                 if (item.media_type === 'person') {
