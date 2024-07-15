@@ -98,19 +98,21 @@ try {
             ? `<span>Writer:</span> <a href="./people-details.html?id=${writerId}" target="_blank">${writerName}</a>`
             : `<span>Editor:</span> <a href="./people-details.html?id=${editorId}" target="_blank">${editorName}</a>`;
 
-    const actors = creditsData.cast.slice(0, 4);
+    const actors = creditsData.cast.slice(0, 10);
 
     // Create links for actor names and images
     const actorElements = actors.map(actor => {
         // Assuming actor has a profile_path or image_url property
-        const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
+        const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
         return `
             <div>
                 <a href="./people-details.html?id=${actor.id}" target="_blank">
                     <img src="${imageUrl}" alt="${actor.name}">
+                    <div class="actors-info">
                     <p>${actor.name}</p>
                 </a>
                 <p>${actor.character}</p>
+                </div>
             </div>`;
     }).join('');
     

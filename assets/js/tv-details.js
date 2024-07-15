@@ -62,29 +62,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const creditsData = await creditsResponse.json();
         
             // Get top 5 billed actors
-            const actors = creditsData.cast.slice(0, 5);
-        
-            // Create comma-separated list of actor names with links
-            const actorElements = actors.map(actor => {
-                // Assuming actor has a profile_path or image_url property
-                const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
-                return `
-                    <div>
-                        <a href="./people-details.html?id=${actor.id}" target="_blank">
-                            <img src="${imageUrl}" alt="${actor.name}">
-                            <p>${actor.name}</p>
-                        </a>
-                        <p>${actor.character}</p>
-                    </div>`;
-            }).join('');
+        const actors = creditsData.cast.slice(0, 5);
+
+        // Create comma-separated list of actor names with links
+        const actorElements = actors.map(actor => {
+            // Assuming actor has a profile_path or image_url property
+            const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
             
-            // Update actors in HTML
-            const actorsContainer = document.querySelector('.actors');
-            actorsContainer.innerHTML = ''; // Clear existing content
+            // Get only the first name of the character
+            const characterFirstName = actor.character.split(' ')[0];
             
-            const starsElement = document.createElement('div');
-            starsElement.innerHTML += actorElements;
-            actorsContainer.appendChild(starsElement);
+            return `
+                <div>
+                    <a href="./people-details.html?id=${actor.id}" target="_blank">
+                        <img src="${imageUrl}" alt="${actor.name}">
+                        <div class="actors-info">
+                        <p>${actor.name}</p>
+                    </a>
+                    <p>${characterFirstName}</p>
+                    </div>
+                </div>`;
+        }).join('');
+
+        // Update actors in HTML
+        const actorsContainer = document.querySelector('.actors');
+        actorsContainer.innerHTML = ''; // Clear existing content
+
+        const starsElement = document.createElement('div');
+        starsElement.innerHTML += actorElements;
+        actorsContainer.appendChild(starsElement);
+
             
         
         } catch (error) {
