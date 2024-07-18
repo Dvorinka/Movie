@@ -249,10 +249,10 @@ try {
     const redirectToYTS = () => {
         // Get the movie title from the document title
         const documentTitle = document.title;
-        let movieTitle = documentTitle.split(' (')[0]; // Extract movie title from document title
+        let movieTitle = documentTitle.split('(')[0].trim(); // Extract movie title from document title and trim any trailing spaces
     
-        // Remove ":" and "." from the movie title
-        movieTitle = movieTitle.replace(/:/g, '').replace(/\./g, '');
+        // Remove :, ., and ' from the movie title
+        movieTitle = movieTitle.replace(/:/g, '').replace(/\./g, '').replace(/'/g, '');
     
         // Format the movie title for the YTS URL
         let formattedMovieTitle = movieTitle.toLowerCase().replace(/ /g, '-'); // Replace spaces with dashes
@@ -270,6 +270,7 @@ try {
         // Open the YTS URL in a new tab
         window.open(ytsUrl, '_blank');
     };
+    
 
     const redirectToStream = () => {
         const streamUrl = `https://rivestream.live/watch?type=movie&id=${movieId}`;

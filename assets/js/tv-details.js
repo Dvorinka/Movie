@@ -49,6 +49,14 @@ document.addEventListener('DOMContentLoaded', () => {
         showDetailFirstAirDate.textContent = showDetailYear;
         showDetailFirstAirDate.setAttribute('datetime', show.first_air_date);
 
+        // Update seasons and episodes
+        const seasonsCount = show.number_of_seasons;
+        const episodesCount = show.number_of_episodes;
+        document.getElementById('seasons-count').textContent = `Seasons: ${seasonsCount}`;
+        document.getElementById('seasons-count').setAttribute('datetime', seasonsCount);
+        document.getElementById('episodes-count').textContent = `Episodes: ${episodesCount}`;
+        document.getElementById('episodes-count').setAttribute('datetime', episodesCount);
+
         showDetailStoryline.textContent = show.overview; // Assign the whole overview
 
         // Set the background image dynamically
@@ -56,50 +64,46 @@ document.addEventListener('DOMContentLoaded', () => {
         const showBackdropPath = show.backdrop_path ? `https://image.tmdb.org/t/p/original${show.backdrop_path}` : 'default-backdrop-url';
         showDetail.style.backgroundImage = `url("movie-detail-bg.png"), url(${showBackdropPath})`;
 
-        const creditsUrl = `https://api.themoviedb.org/3/tv/${showId}/credits?api_key=${apiKey}`;
+        const creditsUrl = `https://api.themoviedb.org/3/tv/${show.id}/credits?api_key=${apiKey}`;
         try {
             const creditsResponse = await fetch(creditsUrl);
             const creditsData = await creditsResponse.json();
         
             // Get top 5 billed actors
-        const actors = creditsData.cast.slice(0, 5);
+            const actors = creditsData.cast.slice(0, 5);
 
-        // Create comma-separated list of actor names with links
-        const actorElements = actors.map(actor => {
-            // Assuming actor has a profile_path or image_url property
-            const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
-            
-            // Get only the first name of the character
-            const characterFirstName = actor.character.split(' ')[0];
-            
-            return `
-                <div>
-                    <a href="./people-details.html?id=${actor.id}" target="_blank">
-                        <img src="${imageUrl}" alt="${actor.name}">
-                        <div class="actors-info">
-                        <p>${actor.name}</p>
-                    </a>
-                    <p>${characterFirstName}</p>
-                    </div>
-                </div>`;
-        }).join('');
+            // Create comma-separated list of actor names with links
+            const actorElements = actors.map(actor => {
+                // Assuming actor has a profile_path or image_url property
+                const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
+                
+                // Get only the first name of the character
+                const characterFirstName = actor.character.split(' ')[0];
+                
+                return `
+                    <div>
+                        <a href="./people-details.html?id=${actor.id}" target="_blank">
+                            <img src="${imageUrl}" alt="${actor.name}">
+                            <div class="actors-info">
+                            <p>${actor.name}</p>
+                        </a>
+                        <p>${characterFirstName}</p>
+                        </div>
+                    </div>`;
+            }).join('');
 
-        // Update actors in HTML
-        const actorsContainer = document.querySelector('.actors');
-        actorsContainer.innerHTML = ''; // Clear existing content
+            // Update actors in HTML
+            const actorsContainer = document.querySelector('.actors');
+            actorsContainer.innerHTML = ''; // Clear existing content
 
-        const starsElement = document.createElement('div');
-        starsElement.innerHTML += actorElements;
-        actorsContainer.appendChild(starsElement);
-
-            
+            const starsElement = document.createElement('div');
+            starsElement.innerHTML += actorElements;
+            actorsContainer.appendChild(starsElement);
         
         } catch (error) {
             console.error('Error fetching credits:', error);
             // Handle error if necessary
         }
-        
-
 
         // Determine certification based on user's language
         const getCertification = (show) => {
@@ -125,21 +129,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (certification) {
                     // Map the certification codes to their respective ratings and hints
                     switch (certification) {
-                            case 'TV-Y':
-                                return { rating: 'TV-Y', hint: 'All Children. This program is designed to be appropriate for all children.' };
-                            case 'TV-Y7':
-                                return { rating: 'TV-Y7', hint: 'Directed to Older Children. This program is designed for children age 7 and above.' };
-                            case 'TV-G':
-                                return { rating: 'TV-G', hint: 'General Audience. Most parents would find this program suitable for all ages.' };
-                            case 'TV-PG':
-                                return { rating: 'TV-PG', hint: 'Parental Guidance Suggested. This program contains material that parents may find unsuitable for younger children.' };
-                            case 'TV-14':
-                                return { rating: 'TV-14', hint: 'Parents Strongly Cautioned. This program contains some material that many parents would find unsuitable for children under 14 years of age.' };
-                            case 'TV-MA':
-                                return { rating: 'TV-MA', hint: 'Mature Audience Only. This program is specifically designed to be viewed by adults and therefore may be unsuitable for children under 17.' };
-                    
-                            default:
-                                return { rating: certification, hint: 'Rating Description Unavailable' };
+                        case 'TV-Y':
+                            return { rating: 'TV-Y', hint: 'All Children. This program is designed to be appropriate for all children.' };
+                        case 'TV-Y7':
+                            return { rating: 'TV-Y7', hint: 'Directed to Older Children. This program is designed for children age 7 and above.' };
+                        case 'TV-G':
+                            return { rating: 'TV-G', hint: 'General Audience. Most parents would find this program suitable for all ages.' };
+                        case 'TV-PG':
+                            return { rating: 'TV-PG', hint: 'Parental Guidance Suggested. This program contains material that parents may find unsuitable for younger children.' };
+                        case 'TV-14':
+                            return { rating: 'TV-14', hint: 'Parents Strongly Cautioned. This program contains some material that many parents would find unsuitable for children under 14 years of age.' };
+                        case 'TV-MA':
+                            return { rating: 'TV-MA', hint: 'Mature Audience Only. This program is specifically designed to be viewed by adults and therefore may be unsuitable for children under 17.' };
+                        default:
+                            return { rating: certification, hint: 'Rating Description Unavailable' };
                     }
                 }
             }

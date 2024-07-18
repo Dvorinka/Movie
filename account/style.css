@@ -45,15 +45,16 @@ a {
 
 button {
 	border-radius: 20px;
-	border: 1px solid #FF4B2B;
-	background-color: #FF4B2B;
+	border: 1px solid #00b7ff;
+	background-color: #00b7ff;
 	color: #FFFFFF;
 	font-size: 12px;
 	font-weight: bold;
 	padding: 12px 45px;
 	letter-spacing: 1px;
 	text-transform: uppercase;
-	transition: transform 80ms ease-in;
+	transition: transform 1s ease-in-out;
+	cursor: pointer;
 }
 
 button:active {
@@ -67,6 +68,12 @@ button:focus {
 button.ghost {
 	background-color: transparent;
 	border-color: #FFFFFF;
+	box-shadow: 0px 0px 10px #ffffff65;
+	cursor: pointer;
+}
+
+button.ghost:hover {
+	box-shadow: 0px 0px 10px #ffffffa2;
 }
 
 form {
@@ -159,9 +166,9 @@ input {
 }
 
 .overlay {
-	background: #FF416C;
-	background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
-	background: linear-gradient(to right, #FF4B2B, #FF416C);
+	background: #ff0000;
+	background: -webkit-linear-gradient(132deg, #0081ff, #00b7ff);
+	background: linear-gradient(132deg, #0081ff, #00b7ff);
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: 0 0;
