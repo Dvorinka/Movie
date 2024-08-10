@@ -14,6 +14,7 @@ navElemArr.forEach(elem => {
     elem.addEventListener("click", () => {
         navbar.classList.toggle("active");
         overlay.classList.toggle("active");
+        header.classList.toggle("active");
 
         if (navbar.classList.contains("active")) {
             document.body.style.overflow = "hidden";

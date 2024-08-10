@@ -6,13 +6,29 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const response = await fetch(url);
       const data = await response.json();
-      const items = data.results.slice(0, 8);  // Fetch 8 upcoming movies
+      
+      // Get the current year and the next year dynamically
+      const currentYear = new Date().getFullYear();
+      const nextYear = currentYear + 1;
+      
+      // Filter movies based on the release date for this year and next year
+      const filteredMovies = data.results.filter(movie => {
+        const releaseDate = new Date(movie.release_date);
+        return releaseDate >= new Date(`${currentYear}-01-01`) && releaseDate <= new Date(`${nextYear}-12-31`);
+      });
+  
+      // Slice to get the first 8 movies after filtering
+      const items = filteredMovies.slice(0, 8);
+      
+      // Fetch additional details for the filtered movies
       const detailedMovies = await fetchMovieDetails(items);
       displayItems(detailedMovies);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
+  
+  
 
   const fetchMovieDetails = async (movies) => {
     const detailedMovies = await Promise.all(movies.map(async movie => {
