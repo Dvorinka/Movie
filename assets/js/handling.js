@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
   const moviesList = document.querySelector('.movies-list');
 
@@ -6,20 +5,20 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const response = await fetch(url);
       const data = await response.json();
-      
+
       // Get the current year and the next year dynamically
       const currentYear = new Date().getFullYear();
       const nextYear = currentYear + 1;
-      
+
       // Filter movies based on the release date for this year and next year
       const filteredMovies = data.results.filter(movie => {
         const releaseDate = new Date(movie.release_date);
         return releaseDate >= new Date(`${currentYear}-01-01`) && releaseDate <= new Date(`${nextYear}-12-31`);
       });
-  
+
       // Slice to get the first 8 movies after filtering
       const items = filteredMovies.slice(0, 8);
-      
+
       // Fetch additional details for the filtered movies
       const detailedMovies = await fetchMovieDetails(items);
       displayItems(detailedMovies);
@@ -27,17 +26,35 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Error fetching data:', error);
     }
   };
-  
-  
 
   const fetchMovieDetails = async (movies) => {
     const detailedMovies = await Promise.all(movies.map(async movie => {
       const response = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}&append_to_response=release_dates`);
       const detailedMovie = await response.json();
+      
+      // Get the upcoming release date for the specific country (e.g., US)
+      detailedMovie.usReleaseDate = getUpcomingReleaseDate(detailedMovie, 'US');
+      
       detailedMovie.certification = getCertification(detailedMovie);
       return detailedMovie;
     }));
     return detailedMovies;
+  };
+
+  const getUpcomingReleaseDate = (movie, countryCode) => {
+    const countryRelease = movie.release_dates.results.find(country => country.iso_3166_1 === countryCode);
+    if (countryRelease && countryRelease.release_dates.length > 0) {
+      // Get the latest upcoming date for this country
+      const futureDates = countryRelease.release_dates
+        .map(date => new Date(date.release_date))
+        .filter(date => date >= new Date());  // Filter only future dates
+
+      if (futureDates.length > 0) {
+        // Return the nearest upcoming date
+        return futureDates.sort((a, b) => a - b)[0];
+      }
+    }
+    return null;
   };
 
   const getCertification = (movie) => {
@@ -88,7 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const displayItems = (items) => {
     moviesList.innerHTML = '';
     items.forEach(item => {
-      const releaseDate = formatDate(item.release_date);
+      // Use the US release date if available, otherwise fall back to the general release date
+      const releaseDate = item.usReleaseDate ? formatDate(item.usReleaseDate) : formatDate(item.release_date);
       const title = item.title;
       const posterPath = item.poster_path ? `${imageBannerUrl}${item.poster_path}` : 'placeholder-image-url';
       const runtime = formatRuntime(item.runtime);
@@ -132,8 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   };
-  
-
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };

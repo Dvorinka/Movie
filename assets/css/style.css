@@ -2645,3 +2645,71 @@ iframe{
     border: 2px solid var(--citrine);
     transition: var(--transition-3);
 }
+
+/* Hide the input by default */
+.input-main-div-mobile,
+#default-results {
+    display: none;
+}
+
+/* Show the input only on screens with a max width of 768px (commonly used threshold for mobile devices) */
+@media only screen and (max-width: 768px) {
+    .input-main-div-mobile,
+    #default-results {
+        display: block;
+    }
+}
+
+.calendar-container {
+  max-width: 800px;
+  margin: 20px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.calendar-day {
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 4px;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.date-header {
+  font-weight: bold;
+  color: #555;
+}
+
+.movie-title {
+  font-size: 14px;
+  color: #e74c3c;
+  margin-top: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-day:nth-child(7n) {
+  color: #e74c3c; /* Highlight Sundays */
+}
+
+@media (max-width: 600px) {
+  .calendar-grid {
+      grid-template-columns: repeat(4, 1fr);
+  }
+}

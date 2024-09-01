@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie List with TMDB</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="assets/js/api.js"></script>
+</head>
+<body>
+    <h1>Create Your Movie List</h1>
+    <input type="text" id="movieInput" placeholder="Enter movie or TV show">
+    <button onclick="searchMovie()">Add</button>
+    <ul id="movieList"></ul>
+    <button onclick="generateShareableLink()">Share</button>
+    <p id="shareLink"></p>
+
+    <script src="assets/js/movie-list.js"></script>
+</body>
+</html>

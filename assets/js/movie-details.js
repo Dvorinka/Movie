@@ -246,13 +246,25 @@ try {
         }
     };
 
+    const checkYTSUrl = async (url) => {
+        const proxyUrl = 'https://crossorigin.me';
+        try {
+            const response = await fetch(proxyUrl + url, { method: 'HEAD' });
+            return response.status !== 404; // Returns true if the status is not 404, otherwise false
+        } catch (error) {
+            console.error('Error checking YTS URL:', error);
+            return false; // If there's an error, consider the URL invalid
+        }
+    };
+    
+
     const redirectToYTS = () => {
         // Get the movie title from the document title
         const documentTitle = document.title;
         let movieTitle = documentTitle.split('(')[0].trim(); // Extract movie title from document title and trim any trailing spaces
     
         // Remove :, ., and ' from the movie title
-        movieTitle = movieTitle.replace(/:/g, '').replace(/\./g, '').replace(/'/g, '');
+        movieTitle = movieTitle.replace(/:/g, '').replace(/&/g, '').replace(/'/g, '').replace(/\//g, '');
     
         // Format the movie title for the YTS URL
         let formattedMovieTitle = movieTitle.toLowerCase().replace(/ /g, '-'); // Replace spaces with dashes
@@ -270,6 +282,7 @@ try {
         // Open the YTS URL in a new tab
         window.open(ytsUrl, '_blank');
     };
+    
     
 
     const redirectToStream = () => {

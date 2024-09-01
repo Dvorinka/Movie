@@ -20,6 +20,14 @@
   <script src="./assets/js/api.js"></script>
   <script src="./assets/js/movie-details.js"></script>
   <script src="./assets/js/search.js"></script>
+  <script src="https://unpkg.com/xdomain@0.8.2/dist/xdomain.min.js"></script>
+  <script>
+// Configure xdomain to proxy requests through the GitHub-hosted page
+    xdomain.slaves({
+        'https://yts.mx': 'https://bcdvorinka.github.io/CORS-FilmFuse/proxy.html'
+    });
+  </script>
+
 </head>
 
 <body id="top">

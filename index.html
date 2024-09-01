@@ -17,7 +17,6 @@
   <link rel="canonical" href="https://www.filmfuse.org">
   <meta name="theme-color" content="#00b7ff">
 
-
   <!-- 
     - favicon
   -->
@@ -155,8 +154,10 @@
             <ion-icon name="search-outline"></ion-icon>
           </button>
         </div>
-        <a class="sign-in" href="account/login.html">Sign In</a>
+        <div class="sign-in"></div> <!-- Placeholder for the username or sign-in link -->
       </div>
+      
+      
       
       <button class="menu-open-btn" data-menu-open-btn>
         <ion-icon name="reorder-two"></ion-icon>
@@ -258,9 +259,11 @@
             <div class="hero-content">
                 <h1 class="h1 hero-title">Recommendation for <strong>Movies</strong>, TVs Shows, & More.</h1>
                 <div class="search-el-mobile">
-                  <div class="input-main-div-mobile">
-                  <input name="query" type="text" tabindex="1" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false" placeholder="Search for a movie, tv show, person..." class="input-main-mobile">
-                  </div>
+                <!-- Example HTML structure -->
+                <input id="search-input" type="text" placeholder="Search...">
+                <div class="input-main-div-mobile">
+                    <input class="input-main-mobile" type="text" placeholder="Search...">
+                </div>
                   <div id="default-results" class="results-container"></div>
                 <h2 style="color: white; padding-bottom: 30px;">Movie Name</h2>
                 <div class="meta-wrapper">
@@ -507,29 +510,6 @@
         fetchMostPopularMovie();
     });
 </script>
-    <script type="module">
-      // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-analytics.js";
-      // TODO: Add SDKs for Firebase products that you want to use
-      // https://firebase.google.com/docs/web/setup#available-libraries
-    
-      // Your web app's Firebase configuration
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-      const firebaseConfig = {
-        apiKey: "AIzaSyDA8jhOoWV9icagi9f8l_WZfNy0sQJH9Z8",
-        authDomain: "filmfuse-57b21.firebaseapp.com",
-        projectId: "filmfuse-57b21",
-        storageBucket: "filmfuse-57b21.appspot.com",
-        messagingSenderId: "90721125276",
-        appId: "1:90721125276:web:65c9dd1e0dac5ee55dfe59",
-        measurementId: "G-VY9VR252B9"
-      };
-    
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
-    </script>
 
 </body>
 
