@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion-Based Movie Recommendation</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="./assets/js/api.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Find a Movie Based on Your Mood</h1>
+        <form id="emotion-form">
+            <label for="emotion">How do you want to feel?</label>
+            <input type="text" id="emotion" name="emotion" placeholder="e.g., happy, adventurous">
+            <button type="submit">Find Movies</button>
+        </form>
+
+        <div id="movie-results"></div>
+    </div>
+
+    <script src="assets/js/suggest-by-emotion.js"></script>
+</body>
+</html>

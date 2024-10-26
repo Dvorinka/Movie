@@ -26,6 +26,7 @@
     - custom css link
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <script src="assets/js/mobile-search.js"></script>
 
   <!-- 
     - google font link
@@ -258,12 +259,14 @@
         <div class="container">
             <div class="hero-content">
                 <h1 class="h1 hero-title">Recommendation for <strong>Movies</strong>, TVs Shows, & More.</h1>
-                <div class="search-el-mobile">
-                <!-- Example HTML structure -->
                 <input id="search-input" type="text" placeholder="Search...">
-                <div class="input-main-div-mobile">
-                    <input class="input-main-mobile" type="text" placeholder="Search...">
+                <div class="search-el-mobile">
+                  <div class="input-main-div-mobile">
+                    <input class="input-main-mobile" type="text" placeholder="Search..." id="mobile-search-input">
+                  </div>
+                  <div id="mobile-results-container" class="mobile-results"></div>
                 </div>
+                
                   <div id="default-results" class="results-container"></div>
                 <h2 style="color: white; padding-bottom: 30px;">Movie Name</h2>
                 <div class="meta-wrapper">

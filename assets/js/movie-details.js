@@ -12,10 +12,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(url);
             const data = await response.json();
             displayMovieDetails(data);
+            generateMetaTags(data); // Generate meta tags based on movie details
             displaySimilarMovies(movieId); // Fetch and display similar movies
         } catch (error) {
             console.error('Error fetching movie details:', error);
         }
+    };
+
+    const generateMetaTags = (movie) => {
+        const metaTags = [
+            { property: 'og:title', content: `${movie.title} (${new Date(movie.release_date).getFullYear()})` },
+            { property: 'og:description', content: movie.overview.length > 300 ? `${movie.overview.substring(0, 297)}...` : movie.overview },
+            { property: 'og:image', content: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'assets/images/default-image.png' },
+            { property: 'og:url', content: window.location.href },
+            { property: 'og:type', content: 'video.movie' }
+        ];
+
+        metaTags.forEach(tag => {
+            const metaElement = document.createElement('meta');
+            metaElement.setAttribute('property', tag.property);
+            metaElement.setAttribute('content', tag.content);
+            document.head.appendChild(metaElement);
+        });
     };
 
     const displayMovieDetails = async (movie) => {
@@ -51,7 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
         movieDetailReleaseDate.setAttribute('datetime', movie.release_date);
         movieDetailRuntime.textContent = formatRuntime(movie.runtime);
         movieDetailRuntime.setAttribute('datetime', `PT${movie.runtime}M`);
-        movieDetailStoryline.textContent = movie.overview; // Assign the whole overview
+        // Update movie description with a limit of 500 characters
+        const truncatedOverview = movie.overview.length > 500 ? movie.overview.substring(0, 497) + '...' : movie.overview;
+        movieDetailStoryline.textContent = truncatedOverview;
+
 
         // Set the background image dynamically
         const isMobile = /iPhone|iPad|iPod|Android|BlackBerry|webOS|Windows Phone|IEMobile/i.test(navigator.userAgent);
@@ -105,7 +126,7 @@ try {
         // Assuming actor has a profile_path or image_url property
         const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
         return `
-            <div>
+            <div class="actors-stars">
                 <a href="./people-details.html?id=${actor.id}" target="_blank">
                     <img src="${imageUrl}" alt="${actor.name}">
                     <div class="actors-info">
@@ -246,16 +267,6 @@ try {
         }
     };
 
-    const checkYTSUrl = async (url) => {
-        const proxyUrl = 'https://crossorigin.me';
-        try {
-            const response = await fetch(proxyUrl + url, { method: 'HEAD' });
-            return response.status !== 404; // Returns true if the status is not 404, otherwise false
-        } catch (error) {
-            console.error('Error checking YTS URL:', error);
-            return false; // If there's an error, consider the URL invalid
-        }
-    };
     
 
     const redirectToYTS = () => {

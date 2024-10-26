@@ -374,15 +374,6 @@ body.active { overflow: hidden; }
   padding-bottom: 25px;
 }
 
-.actors.has-scrollbar {
-  display: flex;
-  justify-content: flex-start;
-  gap: 30px;
-  overflow-x: auto;
-  scroll-snap-type: inline mandatory;
-  padding-bottom: 25px;
-}
-
 .shows-list.has-scrollbar {
   display: flex;
   justify-content: flex-start;
@@ -1979,8 +1970,6 @@ iframe{
 }
 
 .actors {
-  display: flex;
-  justify-content: space-between;
   color: var(--gainsboro);
   font-size: var(--fs-9);
   font-weight: var(--fw-500);
@@ -1990,6 +1979,11 @@ iframe{
   text-align: center;
   margin: 10px 0;
 }
+
+.actors-stars{
+  display: inline-block;
+}
+
 
 .column {
   width: 48%; /* Adjust width as needed */
@@ -2014,9 +2008,6 @@ iframe{
   display: inline-block;
 }
 
-.actor-text {
-
-}
 
 .actor-name {
   font-weight: bold; /* Make actor name bold */
@@ -2661,7 +2652,6 @@ iframe{
 }
 
 .calendar-container {
-  max-width: 800px;
   margin: 20px;
   background-color: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -2684,7 +2674,6 @@ iframe{
   padding: 10px;
   text-align: center;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
-  height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -2712,4 +2701,8 @@ iframe{
   .calendar-grid {
       grid-template-columns: repeat(4, 1fr);
   }
+}
+
+.movie-poster{
+  height: 200px;
 }

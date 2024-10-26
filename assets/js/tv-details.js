@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-
     const getShowIdFromUrl = () => {
         const params = new URLSearchParams(window.location.search);
         return params.get('id');
@@ -11,10 +10,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(url);
             const data = await response.json();
             displayShowDetails(data);
+            generateMetaTags(data); // Generate meta tags based on show details
             displaySimilarShows(showId); // Fetch and display similar shows
         } catch (error) {
             console.error('Error fetching show details:', error);
         }
+    };
+
+    const generateMetaTags = (show) => {
+        const metaTags = [
+            { property: 'og:title', content: `${show.name} (${new Date(show.first_air_date).getFullYear()})` },
+            { property: 'og:description', content: show.overview.length > 300 ? `${show.overview.substring(0, 297)}...` : show.overview },
+            { property: 'og:image', content: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : 'assets/images/default-image.png' },
+            { property: 'og:url', content: window.location.href },
+            { property: 'og:type', content: 'video.tv_show' }
+        ];
+
+        metaTags.forEach(tag => {
+            const metaElement = document.createElement('meta');
+            metaElement.setAttribute('property', tag.property);
+            metaElement.setAttribute('content', tag.content);
+            document.head.appendChild(metaElement);
+        });
     };
 
     const displayShowDetails = async (show) => {

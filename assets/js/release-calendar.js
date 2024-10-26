@@ -151,7 +151,7 @@ function displayCalendar(movies, startDateStr, endDateStr) {
                 <div class="date-header">${date.getDate()}</div>
                 ${moviesForDate.length > 0 ? moviesForDate.map(movie => `
                     <div class="movie-item">
-                        <a href="https://www.themoviedb.org/movie/${movie.id}" target="_blank">
+                        <a href="movie-details.html?id=${movie.id}">
                             <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" class="movie-poster" />
                             <div class="movie-title">${movie.title}</div>
                         </a>

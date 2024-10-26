@@ -21,12 +21,6 @@
   <script src="./assets/js/movie-details.js"></script>
   <script src="./assets/js/search.js"></script>
   <script src="https://unpkg.com/xdomain@0.8.2/dist/xdomain.min.js"></script>
-  <script>
-// Configure xdomain to proxy requests through the GitHub-hosted page
-    xdomain.slaves({
-        'https://yts.mx': 'https://bcdvorinka.github.io/CORS-FilmFuse/proxy.html'
-    });
-  </script>
 
 </head>
 
@@ -204,9 +198,12 @@
       </section>
       <section>
         <p class="stars">Stars:</p>
-        <div class="actors has-scrollbar">
-          <!-- Actor cards will be dynamically populated here -->
+        <div class="actors-container">
+            <div class="actors">
+                <!-- Actor cards will be dynamically populated here -->
+            </div>
         </div>
+
         </div>
         <div class="streaming-icons">
           <!-- Icons will be dynamically added here -->
