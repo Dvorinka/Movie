@@ -269,30 +269,105 @@ try {
 
     
 
-    const redirectToYTS = () => {
-        // Get the movie title from the document title
-        const documentTitle = document.title;
-        let movieTitle = documentTitle.split('(')[0].trim(); // Extract movie title from document title and trim any trailing spaces
-    
-        // Remove :, ., and ' from the movie title
-        movieTitle = movieTitle.replace(/:/g, '').replace(/&/g, '').replace(/'/g, '').replace(/\//g, '');
-    
-        // Format the movie title for the YTS URL
-        let formattedMovieTitle = movieTitle.toLowerCase().replace(/ /g, '-'); // Replace spaces with dashes
-    
-        // Remove multiple consecutive dashes
-        formattedMovieTitle = formattedMovieTitle.replace(/-+/g, '-');
-    
-        // Get the release year from the document title
-        const releaseYearMatch = documentTitle.match(/\((\d{4})\)/);
-        const releaseYear = releaseYearMatch ? releaseYearMatch[1] : '';
-    
-        // Construct the YTS URL
-        const ytsUrl = `https://yts.mx/movies/${formattedMovieTitle}-${releaseYear}`;
-    
-        // Open the YTS URL in a new tab
-        window.open(ytsUrl, '_blank');
-    };
+    let torrentLink = ''; // This will hold the magnet link
+
+        const redirectToYTS = async () => {
+            try {
+                // Wait for 3 seconds (cooldown)
+                await new Promise(resolve => setTimeout(resolve, 500)); // 3000ms = 3 seconds
+
+                // Get the movie title and release year from the document title
+                const documentTitle = document.title;
+                let movieTitle = documentTitle.split('(')[0].trim(); // Extract movie title from document title and trim any trailing spaces
+
+                // Get the release year from the document title
+                const releaseYearMatch = documentTitle.match(/\((\d{4})\)/);
+                const releaseYear = releaseYearMatch ? releaseYearMatch[1] : '';
+
+                // Construct the YTS URL for the movie details, using title and year for more accurate results
+                const ytsUrl = `https://yts.mx/api/v2/list_movies.json?query_term=${movieTitle}&year=${releaseYear}`;
+
+                const response = await fetch(ytsUrl);
+                if (!response.ok) throw new Error("Error fetching movie list");
+
+                const data = await response.json();
+                if (!data.data || !data.data.movies || data.data.movies.length === 0) {
+                    throw new Error("Movie not found.");
+                }
+
+                // Find the best match based on both the title and year
+                const movie = data.data.movies.find(m => m.title === movieTitle && m.year === parseInt(releaseYear));
+
+                if (!movie) {
+                    throw new Error("Exact movie not found.");
+                }
+
+                const movieId = movie.id; // Extract the movie ID
+
+                // Fetch detailed movie info using movie_id
+                const movieDetailsUrl = `https://yts.mx/api/v2/movie_details.json?movie_id=${movieId}`;
+                const movieDetailsResponse = await fetch(movieDetailsUrl);
+                if (!movieDetailsResponse.ok) throw new Error("Error fetching movie details");
+
+                const movieDetailsData = await movieDetailsResponse.json();
+                const movieDetails = movieDetailsData.data.movie;
+
+                if (!movieDetails || !movieDetails.torrents) {
+                    throw new Error("No torrents available for this movie.");
+                }
+
+                // Try to find the 4K torrent first (2160p)
+                let torrent = movieDetails.torrents.find(torrent => torrent.quality === "2160p");
+
+                // If no 4K torrent is found, fall back to Full HD (1080p)
+                if (!torrent) {
+                    console.log("4K torrent not found, falling back to Full HD.");
+                    torrent = movieDetails.torrents.find(torrent => torrent.quality === "1080p");
+                }
+
+                if (!torrent) {
+                    throw new Error("No Full HD or 4K torrent available for this movie.");
+                }
+
+                // Construct the magnet URL for the chosen quality (either 4K or Full HD)
+                const trackers = [
+                    "udp://tracker.opentrackr.org:1337/announce",
+                    "udp://open.tracker.cl:1337/announce",
+                    "udp://p4p.arenabg.com:1337/announce",
+                    "udp://tracker.torrent.eu.org:451/announce",
+                    "udp://tracker.dler.org:6969/announce",
+                    "udp://open.stealth.si:80/announce",
+                    "udp://ipv4.tracker.harry.lu:80/announce",
+                    "https://opentracker.i2p.rocks:443/announce"
+                ];
+
+                const trackerParams = trackers.map(tracker => `&tr=${encodeURIComponent(tracker)}`).join("");
+
+                // Build the magnet link
+                const magnetLink = `magnet:?xt=urn:btih:${torrent.hash}&dn=${encodeURIComponent(movieDetails.title)}%20${releaseYear}%20[${torrent.quality}]%20[YTS.MX]${trackerParams}`;
+
+                // Set up the download button with the pre-fetched link
+                torrentLink = magnetLink;
+                const downloadBtn = document.querySelector('.download-btn');
+                downloadBtn.href = torrentLink;
+                downloadBtn.download = `${movieDetails.title}-${torrent.quality}.torrent`;
+
+                console.log("Torrent link fetched successfully:", torrentLink);
+
+            } catch (error) {
+                console.error("An error occurred:", error.message);
+
+                // Display the error message to the user
+                const downloadBtn = document.querySelector('.download-btn');
+                downloadBtn.href = '#';
+                downloadBtn.innerHTML = 'Not available';
+                downloadBtn.innerHTML += '<ion-icon name="alert-circle-outline" role="img" class="md hydrated" aria-label="download outline"></ion-icon>';    
+                downloadBtn.style.weight = "bolder";  // Optional: Highlight error in red
+            }
+        };
+        // Call the fetchTorrent function when the page loads
+        window.onload = redirectToYTS;
+
     
     
 
