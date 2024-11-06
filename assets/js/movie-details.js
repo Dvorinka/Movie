@@ -360,9 +360,12 @@ try {
                 // Display the error message to the user
                 const downloadBtn = document.querySelector('.download-btn');
                 downloadBtn.href = '#';
-                downloadBtn.innerHTML = 'Not available';
+                downloadBtn.innerHTML = 'Unavailable';
                 downloadBtn.innerHTML += '<ion-icon name="alert-circle-outline" role="img" class="md hydrated" aria-label="download outline"></ion-icon>';    
-                downloadBtn.style.weight = "bolder";  // Optional: Highlight error in red
+                const icon = downloadBtn.querySelector('ion-icon');
+                if (icon) {
+                    icon.style.fontSize = '18px';}
+                downloadBtn.style.cursor = 'not-allowed';
             }
         };
         // Call the fetchTorrent function when the page loads

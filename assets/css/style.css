@@ -1723,8 +1723,8 @@ body.active { overflow: hidden; }
 
 }
 
-/* Modal styles */
-#trailerModal {
+/* Modal container */
+#trailerModal, .modal {
   display: none;
   position: fixed;
   z-index: 1000;
@@ -1736,49 +1736,70 @@ body.active { overflow: hidden; }
   background-color: rgba(0, 0, 0, 0.8); /* Black background with opacity */
 }
 
-
-/* Style for the trailer modal */
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1000; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scrolling if needed */
-  background-color: rgba(0, 0, 0, 0.8); /* Black w/ opacity */
-}
-
-/* Style for modal content */
+/* Modal content */
 .modal-content {
   position: relative;
   margin: auto;
   display: block;
   width: 90%;
-  max-width: 960px; /* Set max width for the modal */
+  max-width: 960px; /* Max width for the modal */
+  max-height: 80%; /* Ensure modal doesn't overflow the screen */
+  padding: 20px;
+  height: 500px;
+  top: 160px;
 }
 
-/* Style for the close button */
+/* Close button */
 .close {
-  
   position: absolute;
   top: 10px;
   right: 10px;
   font-size: 2em;
+  color: white; /* Close button color */
   cursor: pointer;
 }
 
-/* Style for the iframe */
-/* Style for the iframe */
+/* Modal iframe */
 .modal-content iframe {
-  position: absolute;
-  top: 300px;
-  bottom: 500px;
-  left: 80px;
-  width: 810px; /* Set the width of the video */
-  height: 420px; /* Set the height of the video */
+  width: 100%; /* Make iframe width 100% of modal width */
+  height: 100%; /* Adjust iframe to take up full height */
+  border: none; /* Remove iframe border */
 }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  /* For smaller screens, scale down modal content */
+  .modal-content {
+    width: 95%;
+    max-width: none; /* Remove max-width restriction */
+    max-height: 70%; /* Allow more space for content */
+    top: 260px;
+  }
+
+  .modal-content iframe {
+    width: 100%; /* Ensure iframe fits inside the modal */
+    height: 250px; /* Set a smaller height for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  /* For very small screens, make further adjustments */
+  .modal-content {
+    width: 95%;
+    max-width: none;
+    max-height: 60%;
+  }
+
+  .modal-content iframe {
+    width: 100%;
+    height: 200px; /* Further reduce iframe height for small screens */
+  }
+
+  .close {
+    font-size: 1.5em; /* Make the close button smaller */
+  }
+}
+
 
 .movie-detail-banner{
   border: 2px solid rgba(0, 0, 0, 0.007);
