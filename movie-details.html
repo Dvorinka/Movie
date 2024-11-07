@@ -185,10 +185,22 @@
               <div id="audience-score"></div>
             </div>
 
-            <a href="#" class="download-btn" title="Use only if you know how to work with Torrents."> <!-- Download button -->
+            <!-- Download button -->
+            <a href="#" class="download-btn" title="Use only if you know how to work with Torrents.">
               <span>Download</span>
               <ion-icon name="download-outline"></ion-icon>
             </a>
+
+            <!-- Popup for selecting quality -->
+            <div id="quality-popup" class="popup" style="display: none;">
+              <div class="popup-content">
+                <h3>Select Quality</h3>
+                <button id="btn-4k">Download 4K</button>
+                <button id="btn-hd">Download Full HD</button>
+                <button id="btn-cancel">Cancel</button>
+              </div>
+            </div>
+
   
             <a href="#" class="stream-btn"> <!-- Stream button -->
               <span>Stream</span>
