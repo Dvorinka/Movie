@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const redirectToStream = () => {
-        const streamUrl = `https://rivestream.live//watch?type=tv&id=${showId}&season=1&episode=1`;
+        const streamUrl = `https://rivestream.live/watch?type=tv&id=${showId}&season=1&episode=1`;
     
         // Open the stream URL in a new tab
         window.open(streamUrl, '_blank');
