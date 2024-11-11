@@ -205,21 +205,26 @@ try {
 
             playButton.addEventListener('click', () => {
                 modal.style.display = 'block';
-                iframe.src = `https://www.youtube.com/embed/${movieDetailTrailer.key}?autoplay=1&rel=0&controls=1&showinfo=0&modestbranding=1&autohide=1&vq=hd1080`;
+                iframe.src = `https://www.youtube.com/embed/${movieDetailTrailer.key}?autoplay=1&rel=1&controls=1&showinfo=0&modestbranding=1&autohide=1&vq=hd1080`;
+                
+                // Add the allowfullscreen attribute to enable fullscreen
+                iframe.setAttribute('allowfullscreen', '');
+            
                 modalContent.appendChild(iframe);
-
+            
                 // Blur the background
                 document.body.classList.add('blur');
-
+            
                 // Disable scrolling
                 disableScroll();
-
+            
                 // Prevent scrolling on touch devices
                 document.body.addEventListener('touchmove', preventDefault, { passive: false });
-
+            
                 // Close the modal when clicking outside the video
                 modal.addEventListener('click', closeModal);
             });
+            
 
             const closeModal = (event) => {
                 if (event.target === modal || event.clientY <= 0 || event.clientY >= window.innerHeight) {
@@ -281,158 +286,246 @@ try {
     };
     
     // Main function to fetch torrent link
-    const torrentYTS = async () => {
-        try {
-            // Wait for a short cooldown
-            await new Promise(resolve => setTimeout(resolve, 500)); 
-            
-    
-            const imdbId = await fetchYtsImdbId(movieId);
-    
-            if (!imdbId) throw new Error("IMDb ID not available for this movie.");
-    
-            // Now, use the IMDb ID to query YTS
-            const ytsUrl = `https://yts.mx/api/v2/list_movies.json?query_term=${imdbId}`;
-            const response = await fetch(ytsUrl);
-            if (!response.ok) throw new Error("Error fetching movie list");
-    
-            const data = await response.json();
-            if (!data.data || !data.data.movies || data.data.movies.length === 0) {
-                throw new Error("Movie not found.");
-            }
-    
-            // Get the first movie found with the IMDb ID match
-            const movie = data.data.movies[0];
-    
-            if (!movie) throw new Error("Exact movie not found.");
-    
-            const movieIdYTS = movie.id; // Extract the YTS movie ID
-    
-            // Fetch detailed movie info using movie_id
-            const movieDetailsUrl = `https://yts.mx/api/v2/movie_details.json?movie_id=${movieIdYTS}`;
-            const movieDetailsResponse = await fetch(movieDetailsUrl);
-            if (!movieDetailsResponse.ok) throw new Error("Error fetching movie details");
-    
-            const movieDetailsData = await movieDetailsResponse.json();
-            const movieDetails = movieDetailsData.data.movie;
-    
-            if (!movieDetails || !movieDetails.torrents) {
-                throw new Error("No torrents available for this movie.");
-            }
-    
-            console.log('Movie Details:', movieDetails); // Debugging movie details fetch
-    
-            // Try to find the 4K torrent first (2160p)
-            let torrent4k = movieDetails.torrents.find(torrent => torrent.quality === "2160p");
-            console.log('4K Torrent:', torrent4k); // Debugging 4K torrent
-    
-            // Try to find the Full HD torrent (1080p)
-            let torrentHD = movieDetails.torrents.find(torrent => torrent.quality === "1080p");
-            console.log('HD Torrent:', torrentHD); // Debugging HD torrent
-    
-            // Store available qualities
-            availableQualities = [];
-            if (torrent4k) availableQualities.push("4k");
-            if (torrentHD) availableQualities.push("hd");
-    
-            // Disable the download link if no quality is available
-            const downloadBtn = document.querySelector('.download-btn');
-            if (availableQualities.length === 0) {
-                console.log('No available torrents. Disabling download button.'); // Debugging no available torrents
-                downloadBtn.href = '#';
-                downloadBtn.style.cursor = 'not-allowed';
-                downloadBtn.innerHTML = 'Unavailable <ion-icon name="alert-circle-outline"></ion-icon>';
-                return;
-            }
-    
-            // If only Full HD is available, set the magnet link and enable the button
-            if (availableQualities.length === 1 && torrentHD) {
-                console.log('Only Full HD available. Setting magnet link.'); // Debugging Full HD
-                torrentLink = `magnet:?xt=urn:btih:${torrentHD.hash}&dn=${encodeURIComponent(movieDetails.title)}%20${movieDetails.year}%20[1080p]%20[YTS.MX]${trackerUrls.map(url => `&tr=${encodeURIComponent(url)}`).join('')}`;
-                downloadBtn.href = torrentLink;
-                downloadBtn.download = `${movieDetails.title}-1080p.torrent`;
-                return;
-            }
-    
-            // If both are available, show the quality selection popup
-            downloadBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (availableQualities.length === 2) {
-                    console.log('Both qualities available. Showing quality popup.'); // Debugging both qualities available
-                    document.getElementById('quality-popup').style.display = 'flex';
-                }
-            });
-    
-            // Handle the quality selection
-            document.getElementById('btn-4k').addEventListener('click', () => {
-                console.log('User selected 4K.'); // Debugging 4K selection
-                selectedQuality = "4k";
-                torrentLink = `magnet:?xt=urn:btih:${torrent4k.hash}&dn=${encodeURIComponent(movieDetails.title)}%20${movieDetails.year}%20[2160p]%20[YTS.MX]${trackerUrls.map(url => `&tr=${encodeURIComponent(url)}`).join('')}`;
-                document.getElementById('quality-popup').style.display = 'none';
-                downloadBtn.href = torrentLink;
-                downloadBtn.download = `${movieDetails.title}-2160p.torrent`;
-    
-                // Trigger the download by creating an anchor tag click event
-                const tempLink = document.createElement('a');
-                tempLink.href = torrentLink;
-                tempLink.download = `${movieDetails.title}-2160p.torrent`;
-                tempLink.click(); // This triggers the download
-            });
-    
-            document.getElementById('btn-hd').addEventListener('click', () => {
-                console.log('User selected HD.'); // Debugging HD selection
-                selectedQuality = "hd";
-                torrentLink = `magnet:?xt=urn:btih:${torrentHD.hash}&dn=${encodeURIComponent(movieDetails.title)}%20${movieDetails.year}%20[1080p]%20[YTS.MX]${trackerUrls.map(url => `&tr=${encodeURIComponent(url)}`).join('')}`;
-                document.getElementById('quality-popup').style.display = 'none';
-                downloadBtn.href = torrentLink;
-                downloadBtn.download = `${movieDetails.title}-1080p.torrent`;
-    
-                // Trigger the download by creating an anchor tag click event
-                const tempLink = document.createElement('a');
-                tempLink.href = torrentLink;
-                tempLink.download = `${movieDetails.title}-1080p.torrent`;
-                tempLink.click(); // This triggers the download
-            });
+// Main function to fetch torrent link
+const torrentYTS = async () => {
+    try {
+        // Wait for a short cooldown
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-            
-    
-            // Close the popup when 'Cancel' is clicked
-            document.getElementById('btn-cancel').addEventListener('click', () => {
-                console.log('User clicked cancel on quality popup.'); // Debugging cancel click
-                document.getElementById('quality-popup').style.display = 'none';
-            });
+        const imdbId = await fetchYtsImdbId(movieId);
 
-            
-    
-        } catch (error) {
-            console.error("An error occurred:", error.message);
-    
-            // Display the error message to the user
-            const downloadBtn = document.querySelector('.download-btn');
-            downloadBtn.href = '#';
-            const icon = downloadBtn.querySelector('ion-icon');
-            if (icon) {
-                icon.style.fontSize = '18px';
-            }
-            downloadBtn.style.cursor = 'not-allowed';
+        if (!imdbId) throw new Error("IMDb ID not available for this movie.");
+
+        // Now, use the IMDb ID to query YTS
+        const ytsUrl = `https://yts.mx/api/v2/list_movies.json?query_term=${imdbId}`;
+        const response = await fetch(ytsUrl);
+        if (!response.ok) throw new Error("Error fetching movie list");
+
+        const data = await response.json();
+        if (!data.data || !data.data.movies || data.data.movies.length === 0) {
+            throw new Error("Movie not found.");
         }
-    };
+
+        // Get the first movie found with the IMDb ID match
+        const movie = data.data.movies[0];
+
+        if (!movie) throw new Error("Exact movie not found.");
+
+        const movieIdYTS = movie.id; // Extract the YTS movie ID
+
+        // Fetch detailed movie info using movie_id
+        const movieDetailsUrl = `https://yts.mx/api/v2/movie_details.json?movie_id=${movieIdYTS}`;
+        const movieDetailsResponse = await fetch(movieDetailsUrl);
+        if (!movieDetailsResponse.ok) throw new Error("Error fetching movie details");
+
+        const movieDetailsData = await movieDetailsResponse.json();
+        const movieDetails = movieDetailsData.data.movie;
+
+        if (!movieDetails || !movieDetails.torrents) {
+            throw new Error("No torrents available for this movie.");
+        }
+
+        console.log('Movie Details:', movieDetails); // Debugging movie details fetch
+
+        // Try to find the 4K torrent first (2160p)
+        let torrent4k = movieDetails.torrents.find(torrent => torrent.quality === "2160p");
+        console.log('4K Torrent:', torrent4k); // Debugging 4K torrent
+
+        // Try to find the Full HD torrent (1080p)
+        let torrentHD = movieDetails.torrents.find(torrent => torrent.quality === "1080p");
+        console.log('HD Torrent:', torrentHD); // Debugging HD torrent
+
+        // Store available qualities
+        availableQualities = [];
+        if (torrent4k) availableQualities.push("4k");
+        if (torrentHD) availableQualities.push("hd");
+
+        // Get the download button
+        const downloadBtn = document.querySelector('.download-btn');
+
+        // Disable the download link if no quality is available
+        if (availableQualities.length === 0) {
+            console.log('No available torrents. Disabling download button.'); // Debugging no available torrents
+            downloadBtn.href = '#';
+            downloadBtn.style.cursor = 'not-allowed';
+            downloadBtn.innerHTML = 'Unavailable <ion-icon name="alert-circle-outline"></ion-icon>';
+            return; // Exit the function early
+        }
+
+        // If only Full HD is available, set the magnet link and enable the button
+        if (availableQualities.length === 1 && torrentHD) {
+            console.log('Only Full HD available. Setting magnet link.'); // Debugging Full HD
+            torrentLink = `magnet:?xt=urn:btih:${torrentHD.hash}&dn=${encodeURIComponent(movieDetails.title)}%20${movieDetails.year}%20[1080p]%20[YTS.MX]${trackerUrls.map(url => `&tr=${encodeURIComponent(url)}`).join('')}`;
+            downloadBtn.href = torrentLink;
+            downloadBtn.download = `${movieDetails.title}-1080p.torrent`;
+            return;
+        }
+
+        // If both are available, show the quality selection popup
+        downloadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (availableQualities.length === 2) {
+                console.log('Both qualities available. Showing quality popup.'); // Debugging both qualities available
+                document.getElementById('quality-popup').style.display = 'flex';
+            }
+        });
+
+        // Handle the quality selection for torrent download
+        document.getElementById('btn-4k').addEventListener('click', () => {
+            console.log('User selected 4K for torrent.'); // Debugging 4K selection
+            selectedQuality = "4k";
+            torrentLink = `magnet:?xt=urn:btih:${torrent4k.hash}&dn=${encodeURIComponent(movieDetails.title)}%20${movieDetails.year}%20[2160p]%20[YTS.MX]${trackerUrls.map(url => `&tr=${encodeURIComponent(url)}`).join('')}`;
+            document.getElementById('quality-popup').style.display = 'none';
+            downloadBtn.href = torrentLink;
+            downloadBtn.download = `${movieDetails.title}-2160p.torrent`;
+
+            // Trigger the download by creating an anchor tag click event
+            const tempLink = document.createElement('a');
+            tempLink.href = torrentLink;
+            tempLink.download = `${movieDetails.title}-2160p.torrent`;
+            tempLink.click(); // This triggers the download
+        });
+
+        document.getElementById('btn-hd').addEventListener('click', () => {
+            console.log('User selected HD for torrent.'); // Debugging HD selection
+            selectedQuality = "hd";
+            torrentLink = `magnet:?xt=urn:btih:${torrentHD.hash}&dn=${encodeURIComponent(movieDetails.title)}%20${movieDetails.year}%20[1080p]%20[YTS.MX]${trackerUrls.map(url => `&tr=${encodeURIComponent(url)}`).join('')}`;
+            document.getElementById('quality-popup').style.display = 'none';
+            downloadBtn.href = torrentLink;
+            downloadBtn.download = `${movieDetails.title}-1080p.torrent`;
+
+            // Trigger the download by creating an anchor tag click event
+            const tempLink = document.createElement('a');
+            tempLink.href = torrentLink;
+            tempLink.download = `${movieDetails.title}-1080p.torrent`;
+            tempLink.click(); // This triggers the download
+        });
+
+        // Close the popup when 'Cancel' is clicked
+        document.getElementById('btn-cancel').addEventListener('click', () => {
+            document.getElementById('quality-popup').style.display = 'none';
+        });
+    } catch (error) {
+        console.error('Error in torrentYTS function:', error);
+
+        // Disable the download button if there is an error
+        const downloadBtn = document.querySelector('.download-btn');
+        downloadBtn.href = '#';
+        downloadBtn.style.cursor = 'not-allowed';
+        const icon = downloadBtn.querySelector('ion-icon');
+        if (icon) {
+            icon.style.fontSize = '16px !important';
+        }
+        downloadBtn.innerHTML = 'Unavailable <ion-icon name="alert-circle-outline"></ion-icon>';
+    }
+};
+
+
     
     // Call the function when the page loads
     window.onload = torrentYTS;
     
     
 
-    const redirectToStream = () => {
-        const streamUrl = `https://rivestream.live/watch?type=movie&id=${movieId}`;
-    
-        // Open the stream URL in a new tab
-        window.open(streamUrl, '_blank');
+    const streamButton = document.querySelector('.stream-btn'); 
+    const streamMagnet = document.getElementById('stream-magnet');
+
+    // Function to fetch the Full HD magnet link dynamically based on IMDb ID
+    const getFullHdMagnetLink = async (movieId) => {
+        try {
+            // Fetch IMDb ID from TMDB
+            const imdbId = await fetchYtsImdbId(movieId);
+            if (!imdbId) throw new Error("IMDb ID not available for this movie.");
+
+            // Use IMDb ID to query YTS for the Full HD torrent
+            const ytsUrl = `https://yts.mx/api/v2/list_movies.json?query_term=${imdbId}`;
+            const response = await fetch(ytsUrl);
+            const data = await response.json();
+
+            if (!data.data || !data.data.movies || data.data.movies.length === 0) {
+                throw new Error("Movie not found.");
+            }
+
+            // Get the first movie's Full HD torrent link
+            const movie = data.data.movies[0];
+            const torrentHD = movie.torrents.find(torrent => torrent.quality === "1080p");
+            
+            if (!torrentHD) throw new Error("Full HD torrent not available for this movie.");
+            
+            // Construct magnet link with trackers
+            const magnetLink = `magnet:?xt=urn:btih:${torrentHD.hash}&dn=${encodeURIComponent(movie.title)}%20${movie.year}%20[1080p]%20[YTS.MX]`;
+            return magnetLink;
+        } catch (error) {
+            console.error("Error fetching Full HD magnet link:", error);
+            
+            return null;
+        }
     };
-    
-    
-    const streamButton = document.querySelector('.stream-btn');
-    streamButton.addEventListener('click', redirectToStream);
+
+    // Function to open the modal and dynamically set video source
+    const openStreamModal = async () => {
+        // Show the modal
+        streamMagnet.style.display = 'block';
+        document.body.classList.add('blur');
+        disableScroll();
+        document.body.addEventListener('touchmove', preventDefault, { passive: false });
+
+        // Clear any existing content in streamMagnet
+        streamMagnet.innerHTML = '';
+
+        // Get the movieId from the URL
+        const movieId = getMovieIdFromUrl();
+
+        // Fetch the Full HD magnet link
+        const magnetLink = await getFullHdMagnetLink(movieId);
+        if (!magnetLink) {
+            alert("Full HD stream is unavailable for this movie.");
+            closeStreamModal();
+            return;
+        }
+
+        // Create video element with the magnet link as the source
+        const video = document.createElement('video');
+        video.controls = true;
+        video.src = magnetLink;
+
+        // Append video element to the modal
+        streamMagnet.appendChild(video);
+
+        // Load the Webtor player script and initialize it
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/@webtor/player-sdk-js/dist/index.min.js";
+        script.charset = "utf-8";
+        script.async = true;
+        script.onload = () => {
+            window.webtorPlayer = new Webtor.Player({
+                el: video,  // Bind the Webtor player to the video element
+                url: video.src // Provide the source URL for the player
+            });
+        };
+        document.body.appendChild(script); // Append the script to the body
+    };
+
+    // Function to close the modal and remove video content
+    const closeStreamModal = (event) => {
+        if (event.target === streamMagnet) {
+            streamMagnet.style.display = 'none';
+            document.body.classList.remove('blur');
+            enableScroll();
+            document.body.removeEventListener('touchmove', preventDefault);
+            streamMagnet.innerHTML = ''; // Remove video content to stop playback
+        }
+    };
+
+    // Disable and enable scrolling functions
+    const disableScroll = () => document.body.style.overflow = 'hidden';
+    const enableScroll = () => document.body.style.overflow = 'auto';
+    const preventDefault = (e) => e.preventDefault;
+
+    // Event listeners
+    streamButton.addEventListener('click', openStreamModal);
+    streamMagnet.addEventListener('click', closeStreamModal);
+
     
 
 

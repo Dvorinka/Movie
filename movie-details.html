@@ -21,7 +21,7 @@
   <script src="./assets/js/movie-details.js"></script>
   <script src="./assets/js/search.js"></script>
   <script src="https://unpkg.com/xdomain@0.8.2/dist/xdomain.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
 </head>
 
 <body id="top">
@@ -195,6 +195,7 @@
             <div id="quality-popup" class="popup" style="display: none;">
               <div class="popup-content">
                 <h3>Select Quality</h3>
+                <h4>Download Torrent</h4>
                 <button id="btn-4k">Download 4K</button>
                 <button id="btn-hd">Download Full HD</button>
                 <button id="btn-cancel">Cancel</button>
@@ -206,6 +207,12 @@
               <span>Stream</span>
               <ion-icon name="play-circle-outline"></ion-icon>
             </a>
+            
+            <div class="stream-magnet" id="stream-magnet">
+              <video controls src="" width="100%">
+            </video>
+            </div>
+            
         </div>
       </section>
       <section>

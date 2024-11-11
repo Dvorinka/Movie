@@ -186,24 +186,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const modal = document.querySelector('.modal');
             const modalContent = document.querySelector('.modal-content');
             const iframe = document.createElement('iframe');
-
+        
             playButton.addEventListener('click', () => {
                 modal.style.display = 'block';
                 iframe.src = `https://www.youtube.com/embed/${showDetailTrailer.key}?autoplay=1&rel=0&controls=1&showinfo=0&modestbranding=1&autohide=1&vq=hd1080`;
+        
+                // Add the allowfullscreen attribute to enable fullscreen
+                iframe.setAttribute('allowfullscreen', '');
+        
                 modalContent.appendChild(iframe);
-
+        
                 // Blur the background
                 document.body.classList.add('blur');
-
+        
                 // Disable scrolling
                 disableScroll();
-
+        
                 // Prevent scrolling on touch devices
                 document.body.addEventListener('touchmove', preventDefault, { passive: false });
-
+        
                 // Close the modal when clicking outside the video
                 modal.addEventListener('click', closeModal);
             });
+        
 
             const closeModal = (event) => {
                 if (event.target === modal || event.clientY <= 0 || event.clientY >= window.innerHeight) {

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebTorrent Streaming</title>
+</head>
+<body>
+<script>
+  // Function to convert a magnet link to a Webtor direct download link
+function convertMagnetToWebtor(magnetLink) {
+    // Regular expression to extract the btih (hash) from the magnet link
+    const regex = /xt=urn:btih:([a-fA-F0-9]+)/;
+    const match = magnetLink.match(regex);
+
+    if (match && match[1]) {
+        // Construct the Webtor URL using the extracted hash
+        const webtorUrl = `https://webtor.io/${match[1].toLowerCase()}`;
+        return webtorUrl;
+    } else {
+        console.error("Invalid magnet link or btih not found.");
+        return null;
+    }
+}
+
+// Example usage with a magnet link
+const magnetLink = "magnet:?xt=urn:btih:D1BF19F9BF68CEA50953E492F8ADE023887454DB&dn=The%20Conjuring%202013%20[2160p]%20[YTS.MX]&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.tracker.cl%3A1337%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Fipv4.tracker.harry.lu%3A80%2Fannounce&tr=https%3A%2F%2Fopentracker.i2p.rocks%3A443%2Fannounce";
+
+const webtorUrl = convertMagnetToWebtor(magnetLink);
+if (webtorUrl) {
+    console.log("Direct Webtor URL:", webtorUrl);
+    // Optionally, you can trigger a download link or open it in a new window
+    window.open(webtorUrl, '_blank');
+}
+
+</script>
+</body>
+</html>
