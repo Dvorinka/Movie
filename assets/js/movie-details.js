@@ -436,31 +436,37 @@ const torrentYTS = async () => {
             // Fetch IMDb ID from TMDB
             const imdbId = await fetchYtsImdbId(movieId);
             if (!imdbId) throw new Error("IMDb ID not available for this movie.");
-
+    
             // Use IMDb ID to query YTS for the Full HD torrent
             const ytsUrl = `https://yts.mx/api/v2/list_movies.json?query_term=${imdbId}`;
             const response = await fetch(ytsUrl);
             const data = await response.json();
-
+    
             if (!data.data || !data.data.movies || data.data.movies.length === 0) {
                 throw new Error("Movie not found.");
             }
-
-            // Get the first movie's Full HD torrent link
+    
+            // Get the first movie entry
             const movie = data.data.movies[0];
-            const torrentHD = movie.torrents.find(torrent => torrent.quality === "1080p");
-            
-            if (!torrentHD) throw new Error("Full HD torrent not available for this movie.");
-            
+    
+            // Find Full HD web quality torrent first, then fall back to Blu-ray if necessary
+            let torrentHD = movie.torrents.find(torrent => torrent.quality === "1080p" && torrent.type === "web");
+            if (!torrentHD) {
+                // Fall back to Blu-ray if no web quality found
+                torrentHD = movie.torrents.find(torrent => torrent.quality === "1080p" && torrent.type === "bluray");
+            }
+    
+            if (!torrentHD) throw new Error("Full HD torrent not available for this movie in web or Blu-ray quality.");
+    
             // Construct magnet link with trackers
             const magnetLink = `magnet:?xt=urn:btih:${torrentHD.hash}&dn=${encodeURIComponent(movie.title)}%20${movie.year}%20[1080p]%20[YTS.MX]`;
             return magnetLink;
         } catch (error) {
             console.error("Error fetching Full HD magnet link:", error);
-            
             return null;
         }
     };
+    
 
     // Function to open the modal and dynamically set video source
     const openStreamModal = async () => {
