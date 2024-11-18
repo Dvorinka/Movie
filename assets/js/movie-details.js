@@ -197,62 +197,49 @@ try {
         });
 
         // Add play button functionality for trailer
-        if (movieDetailTrailer) {
-            const playButton = document.querySelector('.play-btn');
-            const modal = document.querySelector('.modal');
-            const modalContent = document.querySelector('.modal-content');
-            const iframe = document.createElement('iframe');
+const playButton = document.querySelector('.play-btn');
+if (movieDetailTrailer) {
+    const modal = document.querySelector('.modal');
+    const modalContent = document.querySelector('.modal-content');
+    const iframe = document.createElement('iframe');
 
-            playButton.addEventListener('click', () => {
-                modal.style.display = 'block';
-                iframe.src = `https://www.youtube.com/embed/${movieDetailTrailer.key}?autoplay=1&rel=1&controls=1&showinfo=0&modestbranding=1&autohide=1&vq=hd1080`;
-                
-                // Add the allowfullscreen attribute to enable fullscreen
-                iframe.setAttribute('allowfullscreen', '');
-            
-                modalContent.appendChild(iframe);
-            
-                // Blur the background
-                document.body.classList.add('blur');
-            
-                // Disable scrolling
-                disableScroll();
-            
-                // Prevent scrolling on touch devices
-                document.body.addEventListener('touchmove', preventDefault, { passive: false });
-            
-                // Close the modal when clicking outside the video
-                modal.addEventListener('click', closeModal);
-            });
-            
+    playButton.addEventListener('click', () => {
+        modal.style.display = 'block';
+        iframe.src = `https://www.youtube.com/embed/${movieDetailTrailer.key}?autoplay=1&rel=1&controls=1&showinfo=0&modestbranding=1&autohide=1&vq=hd1080`;
 
-            const closeModal = (event) => {
-                if (event.target === modal || event.clientY <= 0 || event.clientY >= window.innerHeight) {
-                    modal.style.display = 'none';
-                    iframe.remove();
-                    // Remove blur from the background
-                    document.body.classList.remove('blur');
-                    // Enable scrolling
-                    enableScroll();
-                    // Re-enable scrolling on touch devices
-                    document.body.removeEventListener('touchmove', preventDefault);
-                    // Remove event listener to close modal
-                    modal.removeEventListener('click', closeModal);
-                }
-            };
+        iframe.setAttribute('allowfullscreen', '');
+        modalContent.appendChild(iframe);
 
-            const disableScroll = () => {
-                document.body.style.overflow = 'hidden';
-            };
+        document.body.classList.add('blur');
+        disableScroll();
 
-            const enableScroll = () => {
-                document.body.style.overflow = '';
-            };
+        modal.addEventListener('click', closeModal);
+    });
 
-            const preventDefault = (event) => {
-                event.preventDefault();
-            };
+    const closeModal = (event) => {
+        if (event.target === modal || event.clientY <= 0 || event.clientY >= window.innerHeight) {
+            modal.style.display = 'none';
+            iframe.remove();
+            document.body.classList.remove('blur');
+            enableScroll();
+            modal.removeEventListener('click', closeModal);
         }
+    };
+
+    const disableScroll = () => {
+        document.body.style.overflow = 'hidden';
+    };
+
+    const enableScroll = () => {
+        document.body.style.overflow = '';
+    };
+} else {
+    // Disable the button if no trailer is available
+    playButton.setAttribute('disabled', 'true');
+    playButton.style.cursor = 'default';
+    playButton.innerHTML = '';
+}
+
     };
 
     
@@ -412,6 +399,7 @@ const torrentYTS = async () => {
         const downloadBtn = document.querySelector('.download-btn');
         downloadBtn.href = '#';
         downloadBtn.style.cursor = 'not-allowed';
+        downloadBtn.style.pointerEvents = 'none';
         const icon = downloadBtn.querySelector('ion-icon');
         if (icon) {
             icon.style.fontSize = '16px !important';
@@ -466,6 +454,33 @@ const torrentYTS = async () => {
             return null;
         }
     };
+
+    const updateStreamButton = async () => {
+        const movieId = getMovieIdFromUrl();
+        const streamButton = document.querySelector('.stream-btn');
+    
+        // Fetch the Full HD magnet link
+        const magnetLink = await getFullHdMagnetLink(movieId);
+    
+        if (!magnetLink) {
+            // Disable the Stream button and show alert
+            streamButton.href = '#';
+            streamButton.style.cursor = 'not-allowed';
+            streamButton.style.pointerEvents = 'none';
+            const streamIcon = streamButton.querySelector('ion-icon');
+            if (streamIcon) {
+                streamIcon.style.fontSize = '16px !important';
+            }
+            streamButton.innerHTML = 'Unavailable <ion-icon name="alert-circle-outline"></ion-icon>';
+        } else {
+            // Enable the Stream button with normal behavior
+            streamButton.addEventListener('click', openStreamModal);
+        }
+    };
+    
+    // Call the function after fetching movie details
+    updateStreamButton();
+    
     
 
     // Function to open the modal and dynamically set video source
@@ -485,7 +500,6 @@ const torrentYTS = async () => {
         // Fetch the Full HD magnet link
         const magnetLink = await getFullHdMagnetLink(movieId);
         if (!magnetLink) {
-            alert("Full HD stream is unavailable for this movie.");
             closeStreamModal();
             return;
         }
