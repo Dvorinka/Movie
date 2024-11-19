@@ -415,7 +415,57 @@ const torrentYTS = async () => {
     
     
 
-    const streamButton = document.querySelector('.stream-btn'); 
+// Function to show an AdBlock recommendation popup
+const showAdBlockPopup = () => {
+    // Create the modal container
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    modal.style.display = 'flex';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+    modal.style.zIndex = '1000';
+
+    // Create the modal content
+    const content = document.createElement('div');
+    content.style.backgroundColor = '#fff';
+    content.style.padding = '20px';
+    content.style.borderRadius = '10px';
+    content.style.textAlign = 'center';
+    content.style.width = '80%';
+    content.style.maxWidth = '400px';
+
+    // Add the text to the modal
+    content.innerHTML = `
+    <div class="adblock">
+        <h2>Recommendation</h2>
+        <p>We recommend using an <a href="https://ublockorigin.com/" target="_blank">UBlock origin</a> for a better experience while streaming.</p>
+        <button id="closeAdBlockPopup">Okay</button>
+    </div>
+    `;
+
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+
+    // Add event listener to close the modal
+    document.getElementById('closeAdBlockPopup').addEventListener('click', () => {
+        modal.remove();
+    });
+};
+
+// Add popup trigger to Stream button
+const streamButton = document.querySelector('.stream-btn');
+if (streamButton) {
+    streamButton.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent default streaming action
+        showAdBlockPopup();
+    });
+}
+
     const streamMagnet = document.getElementById('stream-magnet');
 
     // Function to fetch the Full HD magnet link dynamically based on IMDb ID
@@ -480,6 +530,8 @@ const torrentYTS = async () => {
     
     // Call the function after fetching movie details
     updateStreamButton();
+
+    
     
     
 
