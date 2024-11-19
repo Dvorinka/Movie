@@ -417,6 +417,11 @@ const torrentYTS = async () => {
 
 // Function to show an AdBlock recommendation popup
 const showAdBlockPopup = () => {
+    // Check if the popup has already been shown during this session
+    if (sessionStorage.getItem('adBlockPopupShown')) {
+        return; // Exit if the popup was already shown
+    }
+
     // Create the modal container
     const modal = document.createElement('div');
     modal.style.position = 'fixed';
@@ -454,8 +459,11 @@ const showAdBlockPopup = () => {
     // Add event listener to close the modal
     document.getElementById('closeAdBlockPopup').addEventListener('click', () => {
         modal.remove();
+        // Mark the popup as shown for this session
+        sessionStorage.setItem('adBlockPopupShown', 'true');
     });
 };
+
 
 // Add popup trigger to Stream button
 const streamButton = document.querySelector('.stream-btn');
