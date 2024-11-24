@@ -6,3 +6,5 @@ const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
 const imageBannerUrl = 'https://image.tmdb.org/t/p/w780';
 const baseApiUrl = 'https://api.themoviedb.org/3';
 const ytsBaseUrl = 'https://yts.mx/api/v2';
+const accountID = '6578737f20ecaf00c699cdc4';
+const accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwNTQ1ODJlOWVlNjZhZGNiZTkxMWUwMDA4YWE0ODJhOCIsIm5iZiI6MTczMjM1MzY2NC44NTUyODQsInN1YiI6IjY1Nzg3MzdmMjBlY2FmMDBjNjk5Y2RjNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.a5QAwVIb-gaZmD8jOwFsnzVr8wiSzLv0oXfE5ZLMnHE';
