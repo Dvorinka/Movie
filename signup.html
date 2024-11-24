@@ -3,19 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sparkscreen</title>
-  <script src="assets/js/server.js"></script>
+  <title>GitHub Login with Supabase</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/app.js" defer></script>
 </head>
 <body>
-    <h1>Sparkscreen Login/Register</h1>
-<!-- Registration Form -->
-    <h2>Register</h2>
-    <form id="register-form">
-        <input type="email" id="register-email" placeholder="Email" required>
-        <input type="password" id="register-password" placeholder="Password" required>
-        <button type="submit">Register</button>
-      </form>
-      
+  <button id="githubLoginBtn">Login with GitHub</button>
+  <script>
+    // This is to ensure that the script works once the document is fully loaded
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log("Document loaded. Ready for GitHub login.");
+    });
+  </script>
 </body>
 </html>
