@@ -3,17 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GitHub Login with Supabase</title>
+  <title>Login with Supabase</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/app.js" defer></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <style>
+    /* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap');
+
+/* Font Variables */
+:root {
+  --ff-poppins: 'Poppins', sans-serif;
+  --ff-montserrat: 'Montserrat', sans-serif;
+}
+
+/* General Styles */
+body {
+  font-family: var(--ff-poppins);
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+/* Container Styles */
+.container {
+  text-align: center;
+}
+
+/* Header Styles */
+header h1 {
+  font-family: var(--ff-montserrat);
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  font-family: var(--ff-poppins);
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* Button Container */
+.login-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* General Button Styles */
+.login-btn {
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Button Hover Effect */
+.login-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* GitHub Button */
+.github-btn {
+  background-color: #333;
+  color: #fff;
+}
+
+.github-btn:hover {
+  background-color: #444;
+}
+
+/* Discord Button */
+.discord-btn {
+  background-color: #7289da;
+  color: #fff;
+}
+
+.discord-btn:hover {
+  background-color: #5b6db8;
+}
+
+/* Twitch Button */
+.twitch-btn {
+  background-color: #6441a5;
+  color: #fff;
+}
+
+.twitch-btn:hover {
+  background-color: #4b317e;
+}
+  </style>
 </head>
 <body>
-  <button id="githubLoginBtn">Login with GitHub</button>
-  <script>
-    // This is to ensure that the script works once the document is fully loaded
-    document.addEventListener("DOMContentLoaded", function() {
-      console.log("Document loaded. Ready for GitHub login.");
-    });
-  </script>
+  <div class="container">
+    <header>
+      <h1>Welcome to Our Platform</h1>
+      <p>Log in using one of the following options to get started:</p>
+    </header>
+    <div class="login-buttons">
+      <button id="githubLoginBtn" class="login-btn github-btn">
+        <ion-icon name="logo-github"></ion-icon>
+      </button>
+      <button id="discordLoginBtn" class="login-btn discord-btn">
+        <ion-icon name="logo-discord"></ion-icon>
+      </button>
+      <button id="twitchLoginBtn" class="login-btn twitch-btn">
+        <ion-icon name="logo-twitch"></ion-icon>
+      </button>
+    </div>
+  </div>
 </body>
 </html>
+

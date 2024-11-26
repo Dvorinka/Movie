@@ -22,6 +22,7 @@
   <script src="./assets/js/search.js"></script>
   <script src="https://unpkg.com/xdomain@0.8.2/dist/xdomain.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body id="top">
@@ -184,6 +185,11 @@
               <div id="tomatometer"></div>
               <div id="audience-score"></div>
             </div>
+
+            <div class="add-to-list-container" style="display: none;">
+              <button id="addToListBtn" class="add-to-list-btn">Add to List</button>
+            </div>
+            
 
             <!-- Download button -->
             <a href="#" class="download-btn" title="Use only if you know how to work with Torrents.">

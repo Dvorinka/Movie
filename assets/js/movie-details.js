@@ -1,6 +1,12 @@
 // movie-details.js
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Initialize Supabase client
+    const supabase = window.supabase.createClient(
+        'https://cbnwekzbcxbmeevdjgoq.supabase.co', // Replace with your Supabase URL
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU' // Replace with your Supabase public API key
+    );
+  
     const getMovieIdFromUrl = () => {
         const params = new URLSearchParams(window.location.search);
         return params.get('id');
@@ -36,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update the document title
         document.title = `${movie.title} (${movieDetailYear})`;
 
+
         // Update movie banner
         movieDetailBanner.src = movieDetailPosterPath;
         movieDetailBanner.alt = `${movie.title} Poster`;
@@ -55,6 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update movie description with a limit of 500 characters
         const truncatedOverview = movie.overview.length > 500 ? movie.overview.substring(0, 497) + '...' : movie.overview;
         movieDetailStoryline.textContent = truncatedOverview;
+
+        
 
 
         // Set the background image dynamically
@@ -239,6 +248,10 @@ if (movieDetailTrailer) {
     playButton.style.cursor = 'default';
     playButton.innerHTML = '';
 }
+
+
+        const event = new CustomEvent('movieDetailsFetched', { detail: movie });
+        document.dispatchEvent(event);
 
     };
 
@@ -791,6 +804,81 @@ if (streamButton) {
         }
     };
 
+    // Add-to-List Feature Integration
+    const addToListFeature = async (movie) => {
+        if (!supabase || !supabase.auth) {
+          console.error('Supabase client is not initialized.');
+          return;
+        }
+      
+        try {
+          const { data: { session }, error } = await supabase.auth.getSession();
+          if (error) {
+            console.error('Error getting session:', error);
+            return;
+          }
+      
+          const addToListContainer = document.createElement('div');
+          addToListContainer.classList.add('add-to-list-container');
+          addToListContainer.style.display = session ? 'block' : 'none';
+      
+          const addToListBtn = document.createElement('button');
+          addToListBtn.id = 'addToListBtn';
+          addToListBtn.classList.add('add-to-list-btn');
+          addToListBtn.textContent = 'Add to List';
+      
+          addToListContainer.appendChild(addToListBtn);
+      
+          // Append the container to the page
+          const detailContent = document.querySelector('.movie-detail-content');
+          if (detailContent) {
+            detailContent.appendChild(addToListContainer);
+          }
+      
+          if (session) {
+            addToListBtn.addEventListener('click', async () => {
+              const movieId = movie.id;
+              const movieTitle = movie.title;
+      
+              const { data, error } = await supabase
+              .from('user_lists')
+              .insert({
+                user_id: session.user.id,
+                list_items: [{ id: movieId, title: movieTitle }], // JSON array directly
+                list_name: "My Movie List", 
+                privacy: "public", 
+                share_link: generateShareLink()
+              });
+      
+              if (error) {
+                console.error('Error adding to list:', error);
+                alert('Failed to add to list.');
+              } else {
+                alert(`${movieTitle} added to your list!`);
+              }
+            });
+          }
+        } catch (err) {
+          console.error('Error in addToListFeature:', err);
+        }
+      };
+      
+        
+        // Generate a unique shareable link
+        const generateShareLink = () => {
+            return `${Math.random().toString(36).substr(2, 9)}`;
+        };
+        
+        // Call this function when movie details are fetched
+        document.addEventListener('movieDetailsFetched', (event) => {
+            const movie = event.detail;
+            if (movie) {
+            addToListFeature(movie);
+            }
+        });
+        
+
+    
     
     const formatRuntime = (minutes) => {
         if (!minutes) return 'N/A'; // Return N/A if no runtime available
@@ -804,4 +892,6 @@ if (streamButton) {
         fetchMovieDetails(movieId);
         fetchAndDisplayMovieDetails(movieId);
     }   
+
+
 });
