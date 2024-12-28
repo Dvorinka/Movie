@@ -269,10 +269,10 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         } else if (selectedMediaType === 'tv') {
             mediaFilterSelect.innerHTML = `
+                <option value="top-rated">Top Rated TV Shows</option>
                 <option value="popular">Popular TV Shows</option>
                 <option value="airing-today">Airing Today</option>
                 <option value="on-tv">On TV</option>
-                <option value="top-rated">Top Rated TV Shows</option>
             `;
         }
     };
@@ -286,13 +286,14 @@ const loadMoreMovies = async () => {
     const releaseYearFrom = releaseYearFromInput ? releaseYearFromInput.value : '';
     const releaseYearTo = releaseYearToInput ? releaseYearToInput.value : '';
     let url;
+    const selectedMediaType = mediaTypeSelect.value;
 
-    if (selectedFilter === 'redaction-picks') {
+    if (selectedFilter === 'redaction-picks' && selectedMediaType === 'movie') {
         url = `${ytsApiUrl}?limit=20&page=${currentPage}&sort_by=like_count&order_by=desc&language=english`;
         if (selectedGenre) {
             url += `&genre=${genreMap[selectedGenre]}`;
         }
-    } else {
+    } else if (selectedMediaType === 'movie') {
         url = `${baseApiUrl}/discover/movie?api_key=${apiKey}&language=en-US&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${selectedGenre}&region=US&with_original_language=en&vote_count.gte=300&page=${currentPage}`;
         if (releaseYearFrom) {
             url += `&primary_release_date.gte=${releaseYearFrom}`;
@@ -300,12 +301,20 @@ const loadMoreMovies = async () => {
         if (releaseYearTo) {
             url += `&primary_release_date.lte=${releaseYearTo}`;
         }
+    } else if (selectedMediaType === 'tv') {
+        url = `${baseApiUrl}/discover/tv?api_key=${apiKey}&language=en-US&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${selectedGenre}&with_watch_providers=8|9|337|10|15|384&watch_region=US&with_original_language=en&with_origin_country=US&vote_count.gte=300&page=${currentPage}`;
+        if (releaseYearFrom) {
+            url += `&first_air_date.gte=${releaseYearFrom}`;
+        }
+        if (releaseYearTo) {
+            url += `&first_air_date.lte=${releaseYearTo}`;
+        }
     }
 
     try {
         const response = await fetch(url);
         const data = await response.json();
-        if (selectedFilter === 'redaction-picks') {
+        if (selectedFilter === 'redaction-picks' && selectedMediaType === 'movie') {
             const movies = data.data.movies;
             const enrichedMovies = await Promise.all(movies.map(async (movie) => {
                 const tmdbData = await fetchTmdbData(movie.title, movie.year);
@@ -319,10 +328,10 @@ const loadMoreMovies = async () => {
             }));
             displayMoreMedia(enrichedMovies, 'movie');
         } else {
-            displayMoreMedia(data.results, 'movie');
+            displayMoreMedia(data.results, selectedMediaType);
         }
     } catch (error) {
-        console.error('Error fetching more movies:', error);
+        console.error(`Error fetching more ${selectedMediaType === 'movie' ? 'movies' : 'TV shows'}:`, error);
     }
 };
 
@@ -366,7 +375,7 @@ loadMoreButton.addEventListener('click', loadMoreMovies);
         if (selectedMediaType === 'movie') {
             fetchRedactionPicks();
         } else if (selectedMediaType === 'tv') {
-            fetchPopularTvShows();
+            fetchTopRatedTvShows();
         }
     });
 

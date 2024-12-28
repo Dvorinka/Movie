@@ -810,65 +810,138 @@ if (streamButton) {
         }
     };
 
-    // Add-to-List Feature Integration
     const addToListFeature = async (movie) => {
         if (!supabase || !supabase.auth) {
-          console.error('Supabase client is not initialized.');
-          return;
-        }
-      
-        try {
-          const { data: { session }, error } = await supabase.auth.getSession();
-          if (error) {
-            console.error('Error getting session:', error);
+            console.error('Supabase client is not initialized.');
             return;
-          }
-      
-          const addToListContainer = document.createElement('div');
-          addToListContainer.classList.add('add-to-list-container');
-          addToListContainer.style.display = session ? 'block' : 'none';
-      
-          const addToListBtn = document.createElement('button');
-          addToListBtn.id = 'addToListBtn';
-          addToListBtn.classList.add('add-to-list-btn');
-          addToListBtn.textContent = 'Add to List';
-      
-          addToListContainer.appendChild(addToListBtn);
-      
-          // Append the container to the page
-          const detailContent = document.querySelector('.movie-detail-content');
-          if (detailContent) {
-            detailContent.appendChild(addToListContainer);
-          }
-      
-          if (session) {
-            addToListBtn.addEventListener('click', async () => {
-              const movieId = movie.id;
-              const movieTitle = movie.title;
-      
-              const { data, error } = await supabase
-              .from('user_lists')
-              .insert({
-                user_id: session.user.id,
-                list_items: [{ id: movieId, title: movieTitle }], // JSON array directly
-                list_name: "My Movie List", 
-                privacy: "public", 
-                share_link: generateShareLink()
-              });
-      
-              if (error) {
-                console.error('Error adding to list:', error);
-                alert('Failed to add to list.');
-              } else {
-                alert(`${movieTitle} added to your list!`);
-              }
-            });
-          }
-        } catch (err) {
-          console.error('Error in addToListFeature:', err);
         }
-      };
-      
+    
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error) {
+                console.error('Error getting session:', error);
+                return;
+            }
+    
+            const addToListContainer = document.createElement('div');
+            addToListContainer.classList.add('add-to-list-container');
+            addToListContainer.style.display = session ? 'block' : 'none';
+    
+            const addToListBtn = document.createElement('button');
+            addToListBtn.id = 'addToListBtn';
+            addToListBtn.classList.add('add-to-list-btn');
+            addToListBtn.textContent = 'Add to List';
+    
+            addToListContainer.appendChild(addToListBtn);
+    
+            // Append the container to the page
+            const detailContent = document.querySelector('.movie-detail-content');
+            if (detailContent) {
+                detailContent.appendChild(addToListContainer);
+            }
+    
+            if (session) {
+                addToListBtn.addEventListener('click', async () => {
+                    const { data: lists, error } = await supabase
+                        .from('user_lists')
+                        .select('id, list_name, list_items')
+                        .eq('user_id', session.user.id);
+    
+                    if (error) {
+                        console.error('Error fetching lists:', error);
+                        return;
+                    }
+    
+                    const listOptions = lists.map(list => `<option value="${list.id}">${list.list_name}</option>`).join('');
+                    const listFormHtml = `
+                        <div class="list-form">
+                            <label for="listName">New List Name:</label>
+                            <input type="text" id="listName" placeholder="Enter list name">
+                            <label for="existingLists">Or select an existing list:</label>
+                            <select id="existingLists">
+                                <option value="">Select a list</option>
+                                ${listOptions}
+                            </select>
+                            <button id="saveListBtn">Save</button>
+                        </div>
+                    `;
+    
+                    addToListContainer.innerHTML = listFormHtml;
+    
+                    document.getElementById('saveListBtn').addEventListener('click', async () => {
+                        const newListName = document.getElementById('listName').value;
+                        const existingListId = document.getElementById('existingLists').value;
+                        const movieId = movie.id;
+                        const movieTitle = movie.title;
+                    
+                        if (newListName) {
+                            const { data, error } = await supabase
+                                .from('user_lists')
+                                .insert({
+                                    user_id: session.user.id,
+                                    list_items: [{ id: movieId, title: movieTitle }],
+                                    list_name: newListName,
+                                    privacy: "public",
+                                    share_link: generateShareLink()
+                                });
+                    
+                            if (error) {
+                                console.error('Error creating new list:', error);
+                                alert('Failed to create new list.');
+                            } else {
+                                alert(`${movieTitle} added to your new list!`);
+                            }
+                        } else if (existingListId) {
+                            // Find the existing list
+                            console.log('existingListId:', existingListId);
+                            lists.forEach(list => console.log('list.id:', list.id));
+                    
+                            const existingList = lists.find(list => list.id.toString() === existingListId.toString());
+                    
+                            if (!existingList) {
+                                console.error('List not found:', existingListId);
+                                alert('Selected list does not exist.');
+                                return;
+                            }
+                    
+                            // Ensure list_items is always an array
+                            const currentListItems = Array.isArray(existingList.list_items) ? existingList.list_items : [];
+                    
+                            // Check if the movie is already in the list
+                            const movieAlreadyInList = currentListItems.some(item => item.id === movieId);
+                    
+                            if (movieAlreadyInList) {
+                                alert(`${movieTitle} is already in the list!`);
+                                return; // Prevent adding the movie again
+                            }
+                    
+                            // If the movie is not in the list, add it
+                            const updatedListItems = [...currentListItems, { id: movieId, title: movieTitle }];
+                    
+                            const { data, error } = await supabase
+                                .from('user_lists')
+                                .update({ list_items: updatedListItems })
+                                .eq('id', existingListId);
+                    
+                            if (error) {
+                                console.error('Error adding to existing list:', error);
+                                alert('Failed to add to existing list.');
+                            } else {
+                                alert(`${movieTitle} added to your existing list!`);
+                            }
+                        } else {
+                            alert('Please enter a new list name or select an existing list.');
+                        }
+                    });
+                    
+                });
+            }
+        } catch (err) {
+            console.error('Error in addToListFeature:', err);
+        }
+    };
+    
+    
         
         // Generate a unique shareable link
         const generateShareLink = () => {
