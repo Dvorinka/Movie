@@ -19,21 +19,63 @@ For more information, visit our [official website](https://spark.tdvorak.dev).
 - [x] **Open-Source Availability**
 
 - [x] **Landing page**
+    - [x] Basic functionability
+    - [x] Advanced functionability
+    - [ ] Final version
 - [x] **Movie details page**
-    - [x] Basic movie info
-    - [x] Age rating
-    - [x] Youtube trailer
-    - [x] Rotten tomatoes ratings
-    - [x] Free FullHD or 4K download
-    - [x] Free best quality FullHD torrent straming (using WebTor) - less stable
-    - [ ] Free lower quality FullHD direct streaming - stable
-    - [x] List of similar movies
-    - [ ] Advanced movie info
-       
-    - [In Progress..] Database connection - add to list option
-- [x] Tv-show details page
-- [ ] People details page
-- [x] Discover page
-- [ ] Top 100 movies and tv-shows page
-- [x] Best movies of previous year page
-- [x] Newsletter
+    - [x] Basic functionability
+    - [x] Advanced functionability
+    - [ ] Final version
+        - [x] Basic movie info
+        - [x] Age rating
+        - [x] Youtube trailer
+        - [x] Rotten tomatoes ratings
+        - [x] Free FullHD or 4K download
+        - [x] Free best quality FullHD torrent straming (using WebTor) - less stable
+        - [ ] Free lower quality FullHD direct streaming - stable
+        - [x] List of similar movies
+        - [ ] Advanced movie info
+- [x] **Tv-show details page**
+    - [x] Basic functionability
+    - [x] Advanced functionability
+    - [ ] Final version
+- [ ] **People details page**
+    - [ ] Basic functionability
+    - [ ] Advanced functionability
+    - [ ] Final version
+- [x] **Search function**
+    - [x] Basic functionability
+    - [x] Advanced functionability
+    - [ ] Final version
+- [x] **Discover page**
+    - [x] Basic functionability
+    - [ ] Advanced functionability
+    - [ ] Final version
+- [ ] **Top 100 movies and tv-shows page**
+    - [ ] Basic functionability
+    - [ ] Advanced functionability
+    - [ ] Final version
+- [x] **Best movies of previous year page**
+    - [x] Basic functionability
+    - [x] Advanced functionability
+    - [x] Final version
+- [x] **Movie Recommendations page**
+    - [x] Basic functionability
+    - [ ] Advanced functionability
+    - [ ] Final version
+- [ ] **Date night Recommendations page**
+    - [ ] Basic functionability
+    - [ ] Advanced functionability
+    - [ ] Final version
+- [x] **AI Movie finder page**
+    - [x] Basic functionability
+    - [ ] Advanced functionability
+    - [ ] Final version
+- [ ] **About page**
+    - [ ] Basic functionability
+    - [ ] Advanced functionability
+    - [ ] Final version
+- [x] **Newsletter**
+    - [x] Basic functionability
+    - [x] Advanced functionability
+    - [x] Final version
