@@ -79,3 +79,15 @@ For more information, visit our [official website](https://spark.tdvorak.dev).
     - [x] Basic functionability
     - [x] Advanced functionability
     - [x] Final version
+- [x] **Database**
+    - [x] Basic functionability
+    - [ ] Advanced functionability
+    - [ ] Final version
+- [x] **Release calendar**
+    - [x] Basic functionability
+    - [ ] Advanced functionability
+    - [ ] Final version
+- [ ] **AI Movie suggestion**
+    - [ ] Basic functionability
+    - [ ] Advanced functionability
+    - [ ] Final version
