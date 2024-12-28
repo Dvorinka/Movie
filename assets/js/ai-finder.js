@@ -1,16 +1,17 @@
 const API_KEY = "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"; // AI model API Key
 const TMDB_API_KEY = "054582e9ee66adcbe911e0008aa482a8"; // TMDB API Key
-const ENDPOINT = "https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-3B-Instruct";
+const ENDPOINT = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
 const TMDB_ENDPOINT = "https://api.themoviedb.org/3/search/movie";
 
-async function getAIResponse(userInput) {
+async function getAIResponse(userInput, agePreference) {
     const headers = {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${API_KEY}`
     };
 
+    const ageSuffix = agePreference === "newer" ? "The movie is newer." : "The movie is older.";
     const data = {
-        inputs: `User describes a movie: "${userInput}". Suggest possible matches. Respond only with a list of titles and years formatted as "Title (Year)", separated by new lines. Return exactly 5 suggestions.`
+        inputs: `User describes a movie: "${userInput}". ${ageSuffix} Suggest possible matches. Respond only with a list of titles and years formatted as "Title (Year)", separated by new lines. Return exactly 5 suggestions.`
     };
 
     try {
@@ -76,11 +77,12 @@ async function getMovieDetails(title) {
 document.getElementById('movie-finder-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const description = document.getElementById('description').value;
+    const movieAge = document.getElementById('movie-age').value; // Get the age preference
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = 'Searching...';
 
     try {
-        const aiResponse = await getAIResponse(description);
+        const aiResponse = await getAIResponse(description, movieAge);
 
         const movieDetailsPromises = aiResponse.map(async (movie) => {
             const movieData = await getMovieDetails(movie);
@@ -93,9 +95,16 @@ document.getElementById('movie-finder-form').addEventListener('submit', async (e
         const movieListHTML = movieDetails.map(movie => {
             if (movie.id) {
                 return `
-                    <li>
-                        <h3>${movie.title} (${movie.year})</h3>
-                        <a href="movie-details.html?id=${movie.id}">${movie.poster ? `<img src="${movie.poster}" alt="${movie.title} poster" />` : ''}</a>
+                    <li class="movie-item">
+                        <a href="movie-details.html?id=${movie.id}">
+                            <div class="movie-poster">
+                                ${movie.poster ? `<img src="${movie.poster}" alt="${movie.title} poster" />` : ''}
+                            </div>
+                            <div class="movie-info">
+                                <h3>${movie.title} (${movie.year})</h3>
+                                <p>${movie.overview}</p>
+                            </div>
+                        </a>
                     </li>
                 `;
             } else {
@@ -113,4 +122,12 @@ document.getElementById('movie-finder-form').addEventListener('submit', async (e
         console.error('Error:', error);
         resultsDiv.innerHTML = error.message;
     }
+});
+
+const descriptionTextarea = document.getElementById('description');
+const charCounter = document.getElementById('char-counter');
+
+descriptionTextarea.addEventListener('input', () => {
+    const currentLength = descriptionTextarea.value.length;
+    charCounter.textContent = `${currentLength}/215`;
 });

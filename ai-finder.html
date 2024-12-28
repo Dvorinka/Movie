@@ -6,21 +6,37 @@
     <title>AI Movie Finder</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        html{
+        html {
             color: white;
+        }
+        .char-counter {
+            font-size: 0.9rem;
+            color: var(--gray-x);
+            text-align: right;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <main>
+    <main class="ai-finder">
         <section>
-            <h1>AI Movie Finder</h1>
-            <form id="movie-finder-form">
+            <h1 class="ai-finder-heading">AI Movie Finder</h1>
+            <form id="movie-finder-form" class="ai-finder-form">
                 <label for="description">Describe the movie:</label>
-                <textarea id="description" name="description" rows="4" cols="50" required></textarea>
-                <button type="submit">Find</button>
-            </form>
-            <div id="results"></div>
+                <textarea id="description" name="description" rows="4" cols="50" required minlength="215" maxlength="300" class="ai-user-input"></textarea>
+                <div class="char-counter" id="char-counter">0/215</div>
+                <label for="movie-age">Is the movie:</label>
+                <select id="movie-age" name="movie-age" required class="ai-age-select">
+                    <option value="newer">Newer</option>
+                    <option value="older">Older</option>
+                </select>
+                
+                <button type="submit" class="ai-find">Find</button>
+            </form>            
+            <div id="results" class="ai-results"></div>
+            <div class="disclaimer">
+                <p>Disclaimer: This tool uses Meta LLaMA AI for movie finding. The results may not be accurate or valid.</p>
+            </div>
         </section>
     </main>
     <script src="assets/js/ai-finder.js"></script>

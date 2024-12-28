@@ -159,21 +159,19 @@ async function fetchRecommendations() {
     const sortedRecommendations = recommendationsWithScores.sort((a, b) => b.similarityScore - a.similarityScore).slice(0, 15);
 
     const recommendationsList = document.getElementById('recommendations');
-recommendationsList.innerHTML = '';
-sortedRecommendations.forEach(movie => {
-    const listItem = document.createElement('li');
-    const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
-    listItem.innerHTML = `
-        <a href="movie-details.html?id=${movie.id}">
+    recommendationsList.innerHTML = '';
+    sortedRecommendations.forEach(movie => {
+        const listItem = document.createElement('li');
+        const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
+        listItem.innerHTML = `
             <img src="${posterUrl}" alt="${movie.title}" width="100">
             <div>
                 <strong>${movie.title}</strong> (${movie.release_date ? movie.release_date.substring(0, 4) : '-'})<br>
                 Similarity Score: ${Math.round(movie.similarityScore)}%
             </div>
-        </a>
-    `;
-    recommendationsList.appendChild(listItem);
-});
+        `;
+        recommendationsList.appendChild(listItem);
+    });
 }
 
 async function fetchMovieDetails(movieId) {
