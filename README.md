@@ -14,10 +14,26 @@ SparkScreen is a free and open-source platform that allows users to stream and d
 For more information, visit our [official website](https://spark.tdvorak.dev).
 
 
-## Features
+## Roadmap
 
-- [x] **Feature 1**: Description of feature 1 (completed)
-- [ ] **Feature 2**: Description of feature 2 (not completed)
-- [x] **Feature 3**: Description of feature 3 (completed)
-- [ ] **Feature 4**: Description of feature 4 (not completed)
-- [ ] **Feature 5**: Description of feature 5 (not completed)
+- [x] **Open-Source Availability**
+
+- [x] **Landing page**
+- [x] **Movie details page**
+    - [x] Basic movie info
+    - [x] Age rating
+    - [x] Youtube trailer
+    - [x] Rotten tomatoes ratings
+    - [x] Free FullHD or 4K download
+    - [x] Free best quality FullHD torrent straming (using WebTor) - less stable
+    - [ ] Free lower quality FullHD direct streaming - stable
+    - [x] List of similar movies
+    - [ ] Advanced movie info
+       
+    - [In Progress..] Database connection - add to list option
+- [x] Tv-show details page
+- [ ] People details page
+- [x] Discover page
+- [ ] Top 100 movies and tv-shows page
+- [x] Best movies of previous year page
+- [x] Newsletter
