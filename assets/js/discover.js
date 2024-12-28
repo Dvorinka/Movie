@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const apiKey = '054582e9ee66adcbe911e0008aa482a8';
     const omdbApiKey = '20e349a6'; // Replace with your OMDB API key
     const baseApiUrl = 'https://api.themoviedb.org/3';
+    const ytsApiUrl = 'https://yts.mx/api/v2/list_movies.json';
     const omdbApiUrl = 'https://www.omdbapi.com/';
     const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
     const mediaTypeSelect = document.getElementById('media-type');
@@ -11,7 +12,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const releaseYearFromInput = document.getElementById('release-year-from');
     const releaseYearToInput = document.getElementById('release-year-to');
     let selectedGenre = '';
-    let selectedFilter = 'popular';
+    let selectedFilter = 'redaction-picks';
+
+    const genreMap = {
+        '28': 'action',
+        '12': 'adventure',
+        '16': 'animation',
+        '35': 'comedy',
+        '80': 'crime',
+        '99': 'documentary',
+        '18': 'drama',
+        '10751': 'family',
+        '14': 'fantasy',
+        '36': 'history',
+        '27': 'horror',
+        '10402': 'music',
+        '9648': 'mystery',
+        '10749': 'romance',
+        '878': 'sci-fi',
+        '53': 'thriller',
+        '10752': 'war',
+        '37': 'western'
+    };
 
     const fetchTrendingMovies = async () => {
         const url = `${baseApiUrl}/trending/movie/week?api_key=${apiKey}`;
@@ -32,6 +54,43 @@ document.addEventListener('DOMContentLoaded', () => {
             displayMedia(data.results, 'tv');
         } catch (error) {
             console.error('Error fetching popular TV shows:', error);
+        }
+    };
+
+    const fetchRedactionPicks = async (genre) => {
+        let url = `${ytsApiUrl}?limit=20&sort_by=like_count&order_by=desc&language=english`;
+        if (genre) {
+            url += `&genre=${genre}`;
+        }
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const movies = data.data.movies;
+            const enrichedMovies = await Promise.all(movies.map(async (movie) => {
+                const tmdbData = await fetchTmdbData(movie.title, movie.year);
+                return {
+                    ...movie,
+                    id: tmdbData.id,
+                    poster_path: tmdbData.poster_path,
+                    vote_average: tmdbData.vote_average,
+                    release_date: tmdbData.release_date
+                };
+            }));
+            displayMedia(enrichedMovies, 'movie');
+        } catch (error) {
+            console.error('Error fetching redaction picks:', error);
+        }
+    };
+
+    const fetchTmdbData = async (title, year) => {
+        const url = `${baseApiUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}&year=${year}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.results[0] || {};
+        } catch (error) {
+            console.error('Error fetching TMDB data:', error);
+            return {};
         }
     };
 
@@ -139,6 +198,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const getRatingImage = (ratingPercentage) => {
+        if (ratingPercentage === 'N/A' || ratingPercentage === null || ratingPercentage === undefined) {
+            return 'assets/images/unknown-audience.svg';
+        } else if (ratingPercentage >= 84) {
+            return 'assets/images/fresh-audience.svg';
+        } else if (ratingPercentage > 50) {
+            return 'assets/images/mid-audience.svg';
+        } else {
+            return 'assets/images/rotten-audience.svg';
+        }
+    };
+
     const displayMedia = (media, mediaType) => {
         const mediaContainer = document.createElement('div');
         mediaContainer.classList.add('media-container');
@@ -149,11 +220,14 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaItem.classList.add('media-item');
             const releaseYear = item.release_date ? new Date(item.release_date).getFullYear() : 'N/A';
             const ratingPercentage = Math.round(item.vote_average * 10);
+            const ratingImage = getRatingImage(ratingPercentage);
             mediaItem.innerHTML = `
                 <img src="${imageBaseUrl}${item.poster_path}" alt="${item.title || item.name}">
                 <h3>${item.title || item.name}</h3>
-                <p class="rating"><ion-icon name="star"></ion-icon> ${ratingPercentage}%</p>
-                <p class="year">Year: ${releaseYear}</p>
+                <div class="year-rating">
+                    <p class="rating"><img src="${ratingImage}" alt="Rating"> ${ratingPercentage}%</p>
+                    <p class="year">${releaseYear}</p>
+                </div>
             `;
             mediaItem.addEventListener('click', () => {
                 const id = item.id;
@@ -187,6 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (selectedMediaType === 'movie') {
             mediaFilterSelect.innerHTML = `
+                <option value="redaction-picks">Redaction Picks</option>
                 <option value="popular">Popular Movies</option>
                 <option value="now-playing">Now Playing Movies</option>
                 <option value="upcoming">Upcoming Movies</option>
@@ -210,17 +285,42 @@ const loadMoreMovies = async () => {
     currentPage++;
     const releaseYearFrom = releaseYearFromInput ? releaseYearFromInput.value : '';
     const releaseYearTo = releaseYearToInput ? releaseYearToInput.value : '';
-    let url = `${baseApiUrl}/discover/movie?api_key=${apiKey}&language=en-US&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${selectedGenre}&region=US&with_original_language=en&vote_count.gte=300&page=${currentPage}`;
-    if (releaseYearFrom) {
-        url += `&primary_release_date.gte=${releaseYearFrom}`;
+    let url;
+
+    if (selectedFilter === 'redaction-picks') {
+        url = `${ytsApiUrl}?limit=20&page=${currentPage}&sort_by=like_count&order_by=desc&language=english`;
+        if (selectedGenre) {
+            url += `&genre=${genreMap[selectedGenre]}`;
+        }
+    } else {
+        url = `${baseApiUrl}/discover/movie?api_key=${apiKey}&language=en-US&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${selectedGenre}&region=US&with_original_language=en&vote_count.gte=300&page=${currentPage}`;
+        if (releaseYearFrom) {
+            url += `&primary_release_date.gte=${releaseYearFrom}`;
+        }
+        if (releaseYearTo) {
+            url += `&primary_release_date.lte=${releaseYearTo}`;
+        }
     }
-    if (releaseYearTo) {
-        url += `&primary_release_date.lte=${releaseYearTo}`;
-    }
+
     try {
         const response = await fetch(url);
         const data = await response.json();
-        displayMoreMedia(data.results, 'movie');
+        if (selectedFilter === 'redaction-picks') {
+            const movies = data.data.movies;
+            const enrichedMovies = await Promise.all(movies.map(async (movie) => {
+                const tmdbData = await fetchTmdbData(movie.title, movie.year);
+                return {
+                    ...movie,
+                    id: tmdbData.id,
+                    poster_path: tmdbData.poster_path,
+                    vote_average: tmdbData.vote_average,
+                    release_date: tmdbData.release_date
+                };
+            }));
+            displayMoreMedia(enrichedMovies, 'movie');
+        } else {
+            displayMoreMedia(data.results, 'movie');
+        }
     } catch (error) {
         console.error('Error fetching more movies:', error);
     }
@@ -233,11 +333,14 @@ const displayMoreMedia = (media, mediaType) => {
         mediaItem.classList.add('media-item');
         const releaseYear = item.release_date ? new Date(item.release_date).getFullYear() : 'N/A';
         const ratingPercentage = Math.round(item.vote_average * 10);
+        const ratingImage = getRatingImage(ratingPercentage);
         mediaItem.innerHTML = `
             <img src="${imageBaseUrl}${item.poster_path}" alt="${item.title || item.name}">
             <h3>${item.title || item.name}</h3>
-            <p class="rating"><ion-icon name="star"></ion-icon> ${ratingPercentage}%</p>
-            <p class="year">Year: ${releaseYear}</p>
+            <div class="year-rating">
+                <p class="rating"><img src="${ratingImage}" alt="Rating"> ${ratingPercentage}%</p>
+                <p class="year">${releaseYear}</p>
+            </div>
         `;
         mediaItem.addEventListener('click', () => {
             const id = item.id;
@@ -251,7 +354,7 @@ const displayMoreMedia = (media, mediaType) => {
 loadMoreButton.addEventListener('click', loadMoreMovies);
 
     // Fetch and display trending movies by default
-    fetchTrendingMovies();
+    fetchRedactionPicks();
     updateGenreVisibility();
     updateMediaFilterOptions();
 
@@ -261,7 +364,7 @@ loadMoreButton.addEventListener('click', loadMoreMovies);
         updateMediaFilterOptions();
         const selectedMediaType = event.target.value;
         if (selectedMediaType === 'movie') {
-            fetchTrendingMovies();
+            fetchRedactionPicks();
         } else if (selectedMediaType === 'tv') {
             fetchPopularTvShows();
         }
@@ -281,6 +384,8 @@ loadMoreButton.addEventListener('click', loadMoreMovies);
                 fetchUpcomingMovies();
             } else if (selectedFilter === 'top-rated') {
                 fetchTopRatedMovies();
+            } else if (selectedFilter === 'redaction-picks') {
+                fetchRedactionPicks(genreMap[selectedGenre]);
             }
         } else if (selectedMediaType === 'tv') {
             if (selectedFilter === 'popular') {
@@ -299,10 +404,13 @@ loadMoreButton.addEventListener('click', loadMoreMovies);
     genreSpans.forEach(span => {
         span.addEventListener('click', (event) => {
             selectedGenre = event.target.getAttribute('value');
-            console.log(`Genre selected: ${selectedGenre}`);
             const selectedMediaType = mediaTypeSelect.value;
             if (selectedMediaType === 'movie') {
-                fetchMoviesByGenre(selectedGenre);
+                if (selectedFilter === 'redaction-picks') {
+                    fetchRedactionPicks(genreMap[selectedGenre]);
+                } else {
+                    fetchMoviesByGenre(selectedGenre);
+                }
             } else if (selectedMediaType === 'tv') {
                 fetchTvShowsByGenre(selectedGenre);
             }

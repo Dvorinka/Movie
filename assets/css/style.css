@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 ::selection{
   background-color: var(--citrine);
@@ -47,6 +48,7 @@
 
   --ff-poppins: 'Poppins', sans-serif;
   --ff-montserrat: 'Montserrat', sans-serif;
+  --ff-dm-sans: 'DM Sans', sans-serif;
 
   --fs-1: 36px;
   --fs-2: 32px;
@@ -3002,7 +3004,7 @@ summary {
 /* General Discover Page Layout */
 .discover-wrapper {
   padding: 20px;
-  background-color: var(--raisin-black);
+  background-color: #1a1820;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
@@ -3075,29 +3077,33 @@ summary {
 /* Media Item Styling */
 .media-item {
   position: relative;
-  background-color: var(--gunmetal-2);
-  border-radius: 8px;
   overflow: hidden;
   text-align: center;
   transition: transform 0.3s, box-shadow 0.3s;
   cursor: pointer;
+  padding-bottom: 20px;
 }
 
 .media-item:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transform: scale(1.01);
 }
 
 .media-item img {
   width: 100%;
   height: auto;
+  border-radius: 12px;
   object-fit: cover;
 }
 
 .media-item h3 {
-  font-size: var(--fs-7);
-  color: var(--white);
-  margin: 10px 0;
+  font-size: 1.35rem;
+  font-family: var(--ff-dm-sans);
+  color: #e5eeff;
+  text-align: left;
+  margin: 13px 0px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .media-item p {
@@ -3111,21 +3117,38 @@ summary {
 .media-item .rating {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: var(--fs-9);
-  color: var(--citrine);
+  font-family: var(--ff-dm-sans);
+  font-size: 16.5px;
+  color: #e5eeff;
 }
 
-.media-item .rating ion-icon {
+.media-item .rating img {
   margin-right: 5px;
+  width: 20px;
+  height: 20px;
+}
+
+.media-item .year-rating {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  bottom: 0px;
+  width: 100%;
+  font-size: 16.5px;
+  color: white;
+  font-weight: 900;
+  font-family: var(--ff-dm-sans);
+  border-radius: 4px;
 }
 
 .media-item .year {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: var(--fs-9);
-  color: var(--gray-x);
+  background-color: #313036;
+  font-size: 16.5px;
+  color: white;
+  font-weight: 900;
+  font-family: var(--ff-dm-sans);
+  padding: 2px 6px 2px 6px;
+  border-radius: 4px;
 }
 
 .fetched-sorted{

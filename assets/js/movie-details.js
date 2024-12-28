@@ -785,7 +785,13 @@ if (streamButton) {
             return 'assets/images/unknown-audience.svg';
         } else {
             const scoreValue = parseFloat(score);
-            return scoreValue >= 60 ? 'assets/images/fresh-audience.svg' : 'assets/images/rotten-audience.svg';
+            if (scoreValue >= 84) {
+                return 'assets/images/fresh-audience.svg';
+            } else if (scoreValue > 50) {
+                return 'assets/images/mid-audience.svg';
+            } else {
+                return 'assets/images/rotten-audience.svg';
+            }
         }
     };
 
