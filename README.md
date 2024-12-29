@@ -16,78 +16,32 @@ For more information, visit our [official website](https://spark.tdvorak.dev).
 
 ## Roadmap
 
-- [x] **Open-Source Availability**
+## SparkScreen Features  
 
-- [x] **Landing page**
-    - [x] Basic functionability
-    - [x] Advanced functionability
-    - [ ] Final version
-- [x] **Movie details page**
-    - [x] Basic functionability
-    - [x] Advanced functionability
-    - [ ] Final version
-        - [x] Basic movie info
-        - [x] Age rating
-        - [x] Youtube trailer
-        - [x] Rotten tomatoes ratings
-        - [x] Free FullHD or 4K download
-        - [x] Free best quality FullHD torrent straming (using WebTor) - less stable
-        - [ ] Free lower quality FullHD direct streaming - stable
-        - [x] List of similar movies
-        - [ ] Advanced movie info
-- [x] **Tv-show details page**
-    - [x] Basic functionability
-    - [x] Advanced functionability
-    - [ ] Final version
-- [ ] **People details page**
-    - [ ] Basic functionability
-    - [ ] Advanced functionability
-    - [ ] Final version
-- [x] **Search function**
-    - [x] Basic functionability
-    - [x] Advanced functionability
-    - [ ] Final version
-- [x] **Discover page**
-    - [x] Basic functionability
-    - [ ] Advanced functionability
-    - [ ] Final version
-- [ ] **Top 100 movies and tv-shows page**
-    - [ ] Basic functionability
-    - [ ] Advanced functionability
-    - [ ] Final version
-- [x] **Best movies of previous year page**
-    - [x] Basic functionability
-    - [x] Advanced functionability
-    - [x] Final version
-- [x] **Movie Recommendations page**
-    - [x] Basic functionability
-    - [ ] Advanced functionability
-    - [ ] Final version
-- [ ] **Date night Recommendations page**
-    - [ ] Basic functionability
-    - [ ] Advanced functionability
-    - [ ] Final version
-- [x] **AI Movie finder page**
-    - [x] Basic functionability
-    - [ ] Advanced functionability
-    - [ ] Final version
-- [ ] **About page**
-    - [ ] Basic functionability
-    - [ ] Advanced functionability
-    - [ ] Final version
-- [x] **Newsletter**
-    - [x] Basic functionability
-    - [x] Advanced functionability
-    - [x] Final version
-- [x] **Database**
-    - [x] Basic functionability
-    - [ ] Advanced functionability
-    - [ ] Final version
-- [x] **Release calendar**
-    - [x] Basic functionability
-    - [ ] Advanced functionability
-    - [ ] Final version
-- [ ] **AI Movie suggestion**
-    - [ ] Basic functionability
-    - [ ] Advanced functionability
-    - [ ] Final version
+- [x] **Open-Source Availability**
+- [x] **Landing Page**  
+- [x] **Movie Details Page**  
+    - [x] Basic movie information  
+    - [x] Age rating  
+    - [x] YouTube trailer integration  
+    - [x] Rotten Tomatoes ratings  
+    - [x] Free Full HD or 4K download options  
+    - [x] Free best-quality Full HD torrent streaming (via WebTor) - less stable  
+    - [ ] Free lower-quality Full HD direct streaming - stable  
+    - [x] List of similar movies  
+    - [ ] Advanced movie information  
+- [x] **TV Show Details Page**  
+- [ ] **People Details Page**  
+- [x] **Search Functionality**  
+- [x] **Discover Page**  
+- [ ] **Top 100 Movies and TV Shows Page**  
+- [x] **Best Movies of the Previous Year Page**  
+- [x] **Movie Recommendations Page**  
+- [ ] **Date Night Recommendations Page**  
+- [x] **AI Movie Finder Page**  
+- [ ] **About Page**  
+- [x] **Newsletter Subscription**  
+- [x] **Database Integration**  
+- [x] **Release Calendar**  
+- [ ] **AI-Powered Movie Suggestions**  
+
