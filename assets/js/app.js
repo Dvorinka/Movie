@@ -74,7 +74,6 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 // Event listeners for login buttons
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('loginButton').addEventListener('click', loginWithEmailOrUsername);
 
   document.getElementById('githubLoginBtn').addEventListener('click', () => loginWithProvider('github'));
   document.getElementById('discordLoginBtn').addEventListener('click', () => loginWithProvider('discord'));
