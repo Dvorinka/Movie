@@ -940,6 +940,105 @@ if (streamButton) {
             console.error('Error in addToListFeature:', err);
         }
     };
+
+    const markAsWatchedFeature = async (movie) => {
+        if (!supabase || !supabase.auth) {
+            console.error('Supabase client is not initialized.');
+            return;
+        }
+    
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error) {
+                console.error('Error getting session:', error);
+                return;
+            }
+    
+            const watchedContainer = document.createElement('div');
+            watchedContainer.classList.add('watched-container');
+            watchedContainer.style.display = session ? 'block' : 'none';
+    
+            const watchedBtn = document.createElement('button');
+            watchedBtn.id = 'markAsWatchedBtn';
+            watchedBtn.classList.add('watched-btn');
+            watchedBtn.textContent = 'Mark as Watched';
+    
+            watchedContainer.appendChild(watchedBtn);
+    
+            // Append the container to the page
+            const detailContent = document.querySelector('.movie-detail-content');
+            if (detailContent) {
+                detailContent.appendChild(watchedContainer);
+            }
+    
+            // Select the movie image for grayscale
+            const movieImage = document.querySelector(`.movie-detail-banner img`);
+            if (!movieImage) {
+                console.error('Movie image not found.');
+            }
+    
+            if (session) {
+                // Check if the movie is already marked as watched
+                const { data: existing, error: fetchError } = await supabase
+                    .from('watched_movies')
+                    .select('id')
+                    .eq('user_id', session.user.id)
+                    .eq('movie_id', movie.id);
+    
+                if (fetchError) {
+                    console.error('Error checking watched status:', fetchError);
+                    return;
+                }
+    
+                if (existing.length > 0) {
+                    applyWatchedStyle(movieImage); // Apply grayscale only to the image
+                    watchedBtn.textContent = 'Already Watched';
+                    watchedBtn.disabled = true;
+                }
+    
+                watchedBtn.addEventListener('click', async () => {
+                    // Insert the movie into the watched_movies table
+                    const { data, error: insertError } = await supabase
+                        .from('watched_movies')
+                        .insert({
+                            user_id: session.user.id,
+                            movie_id: movie.id,
+                            movie_title: movie.title,
+                        });
+    
+                    if (insertError) {
+                        console.error('Error marking as watched:', insertError);
+                        alert('Failed to mark as watched.');
+                    } else {
+                        applyWatchedStyle(movieImage); // Apply grayscale to the image
+                        watchedBtn.textContent = 'Already Watched';
+                        watchedBtn.disabled = true;
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('Error in markAsWatchedFeature:', err);
+        }
+    };
+    
+// Apply grayscale filter to the image only and add "Watched" label
+    const applyWatchedStyle = (image) => {
+        if (!image) {
+            console.error('Movie image not found.');
+            return;
+        }
+
+        image.style.filter = 'grayscale(1)';
+        const watchedLabel = document.createElement('div');
+        watchedLabel.textContent = 'Watched';
+        watchedLabel.classList.add('watched-label');
+
+        // Ensure the label is added only once
+        const parentElement = image.closest('.movie-detail-banner');
+        if (!parentElement.querySelector('.watched-label')) {
+            parentElement.appendChild(watchedLabel);
+        }
+    };
     
     
         
@@ -953,6 +1052,7 @@ if (streamButton) {
             const movie = event.detail;
             if (movie) {
             addToListFeature(movie);
+            markAsWatchedFeature(movie);
             }
         });
         

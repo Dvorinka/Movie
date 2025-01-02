@@ -54,8 +54,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   console.log('List items:', listItems);
 
-  // TMDB API Key
-  const tmdbApiKey = 'YOUR_TMDB_API_KEY'; // Replace with your actual TMDB API key
 
   // Function to fetch movie details from TMDB
   async function fetchMovieDetails(movieId) {

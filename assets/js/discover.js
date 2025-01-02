@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Supabase client
+    const supabase = window.supabase.createClient(
+        'https://cbnwekzbcxbmeevdjgoq.supabase.co', // Replace with your Supabase URL
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU' // Replace with your Supabase public API key
+    );
+
     const apiKey = '054582e9ee66adcbe911e0008aa482a8';
     const omdbApiKey = '20e349a6'; // Replace with your OMDB API key
     const baseApiUrl = 'https://api.themoviedb.org/3';
@@ -33,6 +39,49 @@ document.addEventListener('DOMContentLoaded', () => {
         '53': 'thriller',
         '10752': 'war',
         '37': 'western'
+    };
+
+     // Function to fetch watched movies for the current user
+     const fetchWatchedMovies = async () => {
+        console.log('Fetching watched movies...');
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) {
+                console.error('Error getting session:', error);
+                return [];
+            }
+
+            console.log('Session found, fetching watched movies for user:', session.user.id);
+
+            const { data: watchedMovies, error: fetchError } = await supabase
+                .from('watched_movies')
+                .select('movie_id')
+                .eq('user_id', session.user.id);
+
+            if (fetchError) {
+                console.error('Error fetching watched movies:', fetchError);
+                return [];
+            }
+
+            console.log('Watched movies fetched:', watchedMovies);
+            return watchedMovies.map(movie => movie.movie_id);
+        } catch (err) {
+            console.error('Error in fetchWatchedMovies:', err);
+            return [];
+        }
+    };
+
+    // Function to apply watched style to a movie card
+    const applyWatchedStyle = (mediaItem) => {
+        console.log('Applying watched style to media item:', mediaItem.id);
+        const image = mediaItem.querySelector('img');
+        if (image) {
+            image.style.filter = 'grayscale(1)';
+            const watchedLabel = document.createElement('div');
+            watchedLabel.textContent = 'Watched';
+            watchedLabel.classList.add('watched-label');
+            mediaItem.appendChild(watchedLabel);
+        }
     };
 
     const fetchTrendingMovies = async () => {
@@ -210,37 +259,56 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const displayMedia = (media, mediaType) => {
-        const mediaContainer = document.createElement('div');
-        mediaContainer.classList.add('media-container');
-        mediaContainer.innerHTML = '';
-    
-        media.forEach(item => {
-            const mediaItem = document.createElement('div');
-            mediaItem.classList.add('media-item');
-            const releaseYear = item.release_date ? new Date(item.release_date).getFullYear() : 'N/A';
-            const ratingPercentage = Math.round(item.vote_average * 10);
-            const ratingImage = getRatingImage(ratingPercentage);
-            mediaItem.innerHTML = `
-                <img src="${imageBaseUrl}${item.poster_path}" alt="${item.title || item.name}">
-                <h3>${item.title || item.name}</h3>
-                <div class="year-rating">
-                    <p class="rating"><img src="${ratingImage}" alt="Rating"> ${ratingPercentage}%</p>
-                    <p class="year">${releaseYear}</p>
-                </div>
-            `;
-            mediaItem.addEventListener('click', () => {
-                const id = item.id;
-                const url = mediaType === 'movie' ? `movie-details.html?id=${id}` : `tv-details.html?id=${id}`;
-                window.location.href = url;
-            });
-            mediaContainer.appendChild(mediaItem);
+    // Function to display media with watched status
+const displayMedia = async (media, mediaType) => {
+    console.log('Displaying media...');
+    const watchedMovies = await fetchWatchedMovies();
+    console.log('Watched movies list:', watchedMovies);
+
+    const mediaContainer = document.createElement('div');
+    mediaContainer.classList.add('media-container');
+    mediaContainer.innerHTML = '';
+
+    media.forEach(item => {
+        console.log('Processing media item:', item.id, item.title || item.name);
+
+        const mediaItem = document.createElement('div');
+        mediaItem.classList.add('media-item');
+        mediaItem.id = item.id; // Set the movie ID as the ID of the media item
+        const releaseYear = item.release_date ? new Date(item.release_date).getFullYear() : 'N/A';
+        const ratingPercentage = Math.round(item.vote_average * 10);
+        const ratingImage = getRatingImage(ratingPercentage);
+        mediaItem.innerHTML = `
+            <img src="${imageBaseUrl}${item.poster_path}" alt="${item.title || item.name}">
+            <h3>${item.title || item.name}</h3>
+            <div class="year-rating">
+                <p class="rating"><img src="${ratingImage}" alt="Rating"> ${ratingPercentage}%</p>
+                <p class="year">${releaseYear}</p>
+            </div>
+        `;
+
+        // Convert item.id to a string before checking if it's in watchedMovies
+        if (watchedMovies.includes(item.id.toString())) {
+            console.log('Movie is watched:', item.id);
+            applyWatchedStyle(mediaItem);
+        } else {
+            console.log('Movie is not watched:', item.id);
+        }
+
+        mediaItem.addEventListener('click', () => {
+            const id = item.id;
+            const url = mediaType === 'movie' ? `movie-details.html?id=${id}` : `tv-details.html?id=${id}`;
+            window.open(url, '_blank'); // Open the URL in a new tab
         });
-    
-        // Clear previous content and append new media items
-        fetchedSorted.innerHTML = '';
-        fetchedSorted.appendChild(mediaContainer);
-    };
+        
+        mediaContainer.appendChild(mediaItem);
+    });
+
+    // Clear previous content and append new media items
+    fetchedSorted.innerHTML = '';
+    fetchedSorted.appendChild(mediaContainer);
+};
+
 
     const updateGenreVisibility = () => {
         const selectedMediaType = mediaTypeSelect.value;
@@ -335,11 +403,18 @@ const loadMoreMovies = async () => {
     }
 };
 
-const displayMoreMedia = (media, mediaType) => {
+const displayMoreMedia = async (media, mediaType) => {
+    console.log('Displaying more media...');
+    const watchedMovies = await fetchWatchedMovies(); // Fetch watched movies
+    console.log('Watched movies list:', watchedMovies);
+
     const mediaContainer = document.querySelector('.media-container');
     media.forEach(item => {
+        console.log('Processing media item:', item.id, item.title || item.name);
+
         const mediaItem = document.createElement('div');
         mediaItem.classList.add('media-item');
+        mediaItem.id = item.id; // Set the movie ID as the ID of the media item
         const releaseYear = item.release_date ? new Date(item.release_date).getFullYear() : 'N/A';
         const ratingPercentage = Math.round(item.vote_average * 10);
         const ratingImage = getRatingImage(ratingPercentage);
@@ -351,16 +426,27 @@ const displayMoreMedia = (media, mediaType) => {
                 <p class="year">${releaseYear}</p>
             </div>
         `;
+
+        // Check if the movie is watched and apply the style
+        if (watchedMovies.includes(item.id.toString())) {
+            console.log('Movie is watched:', item.id);
+            applyWatchedStyle(mediaItem);
+        } else {
+            console.log('Movie is not watched:', item.id);
+        }
+
         mediaItem.addEventListener('click', () => {
             const id = item.id;
             const url = mediaType === 'movie' ? `movie-details.html?id=${id}` : `tv-details.html?id=${id}`;
-            window.location.href = url;
+            window.open(url, '_blank'); // Open the URL in a new tab
         });
+
         mediaContainer.appendChild(mediaItem);
     });
 };
 
 loadMoreButton.addEventListener('click', loadMoreMovies);
+
 
     // Fetch and display trending movies by default
     fetchRedactionPicks();
