@@ -30,37 +30,42 @@ async function loginWithEmailOrUsername() {
   }
 }
 
-// Login with OAuth provider
 async function loginWithProvider(provider) {
-  const { error } = await supabase.auth.signInWithOAuth({ provider });
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: window.location.origin + '/auth/callback', // Ensure this matches your redirect URL
+    },
+  });
+
   if (error) {
     console.error(`${provider} Login Error:`, error.message);
   } else {
-    console.log(`${provider} Login initiated.`);
+    console.log(`${provider} Login initiated. Redirecting...`);
   }
 }
 
-// Function to handle redirect after login
-const handleRedirectAfterLogin = () => {
-  const hash = window.location.hash;
 
-  if (hash) {
-    const params = new URLSearchParams(hash.substring(1));
-    const accessToken = params.get('access_token');
-    const refreshToken = params.get('refresh_token');
+// Function to handle redirect after login (for OAuth)
+const handleRedirectAfterLogin = async () => {
+  // Use Supabase's helper to process the redirect and extract session details
+  const { data, error } = await supabase.auth.getSessionFromUrl({ storeSession: true });
 
-    if (accessToken) {
-      localStorage.setItem('access_token', accessToken);
-    }
-    if (refreshToken) {
-      localStorage.setItem('refresh_token', refreshToken);
-    }
-
-    window.history.replaceState({}, document.title, window.location.pathname);
+  if (error) {
+    console.error('Error handling redirect:', error.message);
+    alert('There was an issue logging you in. Please try again.');
+    return;
   }
 
-  window.location.href = '/index.html'; // Adjust this to your desired page
+  if (data.session) {
+    console.log('OAuth Login Successful:', data.session.user);
+    alert('Login successful!');
+    window.location.href = '/index.html'; // Redirect to the desired page after login
+  } else {
+    console.warn('No session found after redirect. Ensure the provider setup is correct.');
+  }
 };
+
 
 // Listen for auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
@@ -74,6 +79,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 // Event listeners for login buttons
 document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loginButton').addEventListener('click', loginWithEmailOrUsername);
 
   document.getElementById('githubLoginBtn').addEventListener('click', () => loginWithProvider('github'));
   document.getElementById('discordLoginBtn').addEventListener('click', () => loginWithProvider('discord'));
