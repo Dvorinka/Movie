@@ -263,15 +263,48 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadButton.addEventListener('click', redirectToYTS);           
     };
 
-    const redirectToStream = () => {
+    const redirectToStream = (event) => {
+        event.preventDefault();  // Prevents the default link behavior
+        
         const streamUrl = `https://rivestream.live/watch?type=tv&id=${showId}&season=1&episode=1`;
     
-        // Open the stream URL in a new tab
-        window.open(streamUrl, '_blank');
+        // Create an iframe element
+        const iframe = document.createElement('iframe');
+        iframe.src = streamUrl;
+        iframe.width = '100%';
+        iframe.height = '100%';
+        iframe.frameBorder = '0';
+        iframe.allow = 'autoplay; fullscreen';  // Allow fullscreen and autoplay
+        iframe.allowfullscreen = true;          // Explicitly set the allowfullscreen attribute
+        
+        // Insert the iframe into the container
+        const container = document.getElementById('stream-container');
+        container.innerHTML = '';  // Clear any previous content in the container
+        container.appendChild(iframe);
+        
+        // Display the container
+        container.style.display = 'flex';  // Show the stream container
+    
+        // Add event listener to close the iframe when clicking outside
+        document.addEventListener('click', closeIframeOnClickOutside);
+    };
+    
+    const closeIframeOnClickOutside = (event) => {
+        const container = document.getElementById('stream-container');
+        const iframe = container.querySelector('iframe');
+    
+        if (iframe && !iframe.contains(event.target) && !event.target.closest('.stream-btn')) {
+            container.style.display = 'none';  // Hide the stream container
+            container.innerHTML = '';  // Clear the iframe content
+            document.removeEventListener('click', closeIframeOnClickOutside);  // Remove the event listener
+        }
     };
     
     const streamButton = document.querySelector('.stream-btn');
     streamButton.addEventListener('click', redirectToStream);
+    
+
+    
 
     const displaySimilarShows = async (showId) => {
         const url = `https://api.themoviedb.org/3/tv/${showId}/recommendations?api_key=${apiKey}`;

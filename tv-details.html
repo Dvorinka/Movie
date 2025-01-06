@@ -181,10 +181,18 @@
               <ion-icon name="download-outline"></ion-icon>
             </a>
 
-            <a href="#"class="stream-btn"> <!-- Download button -->
+            <a href="#" class="stream-btn" onclick="redirectToStream(event)">
               <span>Stream</span>
               <ion-icon name="play-circle-outline"></ion-icon>
             </a>
+            
+            <div id="stream-container" style="display: none;">
+              <!-- This is where the iframe will be inserted dynamically -->
+            </div>
+            
+            <!-- The modal overlay that will close the modal -->
+            <div id="modal-overlay" style="display: none;"></div>
+            
 
             <details>
               <summary>

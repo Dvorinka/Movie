@@ -1775,7 +1775,7 @@ body.active { overflow: hidden; }
     width: 95%;
     max-width: none; /* Remove max-width restriction */
     max-height: 70%; /* Allow more space for content */
-    top: 260px;
+    top: 216px;
   }
 
   .modal-content iframe {
@@ -1790,6 +1790,8 @@ body.active { overflow: hidden; }
     width: 95%;
     max-width: none;
     max-height: 60%;
+    top: 215px;
+    height: 220px;
   }
 
   .modal-content iframe {
@@ -2807,7 +2809,7 @@ button {
     width: 95%;
     max-width: none; /* Remove max-width restriction */
     max-height: 70%; /* Allow more space for content */
-    top: 260px;
+    top: 220px;
   }
 
   .stream-magnet div iframe {
@@ -2822,6 +2824,7 @@ button {
     width: 95%;
     max-width: none;
     max-height: 60%;
+    height: 150px;
   }
 
   .stream-magnet div iframe {
@@ -3382,4 +3385,49 @@ summary {
 
 .movie-banner {
   position: relative;
+}
+
+#stream-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);  /* Dark overlay */
+  z-index: 999;
+  display: none;  /* Hidden by default */
+}
+
+
+
+/* Style for the iframe */
+#stream-container iframe {
+  width: 90%;
+  height: 90%;
+  border: none;
+}
+
+/* Style for the close button */
+#close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  background-color: #ff0000;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
