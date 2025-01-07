@@ -1127,7 +1127,7 @@ body.active { overflow: hidden; }
 .stream-btn {
   max-width: max-content;
   background: #ffffff;
-  color: var(--rich-black-fogra-29);
+  color: #000000;
   font-size: var(--fs-11);
   font-weight: var(--fw-500);
   text-transform: uppercase;
@@ -1138,6 +1138,8 @@ body.active { overflow: hidden; }
   margin-top: 20px;
   letter-spacing: 5px;
   border-radius: 6px;
+  z-index: 101;
+  box-shadow: #000000 0px 0px 15px;
 }
 
 .stream-btn ion-icon { font-size: 16px; }
@@ -1583,11 +1585,10 @@ body.active { overflow: hidden; }
   .stream-btn {
     position: absolute;
     right: 20px;
-    margin-top: 25px;
+    margin-top: 126px;
   }
 
 }
-
 
 
 
@@ -3435,21 +3436,61 @@ summary {
 
 .sd-stream-btn {
   max-width: max-content;
-  background: #ffffff;
-  color: var(--rich-black-fogra-29);
-  font-size: var(--fs-9); /* Smaller font size */
+  background: #00b7ff;
+  color: #000000;
+  font-size: 11px;
   font-weight: var(--fw-500);
   text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 10px 20px; /* Smaller padding */
-  letter-spacing: 3px; /* Smaller letter spacing */
+  padding: 17px 10px 10px 15px;
+  letter-spacing: 3px;
   border-radius: 6px;
   position: absolute;
-  top: 41%; /* Position it right below the stream button */
-  right: 15px; /* Align it to the right */
-  margin-top: 5px; /* Small margin to create space between the buttons */
+  top: 210px;
+  right: 15px;
+  margin-top: 5px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+  z-index: 100;
 }
 
 .sd-stream-btn ion-icon { font-size: 14px; }
+
+
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .sd-stream-btn {
+    top: 560px;
+    right: 21px;
+  }
+}
+
+@media screen and (max-width: 991px) {
+    .sd-stream-btn {
+        top: unset;
+        right: unset;
+        max-width: max-content;
+        background: #00b7ff;
+        color: #000000;
+        font-size: var(--fs-11);
+        font-weight: var(--fw-500);
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 20px 35px;
+        margin-top: 20px;
+        letter-spacing: 5px;
+        border-radius: 6px;
+        z-index: 101;
+        box-shadow: #000000 0px 2px 10px;
+  }
+
+  .add-to-list-container{
+    margin: 100px 0px 0px 0px;
+  }
+
+}
+

@@ -59,8 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         movieDetailReleaseDate.setAttribute('datetime', movie.release_date);
         movieDetailRuntime.textContent = formatRuntime(movie.runtime);
         movieDetailRuntime.setAttribute('datetime', `PT${movie.runtime}M`);
-        // Update movie description with a limit of 500 characters
-        const truncatedOverview = movie.overview.length > 500 ? movie.overview.substring(0, 497) + '...' : movie.overview;
+        const truncatedOverview = movie.overview.length > 240 ? movie.overview.substring(0, 240) + '...' : movie.overview;
         movieDetailStoryline.textContent = truncatedOverview;
 
         
