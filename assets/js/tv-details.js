@@ -239,23 +239,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const redirectToYTS = () => {
-            // Get the show title from the document title
             const documentTitle = document.title;
-            let showTitle = documentTitle.split(' (')[0]; // Extract show title from document title
-        
-            // Remove ":" and "." from the show title
+            let showTitle = documentTitle.split(' (')[0];
             showTitle = showTitle.replace(/:/g, '').replace(/\./g, '');
-        
-            // Format the show title for the YTS URL
-            let formattedShowTitle = showTitle.toLowerCase().replace(/ /g, '+'); // Replace spaces with dashes
-        
-            // Remove multiple consecutive dashes
-            formattedShowTitle = formattedShowTitle.replace(/-+/g, '+');
-        
-            // Construct the YTS URL
+            let formattedShowTitle = showTitle.toLowerCase().replace(/ /g, '+');
+            formattedShowTitle = formattedShowTitle.replace(/\++/g, '+'); // Fix regex to match "+"
             const ytsUrl = `https://1337x.to/sort-category-search/${formattedShowTitle}/TV/seeders/desc/1/`;
-        
-            // Open the YTS URL in a new tab
             window.open(ytsUrl, '_blank');
         };
         
