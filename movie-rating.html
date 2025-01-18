@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Ratings</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="./assets/js/api.js"></script>
+    <script src="./assets/js/search.js"></script>
+    <style>
+        /* General styling */
+        body {
+            margin: 0;
+            background-color: #111111;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container-ra {
+            display: flex;
+            gap: 32px;
+            max-width: 1200px;
+            margin: 55px auto;
+            padding-left: 140px;
+        }
+
+        .movie-info {
+            flex: 0 0 300px;
+        }
+
+        .poster {
+            width: 300px;
+            height: 450px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .movie-title {
+            font-size: 32px;
+            margin: 0 0 8px 0;
+            font-weight: bold;
+        }
+
+        .movie-details {
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .rating-circle {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+        }
+
+        .rating-circle .percentage {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #333;
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar .progress {
+            height: 25px;
+            background-color: #28b463;
+            width: 0;
+            transition: width 1s ease-in-out;
+        }
+
+        .rotten-tomatoes, .imdb {
+            margin-top: 40px;
+        }
+
+        .rating-image {
+            width: 50px;
+            height: 50px;
+            margin-top: 10px;
+        }
+
+        /* Rating colors */
+        .awesome { background-color: #186a3b; }
+        .great { background-color: #28b463; }
+        .good { background-color: #f4d03f; color: black; }
+        .regular { background-color: #fb923c; color: black; }
+        .bad { background-color: #e74c3c; }
+        .garbage { background-color: #633974; }
+
+        /* Legend styling */
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+
+        .legend-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .legend-awesome { background-color: #186a3b; }
+        .legend-great { background-color: #28b463; }
+        .legend-good { background-color: #f4d03f; }
+        .legend-regular { background-color: #fb923c; }
+        .legend-bad { background-color: #e74c3c; }
+        .legend-garbage { background-color: #633974; }
+    </style>
+</head>
+<body>
+
+<div class="container-ra">
+    <div class="movie-info">
+        <img id="poster" src="https://placehold.co/300x450" alt="Movie poster" class="poster">
+        <h1 id="title" class="movie-title">Movie Title</h1>
+        <div id="details" class="movie-details">Release Year | Votes: 0</div>
+        <div class="rating">
+            <span class="star">★</span>
+            <span id="rating" class="rating-value">0.0</span>
+            <span class="votes">(<span id="votes">0</span> votes)</span>
+        </div>
+    </div>
+
+    <div class="ratings-grid">
+        <div id="tmdb-rating-circle" class="rating-circle">
+            <span id="tmdb-rating" class="percentage">0%</span>
+        </div>
+        <div class="progress-bar">
+            <div id="tmdb-progress" class="progress"></div>
+        </div>
+
+        <div class="rotten-tomatoes">
+            <h2>Rotten Tomatoes</h2>
+            <div id="rt-rating-circle" class="rating-circle">
+                <span id="rt-rating" class="percentage">0%</span>
+            </div>
+            <img id="rt-image" src="assets/images/unknown-critics.svg" alt="Rotten Tomatoes Rating" class="rating-image">
+        </div>
+
+        <div class="imdb">
+            <h2>IMDb</h2>
+            <div id="imdb-rating-circle" class="rating-circle">
+                <span id="imdb-rating" class="percentage">0%</span>
+            </div>
+            <img id="imdb-image" src="assets/images/unknown-audience.svg" alt="IMDb Rating" class="rating-image">
+        </div>
+    </div>
+</div>
+
+<div class="legend">
+    <div class="legend-item">
+        <div class="legend-dot legend-awesome"></div>
+        <span>Awesome</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot legend-great"></div>
+        <span>Great</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot legend-good"></div>
+        <span>Good</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot legend-regular"></div>
+        <span>Regular</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot legend-bad"></div>
+        <span>Bad</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-dot legend-garbage"></div>
+        <span>Don't</span>
+    </div>
+</div>
+
+<script>
+const API_KEY = "054582e9ee66adcbe911e0008aa482a8";
+const OMDB_API_KEY = "20e349a6";
+
+// Function to get the movie ID from the URL
+const getMovieIdFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id');
+};
+
+const fetchMovieDetails = async (movieId) => {
+    const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&append_to_response=reviews`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        displayMovieDetails(data);
+        fetchOmdbData(data.imdb_id);
+    } catch (error) {
+        console.error('Error fetching movie details:', error);
+    }
+};
+
+const displayMovieDetails = (movie) => {
+    document.getElementById("poster").src = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+    document.getElementById("title").textContent = movie.title;
+    document.getElementById("details").textContent = `${movie.release_date.split('-')[0]} | Votes: ${movie.vote_count}`;
+
+    const tmdbRating = movie.vote_average.toFixed(1);
+    document.getElementById("tmdb-rating").textContent = `${Math.round(tmdbRating * 10)}%`;
+    document.getElementById("tmdb-progress").style.width = `${Math.round(tmdbRating * 10)}%`;
+    document.getElementById("tmdb-rating-circle").className = `rating-circle ${getRatingClass(Math.round(tmdbRating * 10))}`;
+
+    // Update the rating and votes under the banner
+    document.getElementById("rating").textContent = tmdbRating;
+    document.getElementById("votes").textContent = movie.vote_count;
+};
+
+const fetchOmdbData = async (imdbId) => {
+    const url = `https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_API_KEY}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        displayOmdbData(data);
+    } catch (error) {
+        console.error('Error fetching OMDB data:', error);
+    }
+};
+
+const displayOmdbData = (data) => {
+    const rtRating = data.Ratings.find(rating => rating.Source === "Rotten Tomatoes");
+    if (rtRating) {
+        const rtPercentage = parseInt(rtRating.Value);
+        document.getElementById("rt-rating").textContent = `${rtPercentage}%`;
+        document.getElementById("rt-image").src = getCriticsScoreImage(rtPercentage);
+        document.getElementById("rt-rating-circle").className = `rating-circle ${getRatingClass(rtPercentage)}`;
+    }
+
+    const imdbRating = data.imdbRating;
+    if (imdbRating) {
+        const imdbPercentage = Math.round(parseFloat(imdbRating) * 10);
+        document.getElementById("imdb-rating").textContent = `${imdbPercentage}%`;
+        document.getElementById("imdb-image").src = getAudienceScoreImage(imdbRating);
+        document.getElementById("imdb-rating-circle").className = `rating-circle ${getRatingClass(imdbPercentage)}`;
+    }
+};
+
+const getRatingClass = (rating) => {
+    if (rating >= 90) return "awesome";
+    if (rating >= 80) return "great";
+    if (rating >= 70) return "good";
+    if (rating >= 50) return "regular";
+    if (rating >= 30) return "bad";
+    return "garbage";
+};
+
+const getAudienceScoreImage = (score) => {
+    if (score === 'N/A') {
+        return 'assets/images/unknown-audience.svg';
+    } else {
+        const scoreValue = parseFloat(score);
+        if (scoreValue >= 8.4) {
+            return 'assets/images/fresh-audience.svg';
+        } else if (scoreValue > 5.0) {
+            return 'assets/images/mid-audience.svg';
+        } else {
+            return 'assets/images/rotten-audience.svg';
+        }
+    }
+};
+
+const getCriticsScoreImage = (score) => {
+    if (score === 'N/A') {
+        return 'assets/images/unknown-critics.svg';
+    } else {
+        const scoreValue = parseInt(score); // Assuming score is in percentage
+        if (scoreValue < 60) {
+            return 'assets/images/rotten-critics.svg';
+        } else if (scoreValue < 90) {
+            return 'assets/images/mid-critics.svg';
+        } else {
+            return 'assets/images/fresh-critics.svg';
+        }
+    }
+};
+
+// Get the movie ID from the URL and fetch the movie details
+const movieId = getMovieIdFromUrl();
+if (movieId) {
+    fetchMovieDetails(movieId);
+} else {
+    console.error("No movie ID found in the URL.");
+}
+</script>
+</body>
+</html>

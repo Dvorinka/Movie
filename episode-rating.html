@@ -33,7 +33,7 @@
 
       .poster {
           width: 200px;
-          border-radius: 4px;
+          border-radius: 8px;
           margin-bottom: 16px;
       }
 
@@ -213,6 +213,84 @@
           background-color: #bdbdbd;
           color: black;
       }
+
+      .ratings-grid {
+            flex: 1;
+            overflow: hidden; /* Hide overflow on the main container */
+        }
+
+        .scroll-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .scroll-wrapper {
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            padding-bottom: 12px; /* Add padding for scroll bar */
+            /* Improve smooth scrolling */
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .scroll-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar-thumb {
+            background: #666;
+            border-radius: 4px;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
+
+        .season-headers {
+            display: flex; /* Change from grid to flex */
+            gap: 6px;
+            margin-bottom: 4px;
+            color: #a1a1aa;
+            font-size: 0.9rem;
+            min-width: max-content; /* Prevent wrapping */
+        }
+
+        .season-headers > div {
+            width: 40px; /* Fixed width for season headers */
+            text-align: center;
+        }
+
+        .season-headers > div:first-child {
+            width: 57px; /* Width for episode number column */
+        }
+
+        .episodes-container {
+            display: block; /* Change from grid to block */
+        }
+
+        .episode-row {
+            display: flex; /* Change from grid to flex */
+            gap: 6px;
+            margin-bottom: 6px;
+            min-width: max-content; /* Prevent wrapping */
+        }
+
+        .episode-number {
+            width: 57px; /* Fixed width for episode numbers */
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        .episode {
+            width: 40px; /* Fixed width for episodes */
+            flex-shrink: 0; /* Prevent shrinking */
+        }
     </style>
       <script type="text/javascript" data-cfasync="false">
         /*<![CDATA[/* */
@@ -362,8 +440,12 @@
               <span>Don't</span>
           </div>
       </div>
-          <div id="season-headers" class="season-headers"></div>
-          <div id="episodes" class="episodes-container"></div>
+        <div class="scroll-container">
+          <div class="scroll-wrapper">
+              <div id="season-headers" class="season-headers"></div>
+              <div id="episodes" class="episodes-container"></div>
+          </div>
+        </div>
       </div>
   </div>
 

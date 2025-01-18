@@ -779,7 +779,7 @@ if (streamButton) {
                             audienceScoreElement.innerHTML = `
                                 <img src="${getAudienceScoreImage(audienceScore)}" alt="Audience Score">
                                 <p>${audienceScore}</p>
-                                <a href="#" class="audienceScore-link">Audience Score</a>
+                                <a href="#" class="audienceScore-link">Popcornmeter</a>
                             `;
                             
                             const audienceScoreLink = audienceScoreElement.querySelector('.audienceScore-link');

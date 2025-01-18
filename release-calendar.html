@@ -12,18 +12,175 @@
         (function(){var z=window,o="dc3348165e74e8a7990f0c1388959594",q=[["siteId",660+744*735*399*712-155345520349],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],c=["d3d3LmNkbjRhZHMuY29tL1lCYVpNL3JveGF6Sy93Z3JhbmltLm1pbi5qcw==","ZDNnNW92Zm5nanc5YncuY2xvdWRmcm9udC5uZXQveWpxdWVyeS5zbW9vdGhTdGF0ZS5taW4uanM="],s=-1,m,r,p=function(){clearTimeout(r);s++;if(c[s]&&!(1761421546000<(new Date).getTime()&&1<s)){m=z.document.createElement("script");m.type="text/javascript";m.async=!0;var k=z.document.getElementsByTagName("script")[0];m.src="https://"+atob(c[s]);m.crossOrigin="anonymous";m.onerror=p;m.onload=function(){clearTimeout(r);z[o.slice(0,16)+o.slice(0,16)]||p()};r=setTimeout(p,5E3);k.parentNode.insertBefore(m,k)}};if(!z[o]){try{Object.freeze(z[o]=q)}catch(e){}p()}})();
         /*]]>/* */
         </script>
+
+        <style>
+/* General styling */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.calendar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#calendar-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#calendar-controls button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 4px;
+    margin: 0 10px;
+    transition: background-color 0.3s;
+}
+
+#calendar-controls button:hover {
+    background-color: #0056b3;
+}
+
+#calendar-controls select {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin: 0 10px;
+}
+
+#calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.calendar-day {
+    background-color: #e9ecef;
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1em;
+    color: #333;
+    transition: background-color 0.3s;
+    cursor: pointer;
+}
+
+.calendar-day:hover {
+    background-color: #dee2e6;
+}
+
+.date-header {
+    font-weight: bold;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.no-movie {
+    color: #999;
+    font-size: 0.9em;
+}
+
+.movie-item {
+    margin-top: 10px;
+}
+
+.movie-poster {
+    width: 165px; /* Set width to 165px */
+    height: 245px; /* Set height to 245px */
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    object-fit: cover; /* Ensure the image covers the entire area */
+}
+
+.movie-title {
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.movie-title:hover {
+    text-decoration: underline;
+}
+
+.more-movies {
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: #007bff;
+    cursor: pointer;
+}
+
+/* Modal styling */
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+        </style>
 </head>
 <body>
-    <div class="calendar-container">
-        <h1>Release Calendar</h1>
-        <div id="calendar-controls">
-            <button id="prev-month">&larr;</button>
-            <select id="month-select"></select>
-            <select id="year-select"></select>
-            <button id="next-month">&rarr;</button>
-        </div>        
-        <div id="calendar"></div> <!-- Calendar will be rendered here -->
-    </div>
+    <body>
+        <div class="calendar-container">
+            <h1>Release Calendar</h1>
+            <div id="calendar-controls">
+                <button id="prev-month">&larr;</button>
+                <select id="month-select"></select>
+                <select id="year-select"></select>
+                <button id="next-month">&rarr;</button>
+            </div>        
+            <div id="calendar"></div> <!-- Calendar will be rendered here -->
+        </div>
 
     <script src="assets/js/release-calendar.js"></script>
 </body>

@@ -147,16 +147,17 @@ function displayCalendar(movies, startDateStr, endDateStr) {
         const moviesForDate = moviesByDate[dateString] || []; // Get movies for the date, or an empty array if none
 
         daysHTML += `
-            <div class="calendar-day">
+            <div class="calendar-day" onclick="showMoreDetails('${dateString}')">
                 <div class="date-header">${date.getDate()}</div>
-                ${moviesForDate.length > 0 ? moviesForDate.map(movie => `
+                ${moviesForDate.length > 0 ? `
                     <div class="movie-item">
-                        <a href="movie-details.html?id=${movie.id}">
-                            <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" class="movie-poster" />
-                            <div class="movie-title">${movie.title}</div>
+                        <a href="movie-details.html?id=${moviesForDate[0].id}">
+                            <div class="movie-title">${moviesForDate[0].title}</div>
+                            <img src="https://image.tmdb.org/t/p/w500${moviesForDate[0].poster_path}" alt="${moviesForDate[0].title}" class="movie-poster" />
                         </a>
                     </div>
-                `).join('') : '<div class="no-movie">No Releases</div>'}
+                    ${moviesForDate.length > 1 ? `<div class="more-movies">+${moviesForDate.length - 1} more</div>` : ''}
+                ` : '<div class="no-movie">No Releases</div>'}
             </div>
         `;
     }
@@ -166,4 +167,37 @@ function displayCalendar(movies, startDateStr, endDateStr) {
             ${daysHTML}
         </div>
     `;
+}
+
+// Show more details for a specific date
+function showMoreDetails(dateString) {
+    const moviesForDate = moviesByDate[dateString] || [];
+    if (moviesForDate.length > 1) {
+        const modalContent = moviesForDate.map(movie => `
+            <div class="movie-item">
+                <a href="movie-details.html?id=${movie.id}">
+                    <div class="movie-title">${movie.title}</div>
+                    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" class="movie-poster" />
+                </a>
+            </div>
+        `).join('');
+
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                ${modalContent}
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+}
+
+// Close the modal
+function closeModal() {
+    const modal = document.querySelector('.modal');
+    if (modal) {
+        modal.remove();
+    }
 }
