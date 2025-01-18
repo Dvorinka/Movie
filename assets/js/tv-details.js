@@ -61,6 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
         showDetailTitle.innerHTML = formattedTitle;
 
         // Update other show details
+        showDetailBadge.addEventListener('click', () => {
+            // Redirect the user to the desired URL
+            const showId = show.id; // Make sure `show.id` is accessible in this scope
+            const url = `./episode-rating.html?id=${showId}`;
+            window.location.href = url;
+        });
+        showDetailBadge.style.cursor = 'pointer';
         showDetailBadge.textContent = show.vote_average ? show.vote_average.toFixed(1) : 'NR';
         showDetailGenres.innerHTML = show.genres.map(genre => `<a href="genre-details.html?genreId=${genre.id}" target="_blank">${genre.name}</a>`).join(' ');
         showDetailFirstAirDate.textContent = showDetailYear;
@@ -337,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <time>${new Date(show.first_air_date).getFullYear()}</time> <!-- Display first air year only -->
                     </div>
                     <div class="card-meta">
-                        <div class="badge badge-outline">${show.vote_average.toFixed(1)}</div> <!-- Display rating with 1 decimal place -->
+                        <div class="badge badge-outline">${show.vote_average.toFixed(1)}</div>
                     </div>
                 </div>
             `;

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Ratings</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="./assets/js/api.js"></script>
+    <script src="./assets/js/search.js"></script>
+    <style>
+        /* General styling */
+      body {
+          margin: 0;
+          background-color: #111111;
+          color: white;
+      }
+
+      .header{
+        position: relative;
+      }
+
+      .container-ra {
+          display: flex;
+          gap: 32px;
+          max-width: 1200px;
+          margin: 55px auto;
+          padding-left: 140px;
+      }
+
+      .show-info {
+          flex: 0 0 200px;
+      }
+
+      .poster {
+          width: 200px;
+          border-radius: 4px;
+          margin-bottom: 16px;
+      }
+
+      .show-title {
+          font-size: 24px;
+          margin: 0 0 8px 0;
+          font-weight: bold;
+      }
+
+      .rating {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 8px;
+      }
+
+      .star {
+          color: orange;
+          font-size: 18px;
+      }
+      
+      #votes{
+          display: inline-block;
+      }
+
+      .rating-value {
+          font-size: 16px;
+          font-weight: bold;
+      }
+
+      .votes {
+          color: #a1a1aa;
+          font-size: 13px;
+      }
+
+      .years {
+          color: #a1a1aa;
+          margin-bottom: 16px;
+          font-size: 12px;
+      }
+
+      .legend {
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+          margin-bottom: 15px;
+      }
+
+      .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.9rem;
+      }
+
+      .legend-dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+      }
+
+      .ratings-grid {
+          flex: 1;
+      }
+
+      .season-headers {
+          display: grid;
+          grid-template-columns: 57px repeat(auto-fill, 40px);
+          gap: 14px;
+          margin-bottom: 4px;
+          color: #a1a1aa;
+          font-size: 0.9rem;
+      }
+
+      .episodes-container {
+          display: grid;
+          gap: 6px;
+      }
+
+      .episode-row {
+          display: grid;
+          grid-template-columns: 40px repeat(auto-fill, 40px);
+          gap: 14px; /* Add spacing between episodes */
+      }
+
+      .episode-number {
+          display: flex;
+          align-items: center;
+          font-size: 0.9rem;
+          color: #a1a1aa;
+      }
+
+      .episode {
+          width: 48px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+          font-weight: 500;
+          cursor: pointer;
+          position: relative;
+          transition: transform 0.2s;
+          font-size: 16px;
+          gap: 4px;
+      }
+
+      .episode:hover {
+          transform: scale(1.1);
+          z-index: 2;
+      }
+
+      .tooltip {
+          position: absolute;
+          left: 50%;
+          bottom: calc(100% + 8px);
+          transform: translateX(-50%);
+          background-color: rgba(0, 0, 0, 0.95);
+          padding: 8px;
+          border-radius: 4px;
+          font-size: 13px;
+          white-space: nowrap;
+          visibility: hidden;
+          opacity: 0;
+          transition: opacity 0.15s;
+          z-index: 3;
+          width: max-content;
+          max-width: 200px;
+          text-align: center;
+      }
+
+      .tooltip::after {
+          content: '';
+          position: absolute;
+          bottom: -4px;
+          left: 50%;
+          transform: translateX(-50%);
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          border-top: 4px solid rgba(0, 0, 0, 0.95);
+      }
+
+      .episode:hover .tooltip {
+          visibility: visible;
+          opacity: 1;
+      }
+
+      .episode-title {
+          display: block;
+          margin-bottom: 4px;
+          font-weight: normal;
+          color: white;
+      }
+
+      .episode-info {
+          display: block;
+          font-size: 11px;
+          color: #999;
+      }
+
+      /* Rating colors */
+      .awesome { background-color: #186a3b; }
+      .great { background-color: #28b463; }
+      .good { background-color: #f4d03f; color: black; }
+      .regular { background-color: #fb923c; color: black; }
+      .bad { background-color: #e74c3c; }
+      .garbage { background-color: #633974; }
+
+      .legend-awesome { background-color: #186a3b; }
+      .legend-great { background-color: #28b463; }
+      .legend-good { background-color: #f4d03f; }
+      .legend-regular { background-color: #fb923c; }
+      .legend-bad { background-color: #e74c3c; }
+      .legend-garbage { background-color: #633974; }
+
+      .unknown {
+          background-color: #bdbdbd;
+          color: black;
+      }
+    </style>
+      <script type="text/javascript" data-cfasync="false">
+        /*<![CDATA[/* */
+        (function(){var z=window,o="dc3348165e74e8a7990f0c1388959594",q=[["siteId",660+744*735*399*712-155345520349],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],c=["d3d3LmNkbjRhZHMuY29tL1lCYVpNL3JveGF6Sy93Z3JhbmltLm1pbi5qcw==","ZDNnNW92Zm5nanc5YncuY2xvdWRmcm9udC5uZXQveWpxdWVyeS5zbW9vdGhTdGF0ZS5taW4uanM="],s=-1,m,r,p=function(){clearTimeout(r);s++;if(c[s]&&!(1761421546000<(new Date).getTime()&&1<s)){m=z.document.createElement("script");m.type="text/javascript";m.async=!0;var k=z.document.getElementsByTagName("script")[0];m.src="https://"+atob(c[s]);m.crossOrigin="anonymous";m.onerror=p;m.onload=function(){clearTimeout(r);z[o.slice(0,16)+o.slice(0,16)]||p()};r=setTimeout(p,5E3);k.parentNode.insertBefore(m,k)}};if(!z[o]){try{Object.freeze(z[o]=q)}catch(e){}p()}})();
+        /*]]>/* */
+        </script>
+        <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <div class="overlay" data-overlay></div>
+
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/heading_purple.png" class="sparkscreen">
+      </a>
+
+      <div class="header-actions">
+        <div class="search-btn-container">
+          <button class="search-btn" onclick="toggleSearchInput()">
+            <ion-icon name="search-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+      
+      <button class="menu-open-btn" data-menu-open-btn>
+        <ion-icon name="reorder-two"></ion-icon>
+      </button>
+
+      <nav class="navbar" data-navbar>
+
+        <div class="navbar-top">
+
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/logo.svg" alt="FilFuse logo">
+          </a>
+
+          <button class="menu-close-btn" data-menu-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+
+        </div>
+
+        <ul class="navbar-list">
+
+          <li>
+            <a href="./index.html" class="navbar-link">Home</a>
+          </li>
+
+          <li>
+            <a href="./discover.html" class="navbar-link">Discover</a>
+            <ul>
+              <li>
+                <a href="./top-100.html" class="navbar-link">Top 100</a>
+              </li>
+              <li>
+                <a href="./best-movies-2024.html" class="navbar-link">Best Movies of 2024</a>
+              </li>
+            </ul>
+
+          </li>
+
+          <li>
+            <a href="./suggestions.html" class="navbar-link">Suggestions</a>
+            <ul>
+              <li>
+                <a href="./date-night.html" class="navbar-link">Date Night</a>
+              </li>
+            </ul>
+          </li>
+
+          <li>
+            <a href="./ai-finder.html" class="navbar-link">Find lost movies</a>
+          </li>
+
+          <li>
+            <a href="./about.html" class="navbar-link">About</a>
+          </li>
+
+        </ul>
+
+        <ul class="navbar-social-list">
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-github"></ion-icon>
+            </a>
+          </li>
+
+        </ul>
+
+      </nav>
+    </div>
+</header>
+
+  <div class="search-el">
+    <div class="input-main-div">
+    <input name="query" type="text" tabindex="1" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false" id="search-input" placeholder="Search for a movie, tv show, person..." class="input-main">
+    </div>
+    <div id="default-results" class="results-container"></div>
+  </div>
+  <div class="container-ra">
+      <div class="show-info">
+        <img id="poster" src="https://placehold.co/300x450" alt="Show poster" class="poster">
+          <div class="rating">
+              <span class="star">★</span>
+              <span id="rating" class="rating-value">0.0</span>
+              <span class="votes">(<span id="votes">0</span> votes)</span>
+          </div>
+          <h1 id="title" class="show-title">Show Title</h1>
+          <div id="years" class="years">0000 - 0000</div>
+      </div>
+
+      <div class="ratings-grid">
+        <div class="legend">
+          <div class="legend-item">
+              <div class="legend-dot legend-awesome"></div>
+              <span>Awesome</span>
+          </div>
+          <div class="legend-item">
+              <div class="legend-dot legend-great"></div>
+              <span>Great</span>
+          </div>
+          <div class="legend-item">
+              <div class="legend-dot legend-good"></div>
+              <span>Good</span>
+          </div>
+          <div class="legend-item">
+              <div class="legend-dot legend-regular"></div>
+              <span>Regular</span>
+          </div>
+          <div class="legend-item">
+              <div class="legend-dot legend-bad"></div>
+              <span>Bad</span>
+          </div>
+          <div class="legend-item">
+              <div class="legend-dot legend-garbage"></div>
+              <span>Don't</span>
+          </div>
+      </div>
+          <div id="season-headers" class="season-headers"></div>
+          <div id="episodes" class="episodes-container"></div>
+      </div>
+  </div>
+
+
+  <script>
+const API_KEY = "054582e9ee66adcbe911e0008aa482a8";
+
+// Function to get the show ID from the URL
+const getShowIdFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id');
+};
+
+const fetchShowDetails = async (showId) => {
+    const response = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=${API_KEY}&language=en-US`);
+    const data = await response.json();
+    displayShowDetails(data);
+    fetchSeasonDetails(data.id, data.number_of_seasons);
+};
+
+const displayShowDetails = (data) => {
+    document.getElementById("poster").src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
+    document.getElementById("title").textContent = data.name;
+
+    const ratingElement = document.getElementById("rating");
+    if (data.vote_average === 0.0) {
+        ratingElement.textContent = "?";
+        ratingElement.style.color = "#bdbdbd";
+    } else {
+        ratingElement.textContent = data.vote_average.toFixed(1);
+    }
+
+    document.getElementById("votes").textContent = data.vote_count.toLocaleString();
+    document.getElementById("years").textContent = `${data.first_air_date.split("-")[0]} - ${data.last_air_date ? data.last_air_date.split("-")[0] : "Present"}`;
+};
+
+const fetchSeasonDetails = async (showId, seasons) => {
+    const container = document.getElementById("episodes");
+    const episodesByNumber = {};
+    
+    // Generate season headers
+    const seasonHeaders = document.getElementById("season-headers");
+    seasonHeaders.innerHTML = '<div></div>'; // Empty cell for episode numbers
+    for (let i = 1; i <= seasons; i++) {
+        const seasonHeader = document.createElement("div");
+        seasonHeader.textContent = `S${i}`;
+        seasonHeaders.appendChild(seasonHeader);
+    }
+
+    // Fetch all seasons
+    for (let i = 1; i <= seasons; i++) {
+        const response = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${i}?api_key=${API_KEY}&language=en-US`);
+        const seasonData = await response.json();
+        
+        // Group episodes by episode number
+        seasonData.episodes.forEach(episode => {
+            if (!episodesByNumber[episode.episode_number]) {
+                episodesByNumber[episode.episode_number] = [];
+            }
+            episodesByNumber[episode.episode_number][seasonData.season_number - 1] = episode;
+        });
+    }
+
+    // Create episode rows
+    Object.keys(episodesByNumber)
+        .sort((a, b) => Number(a) - Number(b))
+        .forEach(episodeNumber => {
+            const row = document.createElement("div");
+            row.className = "episode-row";
+            
+            // Add episode number
+            const episodeNumberDiv = document.createElement("div");
+            episodeNumberDiv.className = "episode-number";
+            episodeNumberDiv.textContent = `E${episodeNumber}`;
+            row.appendChild(episodeNumberDiv);
+            
+            // Add episode ratings
+            for (let i = 0; i < seasons; i++) {
+                const episode = episodesByNumber[episodeNumber][i];
+                const episodeDiv = document.createElement("div");
+                
+                if (!episode) {
+                    episodeDiv.className = "episode empty";
+                    episodeDiv.textContent = "";
+                } else if (episode.vote_average === 0.0) {
+                    episodeDiv.className = "episode unknown";
+                    episodeDiv.textContent = "?";
+                } else {
+                    episodeDiv.className = `episode ${getRatingClass(episode.vote_average)}`;
+                    episodeDiv.textContent = episode.vote_average.toFixed(1);
+                    
+                    const tooltip = document.createElement("div");
+                    tooltip.className = "tooltip";
+                    tooltip.innerHTML = `
+                        <span class="episode-title">${episode.name}</span>
+                        <span class="episode-info">Season ${episode.season_number}, Episode ${episode.episode_number}</span>
+                    `;
+                    episodeDiv.appendChild(tooltip);
+                }
+                
+                row.appendChild(episodeDiv);
+            }
+            
+            container.appendChild(row);
+        });
+};
+
+const getRatingClass = (rating) => {
+    if (rating >= 9) return "awesome";
+    if (rating >= 8) return "great";
+    if (rating >= 7) return "good";
+    if (rating >= 5) return "regular";
+    if (rating >= 3) return "bad";
+    return "garbage";
+};
+
+// Get the show ID from the URL and fetch the show details
+const showId = getShowIdFromUrl();
+if (showId) {
+    fetchShowDetails(showId);
+} else {
+    console.error("No show ID found in the URL.");
+}
+</script>
+<script src="./assets/js/script.js"></script>
+</body>
+</html>
