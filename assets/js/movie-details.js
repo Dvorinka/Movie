@@ -48,13 +48,20 @@ document.addEventListener('DOMContentLoaded', () => {
         movieDetailBanner.alt = `${movie.title} Poster`;
 
         // Format and update movie title
-        const titleWords = movie.title.split(' ');
+        let maxTitleLength = 36;
+        let shortenedTitle = movie.title.length > maxTitleLength ? movie.title.slice(0, maxTitleLength) + "..." : movie.title;
+        const titleWords = shortenedTitle.split(' ');
         const formattedTitle = `<strong>${titleWords[0]}</strong> ${titleWords.slice(1).join(' ')}`;
         movieDetailTitle.innerHTML = formattedTitle;
 
+
         // Update other movie details
         movieDetailBadge.textContent = movie.vote_average ? movie.vote_average.toFixed(1) : 'NR';
-        movieDetailGenres.innerHTML = movie.genres.map(genre => `<a href="genre-details.html?genreId=${genre.id}" target="_blank">${genre.name}</a>`).join(' ');
+        let maxGenres = 3;
+        const limitedGenres = movie.genres.slice(0, maxGenres);
+        movieDetailGenres.innerHTML = limitedGenres
+        .map(genre => `<a href="genre-details.html?genreId=${genre.id}" target="_blank">${genre.name}</a>`)
+        .join(' ');
         movieDetailReleaseDate.textContent = movieDetailYear;
         movieDetailReleaseDate.setAttribute('datetime', movie.release_date);
         movieDetailRuntime.textContent = formatRuntime(movie.runtime);
@@ -862,123 +869,98 @@ if (streamButton) {
                 return;
             }
     
-            const addToListContainer = document.createElement('div');
-            addToListContainer.classList.add('add-to-list-container');
-            addToListContainer.style.display = session ? 'block' : 'none';
+            // Get the existing add-to-list icon and container
+            const addToListAnchor = document.querySelector('#add-to-list');
+            const addToListIcon = addToListAnchor.querySelector('ion-icon');
     
-            const addToListBtn = document.createElement('button');
-            addToListBtn.id = 'addToListBtn';
-            addToListBtn.classList.add('add-to-list-btn');
-            addToListBtn.textContent = 'Add to List';
-    
-            addToListContainer.appendChild(addToListBtn);
-    
-            // Append the container to the page
-            const detailContent = document.querySelector('.movie-detail-content');
-            if (detailContent) {
-                detailContent.appendChild(addToListContainer);
+            if (!addToListAnchor || !addToListIcon) {
+                console.error('Add-to-list button or icon not found.');
+                return;
             }
     
-            if (session) {
-                addToListBtn.addEventListener('click', async () => {
-                    const { data: lists, error } = await supabase
-                        .from('user_lists')
-                        .select('id, list_name, list_items')
-                        .eq('user_id', session.user.id);
+            // Ensure the button is visible only if the user is logged in
+            addToListAnchor.style.display = session ? 'block' : 'none';
     
-                    if (error) {
-                        console.error('Error fetching lists:', error);
+            // Check if the movie is already in any of the user's lists
+            const { data: userLists, error: fetchError } = await supabase
+                .from('user_lists')
+                .select('id, list_items')
+                .eq('user_id', session.user.id);
+    
+            if (fetchError) {
+                console.error('Error fetching user lists:', fetchError);
+                return;
+            }
+    
+            const isInList = userLists.some(list =>
+                Array.isArray(list.list_items) &&
+                list.list_items.some(item => item.id === movie.id)
+            );
+    
+            // Set the initial icon state
+            addToListIcon.name = isInList ? 'list-circle-outline' : 'add-circle-outline';
+    
+            // Handle the click event
+            addToListAnchor.addEventListener('click', async (e) => {
+                e.preventDefault();
+    
+                if (addToListIcon.name === 'add-circle-outline') {
+                    // Add the movie to the user's default list or prompt for a list
+                    const defaultList = userLists[0]; // Assume the first list as default
+    
+                    if (!defaultList) {
+                        alert('No lists found. Please create a new list.');
                         return;
                     }
     
-                    const listOptions = lists.map(list => `<option value="${list.id}">${list.list_name}</option>`).join('');
-                    const listFormHtml = `
-                        <div class="list-form">
-                            <label for="listName">New List Name:</label>
-                            <input type="text" id="listName" placeholder="Enter list name">
-                            <label for="existingLists">Or select an existing list:</label>
-                            <select id="existingLists">
-                                <option value="">Select a list</option>
-                                ${listOptions}
-                            </select>
-                            <button id="saveListBtn">Save</button>
-                        </div>
-                    `;
+                    const updatedListItems = Array.isArray(defaultList.list_items)
+                        ? [...defaultList.list_items, { id: movie.id, title: movie.title }]
+                        : [{ id: movie.id, title: movie.title }];
     
-                    addToListContainer.innerHTML = listFormHtml;
+                    const { error: updateError } = await supabase
+                        .from('user_lists')
+                        .update({ list_items: updatedListItems })
+                        .eq('id', defaultList.id);
     
-                    document.getElementById('saveListBtn').addEventListener('click', async () => {
-                        const newListName = document.getElementById('listName').value;
-                        const existingListId = document.getElementById('existingLists').value;
-                        const movieId = movie.id;
-                        const movieTitle = movie.title;
-                    
-                        if (newListName) {
-                            const { data, error } = await supabase
-                                .from('user_lists')
-                                .insert({
-                                    user_id: session.user.id,
-                                    list_items: [{ id: movieId, title: movieTitle }],
-                                    list_name: newListName,
-                                    privacy: "public",
-                                    share_link: generateShareLink()
-                                });
-                    
-                            if (error) {
-                                console.error('Error creating new list:', error);
-                                alert('Failed to create new list.');
-                            } else {
-                                alert(`${movieTitle} added to your new list!`);
-                            }
-                        } else if (existingListId) {
-                            // Find the existing list
-                            console.log('existingListId:', existingListId);
-                            lists.forEach(list => console.log('list.id:', list.id));
-                    
-                            const existingList = lists.find(list => list.id.toString() === existingListId.toString());
-                    
-                            if (!existingList) {
-                                console.error('List not found:', existingListId);
-                                alert('Selected list does not exist.');
-                                return;
-                            }
-                    
-                            // Ensure list_items is always an array
-                            const currentListItems = Array.isArray(existingList.list_items) ? existingList.list_items : [];
-                    
-                            // Check if the movie is already in the list
-                            const movieAlreadyInList = currentListItems.some(item => item.id === movieId);
-                    
-                            if (movieAlreadyInList) {
-                                alert(`${movieTitle} is already in the list!`);
-                                return; // Prevent adding the movie again
-                            }
-                    
-                            // If the movie is not in the list, add it
-                            const updatedListItems = [...currentListItems, { id: movieId, title: movieTitle }];
-                    
-                            const { data, error } = await supabase
-                                .from('user_lists')
-                                .update({ list_items: updatedListItems })
-                                .eq('id', existingListId);
-                    
-                            if (error) {
-                                console.error('Error adding to existing list:', error);
-                                alert('Failed to add to existing list.');
-                            } else {
-                                alert(`${movieTitle} added to your existing list!`);
-                            }
-                        } else {
-                            alert('Please enter a new list name or select an existing list.');
+                    if (updateError) {
+                        console.error('Error adding movie to list:', updateError);
+                        alert('Failed to add movie to list.');
+                        return;
+                    }
+    
+                    // Update icon
+                    addToListIcon.name = 'list-circle-outline';
+                    alert(`${movie.title} added to your list!`);
+                } else if (addToListIcon.name === 'list-circle-outline') {
+                    // Remove the movie from all lists
+                    const updatedLists = userLists.map(list => ({
+                        ...list,
+                        list_items: list.list_items.filter(item => item.id !== movie.id),
+                    }));
+    
+                    for (const list of updatedLists) {
+                        const { error: removeError } = await supabase
+                            .from('user_lists')
+                            .update({ list_items: list.list_items })
+                            .eq('id', list.id);
+    
+                        if (removeError) {
+                            console.error('Error removing movie from list:', removeError);
+                            alert('Failed to remove movie from list.');
+                            return;
                         }
-                    });
-                    
-                });
-            }
+                    }
+    
+                    // Update icon
+                    addToListIcon.name = 'add-circle-outline';
+                    alert(`${movie.title} removed from your list!`);
+                }
+            });
         } catch (err) {
             console.error('Error in addToListFeature:', err);
         }
     };
+    
 
     const markAsWatchedFeature = async (movie) => {
         if (!supabase || !supabase.auth) {
@@ -993,28 +975,25 @@ if (streamButton) {
                 return;
             }
     
-            const watchedContainer = document.createElement('div');
-            watchedContainer.classList.add('watched-container');
-            watchedContainer.style.display = session ? 'block' : 'none';
+            // Select the watched icon container
+            const watchedIcon = document.querySelector('.watched-icon #mark-as-watched');
+            const watchedIconElement = document.querySelector('.watched-icon ion-icon');
     
-            const watchedBtn = document.createElement('button');
-            watchedBtn.id = 'markAsWatchedBtn';
-            watchedBtn.classList.add('watched-btn');
-            watchedBtn.textContent = 'Mark as Watched';
-    
-            watchedContainer.appendChild(watchedBtn);
-    
-            // Append the container to the page
-            const detailContent = document.querySelector('.movie-detail-content');
-            if (detailContent) {
-                detailContent.appendChild(watchedContainer);
+            if (!watchedIcon || !watchedIconElement) {
+                console.error('Watched icon not found.');
+                return;
             }
     
-            // Select the movie image for grayscale
+            // Select the movie image for grayscale effect
             const movieImage = document.querySelector(`.movie-detail-banner img`);
             if (!movieImage) {
                 console.error('Movie image not found.');
             }
+    
+            // Update watched icon visibility based on session
+            watchedIcon.style.display = session ? 'block' : 'none';
+    
+            let isWatched = false; // Track watched status locally
     
             if (session) {
                 // Check if the movie is already marked as watched
@@ -1029,29 +1008,59 @@ if (streamButton) {
                     return;
                 }
     
-                if (existing.length > 0) {
-                    applyWatchedStyle(movieImage); // Apply grayscale only to the image
-                    watchedBtn.textContent = 'Already Watched';
-                    watchedBtn.disabled = true;
+                isWatched = existing.length > 0;
+    
+                // Set initial icon and state based on watch status
+                if (isWatched) {
+                    applyWatchedStyle(movieImage);
+                    watchedIconElement.name = 'eye-off-outline';
+                    watchedIcon.title = 'Unmark as Watched';
+                } else {
+                    removeWatchedStyle(movieImage);
+                    watchedIconElement.name = 'eye-outline';
+                    watchedIcon.title = 'Mark as Watched';
                 }
     
-                watchedBtn.addEventListener('click', async () => {
-                    // Insert the movie into the watched_movies table
-                    const { data, error: insertError } = await supabase
-                        .from('watched_movies')
-                        .insert({
-                            user_id: session.user.id,
-                            movie_id: movie.id,
-                            movie_title: movie.title,
-                        });
+                // Add event listener for toggling watched status
+                watchedIcon.addEventListener('click', async (e) => {
+                    e.preventDefault();
     
-                    if (insertError) {
-                        console.error('Error marking as watched:', insertError);
-                        alert('Failed to mark as watched.');
+                    if (isWatched) {
+                        // Remove movie from the watched_movies table
+                        const { error: deleteError } = await supabase
+                            .from('watched_movies')
+                            .delete()
+                            .eq('user_id', session.user.id)
+                            .eq('movie_id', movie.id);
+    
+                        if (deleteError) {
+                            console.error('Error removing watched status:', deleteError);
+                            alert('Failed to unmark as watched.');
+                        } else {
+                            removeWatchedStyle(movieImage);
+                            watchedIconElement.name = 'eye-outline';
+                            watchedIcon.title = 'Mark as Watched';
+                            isWatched = false; // Update local state
+                        }
                     } else {
-                        applyWatchedStyle(movieImage); // Apply grayscale to the image
-                        watchedBtn.textContent = 'Already Watched';
-                        watchedBtn.disabled = true;
+                        // Add movie to the watched_movies table
+                        const { error: insertError } = await supabase
+                            .from('watched_movies')
+                            .insert({
+                                user_id: session.user.id,
+                                movie_id: movie.id,
+                                movie_title: movie.title,
+                            });
+    
+                        if (insertError) {
+                            console.error('Error marking as watched:', insertError);
+                            alert('Failed to mark as watched.');
+                        } else {
+                            applyWatchedStyle(movieImage);
+                            watchedIconElement.name = 'eye-off-outline';
+                            watchedIcon.title = 'Unmark as Watched';
+                            isWatched = true; // Update local state
+                        }
                     }
                 });
             }
@@ -1060,24 +1069,46 @@ if (streamButton) {
         }
     };
     
-// Apply grayscale filter to the image only and add "Watched" label
     const applyWatchedStyle = (image) => {
         if (!image) {
             console.error('Movie image not found.');
             return;
         }
-
+    
+        // Apply grayscale filter to the image
         image.style.filter = 'grayscale(1)';
+    
+        // Create a "Watched" label
         const watchedLabel = document.createElement('div');
         watchedLabel.textContent = 'Watched';
         watchedLabel.classList.add('watched-label');
-
+    
         // Ensure the label is added only once
         const parentElement = image.closest('.movie-detail-banner');
-        if (!parentElement.querySelector('.watched-label')) {
+        if (parentElement && !parentElement.querySelector('.watched-label')) {
             parentElement.appendChild(watchedLabel);
         }
     };
+    
+    
+    const removeWatchedStyle = (image) => {
+        if (!image) {
+            console.error('Movie image not found.');
+            return;
+        }
+    
+        // Remove grayscale filter from the image
+        image.style.filter = 'none';
+    
+        // Remove the "Watched" label if it exists
+        const parentElement = image.closest('.movie-detail-banner');
+        const watchedLabel = parentElement.querySelector('.watched-label');
+        if (watchedLabel) {
+            watchedLabel.remove();
+        }
+    };
+    
+    
     
     
         

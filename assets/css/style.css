@@ -1144,6 +1144,16 @@ body.active { overflow: hidden; }
 
 .stream-btn ion-icon { font-size: 16px; }
 
+.stream-buttons {
+  display: flex;
+  gap: 10px; /* Adjust the gap as needed */
+}
+
+.stream-btn, .sd-stream-btn {
+  flex: 1; /* Ensure buttons take equal space */
+  text-align: center; /* Center the text inside the buttons */
+}
+
 
 
 
@@ -1585,7 +1595,7 @@ body.active { overflow: hidden; }
   .stream-btn {
     position: absolute;
     right: 20px;
-    margin-top: 126px;
+    margin-top: 22px;
   }
 
 }
@@ -1696,7 +1706,7 @@ body.active { overflow: hidden; }
 
   .show-detail-content { max-width: 620px; }
 
-  .detail-title { --fs-1: 60px; }
+  .detail-title { --fs-1: 54px; }
 
   .download-btn {
     left: auto;
@@ -3448,7 +3458,7 @@ summary {
   letter-spacing: 3px;
   border-radius: 6px;
   position: absolute;
-  top: 210px;
+  top: 157px;
   right: 15px;
   margin-top: 5px;
   cursor: pointer;
@@ -3462,7 +3472,7 @@ summary {
 
 @media screen and (min-width: 992px) and (max-width: 1199px) {
   .sd-stream-btn {
-    top: 560px;
+    top: 457px;
     right: 21px;
   }
 }
@@ -3494,3 +3504,37 @@ summary {
 
 }
 
+.meta-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 15px 25px;
+  margin-bottom: 50px;
+}
+
+.watched-icon {
+  display: flex;
+  align-items: center;
+  font-size: 20px; /* Adjust the size as needed */
+  color: var(--gainsboro); /* Adjust the color as needed */
+  --ionicon-stroke-width: 50px;
+  color: var(--citrine);
+}
+
+.watched-icon a {
+  color: inherit; /* Ensure the link inherits the color */
+  text-decoration: none; /* Remove underline from the link */
+}
+
+.add-to-list-container ion-icon {
+  font-size: 24px;
+  color: #007bff;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.add-to-list-container ion-icon:hover {
+  transform: scale(1.2);
+  color: #0056b3;
+}

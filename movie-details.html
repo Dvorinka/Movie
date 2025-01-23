@@ -173,6 +173,18 @@
                   <time datetime="PT115M">Runtime</time> <!-- Runtime -->
                 </div>
               </div>
+
+              <div class="watched-icon">
+                <a href="#" id="mark-as-watched">
+                  <ion-icon name="eye-outline"></ion-icon>
+                </a>
+              </div>
+<!-- 
+              <div class="add-to-list-container">
+                <a href="#" id="add-to-list">
+                    <ion-icon name="add-circle-outline"></ion-icon>
+                </a>
+            </div>             -->
             </div>
   
             <p class="storyline">Short movie recap</p> <!-- Short movie recap -->
@@ -217,15 +229,17 @@
             </div>
 
   
-            <a href="#" class="stream-btn"> <!-- Stream button -->
-              <span>Stream</span>
-              <ion-icon name="play-circle-outline"></ion-icon>
-            </a>
-
-            <a href="#" class="sd-stream-btn"> <!-- Stream button -->
-              <span>SD Stream</span>
-              <ion-icon name="play-circle-outline"></ion-icon>
-            </a>
+            <div class="stream-buttons">
+              <a href="#" class="stream-btn"> <!-- Stream button -->
+                <span>Stream</span>
+                <ion-icon name="play-circle-outline"></ion-icon>
+              </a>
+            
+              <a href="#" class="sd-stream-btn"> <!-- Stream button -->
+                <span>SD Stream</span>
+                <ion-icon name="play-circle-outline"></ion-icon>
+              </a>
+            </div>
 
 
             <div id="stream-container" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); z-index: 1000;">
