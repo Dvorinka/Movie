@@ -129,5 +129,5 @@ const charCounter = document.getElementById('char-counter');
 
 descriptionTextarea.addEventListener('input', () => {
     const currentLength = descriptionTextarea.value.length;
-    charCounter.textContent = `${currentLength}/215`;
+    charCounter.textContent = `${currentLength}/50`;
 });
