@@ -432,57 +432,6 @@ const torrentYTS = async () => {
     // Call the function when the page loads
     window.onload = torrentYTS;
     
-    
-
-// Function to show an AdBlock recommendation popup
-const showAdBlockPopup = () => {
-    // Check if the popup has already been shown during this session
-    if (sessionStorage.getItem('adBlockPopupShown')) {
-        return; // Exit if the popup was already shown
-    }
-
-    // Create the modal container
-    const modal = document.createElement('div');
-    modal.style.position = 'fixed';
-    modal.style.top = '0';
-    modal.style.left = '0';
-    modal.style.width = '100%';
-    modal.style.height = '100%';
-    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-    modal.style.display = 'flex';
-    modal.style.justifyContent = 'center';
-    modal.style.alignItems = 'center';
-    modal.style.zIndex = '1000';
-
-    // Create the modal content
-    const content = document.createElement('div');
-    content.style.backgroundColor = '#fff';
-    content.style.padding = '20px';
-    content.style.borderRadius = '10px';
-    content.style.textAlign = 'center';
-    content.style.width = '80%';
-    content.style.maxWidth = '400px';
-
-    // Add the text to the modal
-    content.innerHTML = `
-    <div class="adblock">
-        <h2>Recommendation</h2>
-        <p>We recommend using an <a href="https://ublockorigin.com/" target="_blank">UBlock origin</a> for a better experience while streaming.</p>
-        <button id="closeAdBlockPopup">Okay</button>
-    </div>
-    `;
-
-    modal.appendChild(content);
-    document.body.appendChild(modal);
-
-    // Add event listener to close the modal
-    document.getElementById('closeAdBlockPopup').addEventListener('click', () => {
-        modal.remove();
-        // Mark the popup as shown for this session
-        sessionStorage.setItem('adBlockPopupShown', 'true');
-    });
-};
-
 
 // Add popup trigger to Stream button
 const streamButton = document.querySelector('.stream-btn');
@@ -501,33 +450,46 @@ if (streamButton) {
             // Fetch IMDb ID from TMDB
             const imdbId = await fetchYtsImdbId(movieId);
             if (!imdbId) throw new Error("IMDb ID not available for this movie.");
-    
-            // Use IMDb ID to query YTS for the Full HD torrent
+        
+            // Use IMDb ID to query YTS for the torrent
             const ytsUrl = `https://yts.mx/api/v2/list_movies.json?query_term=${imdbId}`;
             const response = await fetch(ytsUrl);
             const data = await response.json();
-    
+        
             if (!data.data || !data.data.movies || data.data.movies.length === 0) {
                 throw new Error("Movie not found.");
             }
-    
+        
             // Get the first movie entry
             const movie = data.data.movies[0];
-    
-            // Find Full HD web quality torrent first, then fall back to Blu-ray if necessary
+        
+            // Try to find 4K torrent first
+            let torrent4K = movie.torrents.find(torrent => torrent.quality === "2160p" && torrent.type === "web");
+            if (!torrent4K) {
+                // Fall back to Blu-ray if no 4K web quality found
+                torrent4K = movie.torrents.find(torrent => torrent.quality === "2160p" && torrent.type === "bluray");
+            }
+        
+            if (torrent4K) {
+                // Construct magnet link for 4K
+                const magnetLink = `magnet:?xt=urn:btih:${torrent4K.hash}&dn=${encodeURIComponent(movie.title)}%20${movie.year}%20[2160p]%20[YTS.MX]`;
+                return magnetLink;
+            }
+        
+            // If 4K is not available, fallback to Full HD
             let torrentHD = movie.torrents.find(torrent => torrent.quality === "1080p" && torrent.type === "web");
             if (!torrentHD) {
-                // Fall back to Blu-ray if no web quality found
+                // Fall back to Blu-ray if no Full HD web quality found
                 torrentHD = movie.torrents.find(torrent => torrent.quality === "1080p" && torrent.type === "bluray");
             }
-    
-            if (!torrentHD) throw new Error("Full HD torrent not available for this movie in web or Blu-ray quality.");
-    
-            // Construct magnet link with trackers
+        
+            if (!torrentHD) throw new Error("Full HD or 4K torrent not available for this movie.");
+        
+            // Construct magnet link for Full HD
             const magnetLink = `magnet:?xt=urn:btih:${torrentHD.hash}&dn=${encodeURIComponent(movie.title)}%20${movie.year}%20[1080p]%20[YTS.MX]`;
             return magnetLink;
         } catch (error) {
-            console.error("Error fetching Full HD magnet link:", error);
+            console.error("Error fetching magnet link:", error);
             return null;
         }
     };
