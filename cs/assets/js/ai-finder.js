@@ -1,7 +1,7 @@
 const API_KEY = "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"; // AI model API Key
 const TMDB_API_KEY = "054582e9ee66adcbe911e0008aa482a8"; // TMDB API Key
 const ENDPOINT = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
-const TMDB_ENDPOINT = "https://api.themoviedb.org/3/search/movie";
+const TMDB_ENDPOINT = "https://api.themoviedb.org/3/search/movie&language=cs-CZ";
 
 async function getAIResponse(userInput, agePreference) {
     const headers = {

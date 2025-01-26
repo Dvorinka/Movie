@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const releaseYearFromInput = document.getElementById('release-year-from');
     const releaseYearToInput = document.getElementById('release-year-to');
     let selectedGenre = '';
-    let selectedFilter = 'redaction-picks';
+    let selectedFilter = 'popular';
 
     const genreMap = {
         '28': 'action',
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchTrendingMovies = async () => {
-        const url = `${baseApiUrl}/trending/movie/week?api_key=${apiKey}`;
+        const url = `${baseApiUrl}/trending/movie/week?api_key=${apiKey}&language=cs-CZ`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchPopularTvShows = async () => {
-        const url = `${baseApiUrl}/tv/popular?api_key=${apiKey}&language=en-US&region=US`;
+        const url = `${baseApiUrl}/tv/popular?api_key=${apiKey}&language=cs-CZ&region=US`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchRedactionPicks = async (genre) => {
-        let url = `${ytsApiUrl}?limit=20&sort_by=like_count&order_by=desc&language=english`;
+        let url = `${ytsApiUrl}?limit=20&sort_by=like_count&order_by=desc`;
         if (genre) {
             url += `&genre=${genre}`;
         }
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchTmdbData = async (title, year) => {
-        const url = `${baseApiUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}&year=${year}`;
+        const url = `${baseApiUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}&year=${year}&language=cs-CZ`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchTopRatedMovies = async () => {
-        const url = `${baseApiUrl}/movie/top_rated?api_key=${apiKey}&language=en-US&region=US`;
+        const url = `${baseApiUrl}/movie/top_rated?api_key=${apiKey}&language=cs-CZ&region=US`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchTopRatedTvShows = async () => {
-        const url = `${baseApiUrl}/tv/top_rated?api_key=${apiKey}&language=en-US&region=US`;
+        const url = `${baseApiUrl}/tv/top_rated?api_key=${apiKey}&language=cs-CZ&region=US`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchNowPlayingMovies = async () => {
-        const url = `${baseApiUrl}/movie/now_playing?api_key=${apiKey}&language=en-US&region=US`;
+        const url = `${baseApiUrl}/movie/now_playing?api_key=${apiKey}&language=cs-CZS&region=US`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchUpcomingMovies = async () => {
-        const url = `${baseApiUrl}/movie/upcoming?api_key=${apiKey}&language=en-US&region=US`;
+        const url = `${baseApiUrl}/movie/upcoming?api_key=${apiKey}&language=cs-CZ&region=US`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchAiringTodayTvShows = async () => {
-        const url = `${baseApiUrl}/tv/airing_today?api_key=${apiKey}&language=en-US&region=US`;
+        const url = `${baseApiUrl}/tv/airing_today?api_key=${apiKey}&language=cs-CZ&region=US`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchOnTvShows = async () => {
-        const url = `${baseApiUrl}/tv/on_the_air?api_key=${apiKey}&language=en-US&region=US`;
+        const url = `${baseApiUrl}/tv/on_the_air?api_key=${apiKey}&language=cs-CZ&region=US`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchMoviesByGenre = async (genreId) => {
         const releaseYearFrom = releaseYearFromInput ? releaseYearFromInput.value : '';
         const releaseYearTo = releaseYearToInput ? releaseYearToInput.value : '';
-        let url = `${baseApiUrl}/discover/movie?api_key=${apiKey}&language=en-US&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${genreId}&region=US&with_original_language=en&vote_count.gte=300`;
+        let url = `${baseApiUrl}/discover/movie?api_key=${apiKey}&language=cs-CZ&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${genreId}&region=US&with_original_language=en&vote_count.gte=300`;
         if (releaseYearFrom) {
             url += `&primary_release_date.gte=${releaseYearFrom}`;
         }
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchTvShowsByGenre = async (genreId) => {
         const releaseYearFrom = releaseYearFromInput ? releaseYearFromInput.value : '';
         const releaseYearTo = releaseYearToInput ? releaseYearToInput.value : '';
-        let url = `${baseApiUrl}/discover/tv?api_key=${apiKey}&language=en-US&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${genreId}&with_watch_providers=8|9|337|10|15|384&watch_region=US&with_original_language=en&with_origin_country=US&vote_count.gte=300`;
+        let url = `${baseApiUrl}/discover/tv?api_key=${apiKey}&language=cs-CZ&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${genreId}&with_watch_providers=8|9|337|10|15|384&watch_region=US&with_original_language=en&with_origin_country=US&vote_count.gte=300`;
         if (releaseYearFrom) {
             url += `&first_air_date.gte=${releaseYearFrom}`;
         }
@@ -329,20 +329,20 @@ const displayMedia = async (media, mediaType) => {
 
         if (selectedMediaType === 'movie') {
             mediaFilterSelect.innerHTML = `
-                <option value="redaction-picks">Redaction Picks</option>
-                <option value="popular">Popular Movies</option>
-                <option value="now-playing">Now Playing Movies</option>
-                <option value="upcoming">Upcoming Movies</option>
-                <option value="top-rated">Top Rated Movies</option>
+                <option value="popular">Populární filmy</option>
+                <option value="redaction-picks">Výběr redakce</option>
+                <option value="now-playing">Aktuálně v kinech</option>
+                <option value="upcoming">Připravované filmy</option>
+                <option value="top-rated">Nejlépe hodnocené filmy</option>
             `;
         } else if (selectedMediaType === 'tv') {
             mediaFilterSelect.innerHTML = `
-                <option value="top-rated">Top Rated TV Shows</option>
-                <option value="popular">Popular TV Shows</option>
-                <option value="airing-today">Airing Today</option>
-                <option value="on-tv">On TV</option>
+                <option value="top-rated">Nejlépe hodnocené seriály</option>
+                <option value="popular">Populární seriály</option>
+                <option value="airing-today">Dnes vysílané</option>
+                <option value="on-tv">Vysílané v televizi</option>
             `;
-        }
+        }        
     };
 
     // Add a button to load more movies
@@ -362,7 +362,7 @@ const loadMoreMovies = async () => {
             url += `&genre=${genreMap[selectedGenre]}`;
         }
     } else if (selectedMediaType === 'movie') {
-        url = `${baseApiUrl}/discover/movie?api_key=${apiKey}&language=en-US&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${selectedGenre}&region=US&with_original_language=en&vote_count.gte=300&page=${currentPage}`;
+        url = `${baseApiUrl}/discover/movie?api_key=${apiKey}&language=cs-CZ&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${selectedGenre}&region=US&with_original_language=en&vote_count.gte=300&page=${currentPage}`;
         if (releaseYearFrom) {
             url += `&primary_release_date.gte=${releaseYearFrom}`;
         }
@@ -370,7 +370,7 @@ const loadMoreMovies = async () => {
             url += `&primary_release_date.lte=${releaseYearTo}`;
         }
     } else if (selectedMediaType === 'tv') {
-        url = `${baseApiUrl}/discover/tv?api_key=${apiKey}&language=en-US&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${selectedGenre}&with_watch_providers=8|9|337|10|15|384&watch_region=US&with_original_language=en&with_origin_country=US&vote_count.gte=300&page=${currentPage}`;
+        url = `${baseApiUrl}/discover/tv?api_key=${apiKey}&language=cs-CZ&sort_by=${selectedFilter === 'top-rated' ? 'vote_average.desc' : 'popularity.desc'}&with_genres=${selectedGenre}&with_watch_providers=8|9|337|10|15|384&watch_region=US&with_original_language=en&with_origin_country=US&vote_count.gte=300&page=${currentPage}`;
         if (releaseYearFrom) {
             url += `&first_air_date.gte=${releaseYearFrom}`;
         }
@@ -449,7 +449,7 @@ loadMoreButton.addEventListener('click', loadMoreMovies);
 
 
     // Fetch and display trending movies by default
-    fetchRedactionPicks();
+    fetchTrendingMovies();
     updateGenreVisibility();
     updateMediaFilterOptions();
 
@@ -459,7 +459,7 @@ loadMoreButton.addEventListener('click', loadMoreMovies);
         updateMediaFilterOptions();
         const selectedMediaType = event.target.value;
         if (selectedMediaType === 'movie') {
-            fetchRedactionPicks();
+            fetchTrendingMovies();
         } else if (selectedMediaType === 'tv') {
             fetchTopRatedTvShows();
         }
