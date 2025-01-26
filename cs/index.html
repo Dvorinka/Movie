@@ -35,7 +35,6 @@
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
   <script src="assets/js/mobile-search.js"></script>
-  <script src="assets/js/language.js"></script>
 
   <!-- 
     - google font link
@@ -52,7 +51,7 @@
         // Function to fetch trending items for today
         const fetchTrendingToday = async () => {
             try {
-                const url = `https://api.themoviedb.org/3/trending/all/day?api_key=${apiKey}`;
+                const url = `https://api.themoviedb.org/3/trending/all/day?api_key=${apiKey}&language=cs-CZ`;
                 const response = await fetch(url);
                 if (!response.ok) {
                     throw new Error('Failed to fetch trending items');
@@ -70,7 +69,7 @@
         const fetchDetailedTrending = async (items) => {
             const detailedItems = await Promise.all(items.map(async item => {
                 try {
-                    const response = await fetch(`https://api.themoviedb.org/3/${item.media_type}/${item.id}?api_key=${apiKey}`);
+                    const response = await fetch(`https://api.themoviedb.org/3/${item.media_type}/${item.id}?api_key=${apiKey}&language=cs-CZ`);
                     if (!response.ok) {
                         throw new Error(`Failed to fetch detailed item for ${item.id}`);
                     }
@@ -274,7 +273,7 @@
         <div class="hero-movie"></div>
         <div class="container">
             <div class="hero-content">
-                <h1 class="h1 hero-title">Recommendation for <strong>Movies</strong>, TV Shows, & More.</h1>
+              <h1 class="h1 hero-title">Doporučení pro <strong>filmy</strong>, seriály a další.</h1>
                 <input id="search-input" type="text" placeholder="Search...">
                 <div class="search-el-mobile">
                   <div class="input-main-div-mobile">
@@ -299,7 +298,7 @@
                 </div>
                 <a href="./movie-details.html" class="btn btn-primary" style="width: 195px; height: 56px;">
                     <ion-icon name="play"></ion-icon>
-                    <span>Watch now</span>
+                    <span>Zjistit více</span>
                 </a>
             </div>
         </div>
@@ -316,10 +315,10 @@
       <div class="container special-container">
         <div class="flex-wrapper">
           <div class="title-wrapper">
-            <h1 class="special-h1">Best Movies<br> of 2024</h1>
+            <h1 class="special-h1">Nejlepší filmy<br> roku 2024</h1>
             <div class="special-line"></div>
-            <p class="special-p">List of the best movies released in 2024.</p>
-            <a class="special-a" href="best-movies-2024.html">Check It Out</a>
+            <p class="special-p">List nejlepších filmů za rok 2024.</p>
+            <a class="special-a" href="best-movies-2024.html">Zjistit více</a>
           </div>
         </div>
       </div>
@@ -333,8 +332,8 @@
         <div class="container">
           <div class="flex-wrapper">
             <div class="title-wrapper">
-              <p class="section-subtitle">Online Streaming</p>
-              <h2 class="h2 section-title">Upcoming <span style="color: #00b7ff; display: inline;">Movies</h2>
+              <p class="section-subtitle">Online streamování</p>
+              <h2 class="h2 section-title">Nadcházející <span style="color: #00b7ff; display: inline;">filmy</span></h2>              
             </div>
           </div>
           <ul class="movies-list has-scrollbar">
@@ -351,84 +350,83 @@
 
       <section class="service">
         <div class="container">
-
+      
           <div class="service-banner">
             <figure>
-              <img src="./assets/images/service-banner.png" alt="Free & Open Source" class="service-banner-img">
+              <img src="./assets/images/service-banner.png" alt="Zdarma a Open Source" class="service-banner-img">
             </figure>
-            
+      
             <a class="service-btn">
-              <span>Download</span>
-
+              <span>Stáhnout</span>
               <ion-icon name="download-outline"></ion-icon>
             </a>
           </div>
-
+      
           <div class="service-content">
-
-            <p class="service-subtitle">About Us</p>
-
+      
+            <p class="service-subtitle">O nás</p>
+      
             <h2 class="h2 service-title">SparkScreen</h2>
-
+      
             <p class="service-text">
-              Welcome to SparkScreen, your free and open-source platform for movies and TV shows! Stream and download your favorite content with torrent links, all in 4K and Full HD quality, at no cost. Discover the perfect movie for any occasion on a transparent, open-source platform built for movie lovers like you.
+              Vítejte na SparkScreen, vaší zdarma a open-source platformě pro filmy a seriály! Streamujte a stahujte oblíbený obsah s torrentovými odkazy, vše v kvalitě 4K a Full HD, bez jakýchkoli nákladů. Objevte ten pravý film pro každou příležitost na transparentní, open-source platformě vytvořené pro milovníky filmů, jako jste vy.
             </p>
-
+      
             <ul class="service-list">
-
+      
               <li>
                 <div class="service-card">
-
+      
                   <div class="card-icon">
                     <ion-icon name="tv"></ion-icon>
                   </div>
-
+      
                   <div class="card-content">
-                    <h3 class="h3 card-title">Free Streaming & Downloads</h3>
-
+                    <h3 class="h3 card-title">Bezplatné streamování a stahování</h3>
+      
                     <p class="card-text">
-                      Enjoy streaming or downloading movies and TV shows in 4K or Full HD quality, with instant magnet links—completely free!
+                      Užijte si streamování nebo stahování filmů a seriálů v kvalitě 4K nebo Full HD, s okamžitými magnetovými odkazy — zcela zdarma!
                     </p>
                   </div>
-
+      
                 </div>
               </li>
-
+      
               <li>
                 <div class="service-card">
-
+      
                   <div class="card-icon">
                     <ion-icon name="videocam"></ion-icon>
                   </div>
-
+      
                   <div class="card-content">
-                    <h3 class="h3 card-title">Personalized Recommendations</h3>
-
+                    <h3 class="h3 card-title">Personalizovaná doporučení</h3>
+      
                     <p class="card-text">
-                      Get tailored movie suggestions based on your mood, favorite films, or even the perfect Date Night Section pairings for couples. Our platform finds similar movies to keep your entertainment fresh and exciting.
+                      Získejte doporučení filmů na míru na základě vaší nálady, oblíbených filmů, nebo dokonce ideálních párů pro Date Night sekci pro páry. Naše platforma nachází podobné filmy, abyste měli vždy čerstvou a vzrušující zábavu.
                     </p>
                   </div>
-
+      
                 </div>
               </li>
-              
+      
             </ul>
-
+      
           </div>
-
+      
         </div>
-      </section>
+      </section>      
 
       <section class="trending">
         <div class="container">
           <div class="flex-wrapper">
             <div class="title-wrapper">
-              <p class="section-subtitle">Currently Popular</p>
-              <h2 class="h2 section-title">Trending <span style="color: #00b7ff; display: inline;">Today</span></h2>
+              <p class="section-subtitle">Aktuálně populární</p>
+              <h2 class="h2 section-title">Dnešní <span style="color: #00b7ff; display: inline;">trendy</span></h2>
             </div>
           </div>
           <ul class="trending-list movies-list">
-            <!-- Trending items will be dynamically added here -->
+            <!-- Trendy položky budou dynamicky přidány zde -->
           </ul>
         </div>
       </section>      
@@ -646,7 +644,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         async function fetchMostPopularMovie() {
             try {
-                const response = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`);
+                const response = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=cs-CZ&page=1`);
                 const data = await response.json();
                 const movie = data.results[0]; // Assuming the first result is the most popular movie
 
@@ -662,7 +660,7 @@
                 const movieName = document.querySelector('h2');
                 movieName.textContent = movie.title;
 
-                const movieLengthResponse = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}&language=en-US`);
+                const movieLengthResponse = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}&language=cs-CZ`);
                 const movieLengthData = await movieLengthResponse.json();
                 const movieLength = document.querySelectorAll('time')[0];
                 movieLength.textContent = `${movieLengthData.runtime} min`;
