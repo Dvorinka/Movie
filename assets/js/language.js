@@ -1,11 +1,14 @@
-  // Detect the user's default browser language
-  const userLanguage = navigator.language || navigator.userLanguage;
+// Detect the user's default browser language
+const userLanguage = navigator.language || navigator.userLanguage;
 
-  // Check if the language is Czech (cs)
-  if (userLanguage.startsWith('cs')) {
-    // Redirect to the Czech version of the website
-    window.location.href = 'https://spark.tdvorak.dev/cs/';
-  } else {
-    // Redirect to the default version of the website
-    window.location.href = 'https://spark.tdvorak.dev/';
-  }
+// Get the current URL path
+const currentPath = window.location.pathname;
+
+// Check if the language is Czech (cs) and if the user is not already on the Czech version
+if (userLanguage.startsWith('cs') && !currentPath.includes('/cs/')) {
+  // Redirect to the Czech version of the website
+  window.location.href = '/cs/index.html';
+} else if (!userLanguage.startsWith('cs') && !currentPath.includes('index.html')) {
+  // Redirect to the default version of the website
+  window.location.href = 'index.html';
+}
