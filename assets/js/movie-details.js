@@ -438,7 +438,6 @@ const streamButton = document.querySelector('.stream-btn');
 if (streamButton) {
     streamButton.addEventListener('click', (event) => {
         event.preventDefault(); // Prevent default streaming action
-        showAdBlockPopup();
     });
 }
 
