@@ -1311,7 +1311,6 @@ body.active { overflow: hidden; }
   .search-btn ion-icon { --ionicon-stroke-width: 80px; }
 
   .search-btn::after {
-    content: "";
     position: absolute;
     top: 1px;
     right: -20px;
@@ -3509,7 +3508,7 @@ summary {
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: center;
-  gap: 15px 25px;
+  gap: 15px 20px;
   margin-bottom: 50px;
 }
 
@@ -3538,3 +3537,19 @@ summary {
   transform: scale(1.2);
   color: #0056b3;
 }
+
+.watch-later-icon {
+  display: flex;
+  align-items: center;
+  font-size: 18px; /* Adjust the size as needed */
+  color: var(--gainsboro); /* Adjust the color as needed */
+  --ionicon-stroke-width: 50px;
+  color: var(--citrine);
+}
+
+.watch-later-icon a {
+  color: inherit; /* Ensure the link inherits the color */
+  text-decoration: none; /* Remove underline from the link */
+}
+
+

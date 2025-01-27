@@ -1069,14 +1069,93 @@ if (streamButton) {
         }
     };
     
+    const addToWatchLaterFeature = async (movie) => {
+        if (!supabase || !supabase.auth) {
+          console.error('Supabase client is not initialized.');
+          return;
+        }
+      
+        try {
+          const { data: { session }, error } = await supabase.auth.getSession();
+          if (error) {
+            console.error('Error getting session:', error);
+            return;
+          }
+      
+          const watchLaterIconContainer = document.querySelector('#add-to-watch-later');
+          if (!watchLaterIconContainer) {
+            console.error('Watch Later icon not found.');
+            return;
+          }
+      
+          let isInWatchList = false; // Track watch list status locally
+      
+          if (session) {
+            const { data: existing, error: fetchError } = await supabase
+              .from('watch_later_movies')
+              .select('id')
+              .eq('user_id', session.user.id)
+              .eq('movie_id', movie.id);
+      
+            if (fetchError) {
+              console.error('Error checking watch later status:', fetchError);
+              return;
+            }
+      
+            isInWatchList = existing.length > 0;
+      
+            const ionIconElement = watchLaterIconContainer.querySelector('ion-icon');
+            if (!ionIconElement) {
+              console.error('Ion Icon not found within the anchor tag.');
+              return;
+            }
+      
+            ionIconElement.setAttribute(
+              'name',
+              isInWatchList ? 'time' : 'time-outline'
+            );
+      
+            watchLaterIconContainer.addEventListener('click', async (event) => {
+              event.preventDefault();
+      
+              if (isInWatchList) {
+                const { error: deleteError } = await supabase
+                  .from('watch_later_movies')
+                  .delete()
+                  .eq('user_id', session.user.id)
+                  .eq('movie_id', movie.id);
+      
+                if (deleteError) {
+                  console.error('Error removing from watch later list:', deleteError);
+                }
+              } else {
+                const { error: insertError } = await supabase
+                  .from('watch_later_movies')
+                  .insert([
+                    { 
+                      user_id: session.user.id, 
+                      movie_id: movie.id,
+                      movie_title: movie.title // Add the movie title here
+                    }
+                  ]);
+      
+                if (insertError) {
+                  console.error('Error adding to watch later list:', insertError);
+                }
+              }
+      
+              isInWatchList = !isInWatchList;
+              ionIconElement.setAttribute(
+                'name',
+                isInWatchList ? 'time' : 'time-outline'
+              );
+            });
+          }
+        } catch (error) {
+          console.error('An unexpected error occurred:', error);
+        }
+      };      
     
-    
-    
-        
-        // Generate a unique shareable link
-        const generateShareLink = () => {
-            return `${Math.random().toString(36).substr(2, 9)}`;
-        };
         
         // Call this function when movie details are fetched
         document.addEventListener('movieDetailsFetched', (event) => {
@@ -1084,6 +1163,7 @@ if (streamButton) {
             if (movie) {
             addToListFeature(movie);
             markAsWatchedFeature(movie);
+            addToWatchLaterFeature(movie);
             }
         });
         

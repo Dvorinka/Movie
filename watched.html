@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Watched Movies</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .movie {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .movie:hover {
+      transform: scale(1.02);
+    }
+
+    .movie img {
+      width: 100px;
+      height: 150px;
+      margin-right: 20px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .movie-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .movie-details h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .movie-details p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>User Watched Movies</h1>
+    <div id="movies-container"></div>
+  </div>
+
+  <script>
+    const supabase = window.supabase.createClient(
+  'https://cbnwekzbcxbmeevdjgoq.supabase.co', // Replace with your Supabase URL
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU' // Replace with your Supabase public API key
+);
+
+const moviesContainer = document.getElementById('movies-container');
+
+const fetchWatchedMovies = async () => {
+  try {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      console.error('Error fetching session:', sessionError);
+      return;
+    }
+
+    if (!session) {
+      console.error('No session found. User must be logged in.');
+      return;
+    }
+
+    // Fetch watched movies
+    const { data: watchedMovies, error: fetchError } = await supabase
+      .from('watched_movies') // Fetching from 'watched_movies' table
+      .select('movie_id, movie_title, watched_at') // Adjusted to new structure
+      .eq('user_id', session.user.id);
+
+    if (fetchError) {
+      console.error('Error fetching watched movies:', fetchError);
+      return;
+    }
+
+    if (watchedMovies && watchedMovies.length > 0) {
+      for (const movie of watchedMovies) {
+        const movieId = movie.movie_id;
+        const movieTitle = movie.movie_title;
+        const watchedAt = movie.watched_at;
+        displayMovie(movieId, movieTitle, watchedAt);
+      }
+    } else {
+      moviesContainer.innerHTML = '<p>No movies found in your watched list.</p>';
+    }
+  } catch (error) {
+    console.error('Unexpected error:', error);
+  }
+};
+
+const displayMovie = async (movieId, movieTitle, watchedAt) => {
+  try {
+    const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=054582e9ee66adcbe911e0008aa482a8`);
+    const movieDetails = await response.json();
+
+    if (!movieDetails.poster_path) {
+      console.error(`No poster found for movie ID ${movieId}`);
+    }
+
+    const movieElement = document.createElement('div');
+    movieElement.classList.add('movie');
+    movieElement.innerHTML = `
+      <img src="https://image.tmdb.org/t/p/w500${movieDetails.poster_path}" alt="${movieDetails.title}" />
+      <div class="movie-details">
+        <h2>${movieTitle}</h2> <!-- Use the movieTitle from the database -->
+        <p>Watched on: ${new Date(watchedAt).toLocaleDateString()}</p>
+        <p>${movieDetails.overview}</p>
+      </div>
+    `;
+
+    movieElement.addEventListener('click', () => {
+      window.location.href = `movie-details.html?id=${movieId}`;
+    });
+
+    moviesContainer.appendChild(movieElement);
+  } catch (error) {
+    console.error('Error fetching movie details:', error);
+  }
+};
+
+fetchWatchedMovies();
+
+  </script>
+  
+</body>
+</html>
