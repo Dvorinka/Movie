@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/app.js" defer></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</head>
+<body>
+
+
+  <div class="signin">
+    <div class="content">
+      <div class="tabs">
+        <h2 id="signInTab" class="active">Sign In</h2>
+        <h2 id="registerTab">Register</h2>
+      </div>
+  
+      <div id="signInForm" class="form active">
+        <div class="inputBox">
+          <input type="text" id="loginInput" required>
+          <i>Email or Username</i>
+        </div>
+        <div class="inputBox">
+          <input type="password" id="passwordInput" required>
+          <i>Password</i>
+        </div>
+        <div class="links">
+          <a href="reset.html">Forgot Password</a>
+        </div>
+        <div class="inputBox">
+          <button id="loginButton">Login</button>
+        </div>
+        <div class="login-buttons">
+          <h3>Or login with:</h3>
+          <button id="githubLoginBtn">GitHub</button>
+          <button id="discordLoginBtn">Discord</button>
+          <button id="twitchLoginBtn">Twitch</button>
+        </div>
+      </div>
+  
+      <div id="registerForm" class="form">
+        <div class="inputBox">
+          <input type="text" id="registerUsername" required>
+          <i>Username</i>
+        </div>
+        <div class="inputBox">
+          <input type="email" id="registerEmail" required>
+          <i>Email</i>
+        </div>
+        <div class="inputBox">
+          <input type="password" id="registerPassword" required>
+          <i>Password</i>
+        </div>
+        <div class="inputBox">
+          <input type="password" id="confirmPassword" required>
+          <i>Confirm Password</i>
+        </div>
+        <div class="inputBox">
+          <button id="registerButton">Register</button>
+        </div>
+        <div class="register-buttons">
+          <h3>Or register with:</h3>
+          <button id="githubRegisterBtn">GitHub</button>
+          <button id="discordRegisterBtn">Discord</button>
+          <button id="twitchRegisterBtn">Twitch</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // JavaScript to toggle between Sign In and Register forms
+    const signInTab = document.getElementById('signInTab');
+    const registerTab = document.getElementById('registerTab');
+    const signInForm = document.getElementById('signInForm');
+    const registerForm = document.getElementById('registerForm');
+  
+    signInTab.addEventListener('click', () => {
+      signInTab.classList.add('active');
+      registerTab.classList.remove('active');
+      signInForm.classList.add('active');
+      registerForm.classList.remove('active');
+    });
+  
+    registerTab.addEventListener('click', () => {
+      registerTab.classList.add('active');
+      signInTab.classList.remove('active');
+      registerForm.classList.add('active');
+      signInForm.classList.remove('active');
+    });
+  </script>
+  
+  <style>
+    .signin {
+      max-width: 400px;
+      margin: auto;
+      font-family: Arial, sans-serif;
+    }
+    .tabs h2 {
+      display: inline-block;
+      cursor: pointer;
+      margin: 0 10px;
+      padding: 10px;
+      border-bottom: 2px solid transparent;
+    }
+    .tabs h2.active {
+      border-bottom: 2px solid #007bff;
+      color: #007bff;
+    }
+    .form {
+      display: none;
+    }
+    .form.active {
+      display: block;
+    }
+    .inputBox {
+      margin: 15px 0;
+    }
+    .inputBox input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+    }
+    .inputBox i {
+      display: block;
+      margin-top: 5px;
+      color: gray;
+    }
+    .inputBox button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .inputBox button:hover {
+      background-color: #0056b3;
+    }
+    .login-buttons, .register-buttons {
+      text-align: center;
+    }
+    .login-buttons h3, .register-buttons h3 {
+      margin: 10px 0;
+    }
+    .login-buttons button, .register-buttons button {
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+  
+
+<!-- partial -->
+  
+</body>
+</html>
