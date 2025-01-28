@@ -2619,7 +2619,7 @@ iframe{
 .search-result {
   cursor: pointer;
   padding: 5px;
-  background-color: #fff;
+  background-color: #1a1a1a;
   margin: 5px 0;
   border: 1px solid #ccc;
 }
@@ -3195,7 +3195,7 @@ summary {
 }
 
 .ai-finder-form {
-  background: var(--gunmetal-1);
+  background: #1a1a1a;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -3205,9 +3205,9 @@ summary {
   width: 100%;
   padding: 10px;
   margin-bottom: 20px;
-  border: 1px solid var(--gray-x);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 5px;
-  background: var(--gunmetal-2);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--white);
   font-size: var(--fs-7);
 }
@@ -3244,7 +3244,7 @@ summary {
 }
 
 .disclaimer {
-  background-color: var(--eerie-black);
+  background-color: #1a1a1a;
   color: var(--light-gray);
   font-size: var(--fs-9);
   padding: 10px 20px;

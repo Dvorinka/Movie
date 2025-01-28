@@ -177,7 +177,6 @@
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
-              <li><a class="dropdown-item" href="/settings.html">Settings <ion-icon name="settings-outline"></ion-icon></a></li>
               <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
               <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
               <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
@@ -252,6 +251,23 @@
             <a href="./about.html" class="navbar-link">About</a>
           </li>
 
+          <div id="auth-section" class="auth-container">
+            <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+            <div id="userAccount" class="dropdown" style="display: none;">
+              <button class="btn dropdown-toggle" id="userDropdown">
+                <ion-icon name="person-circle-outline"></ion-icon>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+              </ul>
+            </div>
+          </div>
+            
         </ul>
 
         <ul class="navbar-social-list">
@@ -267,6 +283,7 @@
               <ion-icon name="logo-github"></ion-icon>
             </a>
           </li>
+          
 
         </ul>
 
