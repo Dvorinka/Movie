@@ -5,143 +5,171 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Watched Movies</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .movie {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .movie:hover {
-      transform: scale(1.02);
-    }
-
-    .movie img {
-      width: 100px;
-      height: 150px;
-      margin-right: 20px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
-
-    .movie-details {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .movie-details h2 {
-      margin: 0;
-      font-size: 18px;
-    }
-
-    .movie-details p {
-      margin: 5px 0;
-      font-size: 14px;
-      color: #555;
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
   <div class="container">
-    <h1>User Watched Movies</h1>
-    <div id="movies-container"></div>
+    <h1 class="section-title">User Watched Movies</h1>
+    <div id="movies-container" class="movies-list"></div>
   </div>
 
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
   <script>
     const supabase = window.supabase.createClient(
-  'https://cbnwekzbcxbmeevdjgoq.supabase.co', // Replace with your Supabase URL
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU' // Replace with your Supabase public API key
-);
-
-const moviesContainer = document.getElementById('movies-container');
-
-const fetchWatchedMovies = async () => {
-  try {
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-    if (sessionError) {
-      console.error('Error fetching session:', sessionError);
-      return;
-    }
-
-    if (!session) {
-      console.error('No session found. User must be logged in.');
-      return;
-    }
-
-    // Fetch watched movies
-    const { data: watchedMovies, error: fetchError } = await supabase
-      .from('watched_movies') // Fetching from 'watched_movies' table
-      .select('movie_id, movie_title, watched_at') // Adjusted to new structure
-      .eq('user_id', session.user.id);
-
-    if (fetchError) {
-      console.error('Error fetching watched movies:', fetchError);
-      return;
-    }
-
-    if (watchedMovies && watchedMovies.length > 0) {
-      for (const movie of watchedMovies) {
-        const movieId = movie.movie_id;
-        const movieTitle = movie.movie_title;
-        const watchedAt = movie.watched_at;
-        displayMovie(movieId, movieTitle, watchedAt);
+      'https://cbnwekzbcxbmeevdjgoq.supabase.co', // Replace with your Supabase URL
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU' // Replace with your Supabase public API key
+    );
+  
+    const moviesContainer = document.getElementById('movies-container');
+  
+    const getCertification = (movie) => {
+      if (!movie.release_dates || !movie.release_dates.results) {
+        return { rating: 'NR', hint: 'Not Rated' };
       }
-    } else {
-      moviesContainer.innerHTML = '<p>No movies found in your watched list.</p>';
-    }
-  } catch (error) {
-    console.error('Unexpected error:', error);
-  }
-};
+  
+      const userLanguage = navigator.language.split('-')[0];
+      
+      // First try to get US certification
+      let releaseInfo = movie.release_dates.results.find(country => country.iso_3166_1 === 'US');
+      
+      // If no US certification, try CZ for Czech users
+      if (!releaseInfo && userLanguage === 'cs') {
+        releaseInfo = movie.release_dates.results.find(country => country.iso_3166_1 === 'CZ');
+      }
+  
+      // If we found release info and it has certification
+      if (releaseInfo && 
+          releaseInfo.release_dates && 
+          releaseInfo.release_dates.length > 0 && 
+          releaseInfo.release_dates[0].certification) {
+          
+          const certification = releaseInfo.release_dates[0].certification;
+  
+          // Map the certification codes to their respective ratings and hints
+          switch (certification) {
+            case 'NR':
+              return { rating: 'NR', hint: 'Not Rated' };
+            case 'G':
+              return { rating: 'G', hint: 'General Audiences. All ages admitted.' };
+            case 'PG':
+              return { rating: 'PG', hint: 'Parental Guidance Suggested. Some material may not be suitable for children.' };
+            case 'PG-13':
+              return { rating: 'PG-13', hint: 'Parents Strongly Cautioned. Some material may be inappropriate for children under 13.' };
+            case 'R':
+              return { rating: 'R', hint: 'Restricted. Under 17 requires accompanying parent or adult guardian.' };
+            case 'NC-17':
+              return { rating: 'NC-17', hint: 'No One 17 and Under Admitted.' };
+            case 'U':
+              return { rating: 'U', hint: 'Universal. Suitable for all ages.' }; // Map 'U' to 'G'
+            default:
+              return { rating: certification, hint: 'Rating Description Unavailable' };
+          }
+      }
+  
+      return { rating: 'NR', hint: 'Not Rated' }; // Default to 'NR' if no certification is found
+    };
+  
+    const fetchWatchedMovies = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  
+        if (sessionError) {
+          return;
+        }
+  
+        if (!session) {
+          return;
+        }
+  
+        // Fetch watched movies
+        const { data: watchedMovies, error: fetchError } = await supabase
+          .from('watched_movies') // Fetching from 'watched_movies' table
+          .select('movie_id, movie_title, watched_at') // Adjusted to new structure
+          .eq('user_id', session.user.id);
+  
+        if (fetchError) {
+          return;
+        }
+  
+        if (watchedMovies && watchedMovies.length > 0) {
+          for (const movie of watchedMovies) {
+            const movieId = movie.movie_id;
+            const movieTitle = movie.movie_title;
+            const watchedAt = movie.watched_at;
+            displayMovie(movieId, movieTitle, watchedAt);
+          }
+        } else {
+          moviesContainer.innerHTML = '<p>No movies found in your watched list.</p>';
+        }
+      } catch (error) {
+        console.error('Unexpected error:', error);
+      }
+    };
+  
+    const displayMovie = async (movieId, movieTitle, watchedAt) => {
+      try {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/movie/${movieId}?api_key=054582e9ee66adcbe911e0008aa482a8&append_to_response=release_dates`
+        );
+        const movieDetails = await response.json();
+  
+        if (!movieDetails.poster_path) {
+          return;
+        }
+  
+        const movieElement = document.createElement('div');
+        movieElement.classList.add('movie-card');
+  
+        // Format the release date to the requested format (e.g., "Feb 14, 2025")
+        const formattedDate = new Date(watchedAt).toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+  
+        // Get the certification, duration, and TMDB rating from the movieDetails object
+        const certification = getCertification(movieDetails);
+        const duration = movieDetails.runtime ? `${Math.floor(movieDetails.runtime / 60)}h ${movieDetails.runtime % 60}m` : 'N/A';
+        const tmdbRating = movieDetails.vote_average ? movieDetails.vote_average : 'N/A';
+  
+        movieElement.innerHTML = `
+        <div class="card-banner">
+          <img src="https://image.tmdb.org/t/p/w500${movieDetails.poster_path}" alt="${movieDetails.title}" />
+        </div>
+        <div class="title-wrapper">
+          <h2 class="card-title">${movieTitle}</h2>
+          <time datetime="${formattedDate}">${formattedDate}</time>
+        </div>
+        <div class="card-meta">
+          <div class="badge badge-outline" title="${certification.hint}">${certification.rating}</div>
+          <div class="duration">
+            <ion-icon name="time-outline" role="img" class="md hydrated" aria-label="time outline"></ion-icon>
+            <time>${duration}</time>
+          </div>
+          <div class="rating">
+            <ion-icon name="star" role="img" class="md hydrated" aria-label="star"></ion-icon>
+            <data>${tmdbRating}</data>
+          </div>
+        </div>
+      `;
 
-const displayMovie = async (movieId, movieTitle, watchedAt) => {
-  try {
-    const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=054582e9ee66adcbe911e0008aa482a8`);
-    const movieDetails = await response.json();
-
-    if (!movieDetails.poster_path) {
-      console.error(`No poster found for movie ID ${movieId}`);
-    }
-
-    const movieElement = document.createElement('div');
-    movieElement.classList.add('movie');
-    movieElement.innerHTML = `
-      <img src="https://image.tmdb.org/t/p/w500${movieDetails.poster_path}" alt="${movieDetails.title}" />
-      <div class="movie-details">
-        <h2>${movieTitle}</h2> <!-- Use the movieTitle from the database -->
-        <p>Watched on: ${new Date(watchedAt).toLocaleDateString()}</p>
-        <p>${movieDetails.overview}</p>
-      </div>
-    `;
-
-    movieElement.addEventListener('click', () => {
-      window.location.href = `movie-details.html?id=${movieId}`;
-    });
-
-    moviesContainer.appendChild(movieElement);
-  } catch (error) {
-    console.error('Error fetching movie details:', error);
-  }
-};
-
-fetchWatchedMovies();
-
+  
+        movieElement.addEventListener('click', () => {
+          window.location.href = `movie-details.html?id=${movieId}`;
+        });
+  
+        document.getElementById('movies-container').appendChild(movieElement);
+      } catch (error) {
+        console.error('Error fetching movie details:', error);
+      }
+    };
+  
+    fetchWatchedMovies();
   </script>
+  
+  
+  
   
 </body>
 </html>
