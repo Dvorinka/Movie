@@ -1087,6 +1087,8 @@ if (streamButton) {
             console.error('Watch Later icon not found.');
             return;
           }
+
+          watchLaterIconContainer.style.display = session ? 'block' : 'none';
       
           let isInWatchList = false; // Track watch list status locally
       

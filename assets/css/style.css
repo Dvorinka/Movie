@@ -265,6 +265,13 @@ body.active { overflow: hidden; }
   color: var(--xiketic);
 }
 
+.btn-secondary { background: var(--rich-black-fogra-29); }
+
+.btn-secondary:is(:hover, :focus) {
+  background: var(--citrine);
+  color: var(--xiketic);
+}
+
 /**
  * MOVIE CARD
  */
@@ -1098,7 +1105,7 @@ body.active { overflow: hidden; }
   color: var(--gainsboro);
 }
 
-.details-actions .btn-primary {
+.details-actions .btn-primary .btn-secondary {
   font-size: 10px;
   padding: 13px 26px;
   letter-spacing: 0;
@@ -3553,3 +3560,37 @@ summary {
 }
 
 
+.auth-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  display: none;
+  z-index: 1000;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  text-decoration: none;
+  color: #333;
+}
+
+.dropdown-item ion-icon {
+  margin-left: 1rem;
+}

@@ -15,6 +15,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
   <meta name="msapplication-TileColor" content="#00b7ff">
   <meta name="theme-color" content="#00b7ff">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
 
   <!-- 
@@ -38,6 +39,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="./assets/js/api.js"></script>
   <script src="./assets/js/handling.js"></script>
+  <script src="./assets/js/user-acc.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
         const trendingList = document.querySelector('.trending-list'); // Select the trending list UL element
@@ -156,9 +158,36 @@
           <button class="search-btn" onclick="toggleSearchInput()">
             <ion-icon name="search-outline"></ion-icon>
           </button>
-        </div>  
-        <div class="sign-in"></div> <!-- Placeholder for the username or sign-in link -->
+        </div>
+        <div class="lang-wrapper">
+          <label for="language">
+            <ion-icon name="globe-outline" role="img" class="md hydrated" aria-label="globe outline"></ion-icon>
+          </label>
+
+          <select name="language" id="language">
+            <option value="en">EN</option>
+            <option value="cs">CS</option>
+          </select>
+        </div>
+        <div id="auth-section" class="auth-container">
+          <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+          <div id="userAccount" class="dropdown" style="display: none;">
+            <button class="btn dropdown-toggle" id="userDropdown">
+              <ion-icon name="person-circle-outline"></ion-icon>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/settings.html">Settings <ion-icon name="settings-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+            </ul>
+          </div>
+        </div>       
       </div>
+
       
       
       

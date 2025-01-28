@@ -1,14 +1,31 @@
-// Detect the user's default browser language
-const userLanguage = navigator.language || navigator.userLanguage;
+document.addEventListener('DOMContentLoaded', () => {
+  // Language selector functionality
+  const languageSelector = document.getElementById('language');
 
-// Get the current URL path
-const currentPath = window.location.pathname;
+  if (languageSelector) {
+    // Detect the user's default language preference
+    const savedLanguage = localStorage.getItem('language');
+    const browserLanguage = navigator.language || navigator.userLanguage;
+    const defaultLanguage = savedLanguage || (browserLanguage.startsWith('cs') ? 'cs' : 'en');
 
-// Check if the language is Czech (cs) and if the user is not already on the Czech version
-if (userLanguage.startsWith('cs') && !currentPath.includes('/cs/')) {
-  // Redirect to the Czech version of the website
-  window.location.href = '/cs/index.html';
-} else if (!userLanguage.startsWith('cs') && !currentPath.includes('index.html')) {
-  // Redirect to the default version of the website
-  window.location.href = 'index.html';
-}
+    // Set the selector to the current language
+    languageSelector.value = defaultLanguage;
+
+    // Handle user language change
+    languageSelector.addEventListener('change', (event) => {
+      const selectedLanguage = event.target.value;
+
+      // Save the new preference
+      localStorage.setItem('language', selectedLanguage);
+
+      // Redirect to the selected language page
+      if (selectedLanguage === 'cs') {
+        window.location.href = '/cs/index.html';
+      } else {
+        window.location.href = '/index.html';
+      }
+    });
+  } else {
+    console.error('Language selector not found.');
+  }
+});
