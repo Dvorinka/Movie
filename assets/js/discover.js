@@ -84,6 +84,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+     // Function to fetch watched movies for the current user
+     const fetchWatchLaterMovies = async () => {
+        console.log('Fetching watched movies...');
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) {
+                console.error('Error getting session:', error);
+                return [];
+            }
+
+            console.log('Session found, fetching watched movies for user:', session.user.id);
+
+            const { data: watchLaterMovies, error: fetchError } = await supabase
+                .from('watch_later_movies')
+                .select('movie_id')
+                .eq('user_id', session.user.id);
+
+            if (fetchError) {
+                console.error('Error fetching watched movies:', fetchError);
+                return [];
+            }
+
+            console.log('Watched movies fetched:', watchLaterMovies);
+            return watchLaterMovies.map(movie => movie.movie_id);
+        } catch (err) {
+            console.error('Error in fetchwatchLaterMovies:', err);
+            return [];
+        }
+    };
+
+    // Function to apply watched style to a movie card
+    const applyWatchLaterMovie = (mediaItem) => {
+        console.log('Applying watched style to media item:', mediaItem.id);
+        const image = mediaItem.querySelector('img');
+        if (image) {
+            const watchLaterMovies = document.createElement('div');
+            watchLaterMovies.textContent = 'Planned';
+            watchLaterMovies.classList.add('watch-later-label');
+            mediaItem.appendChild(watchLaterMovies);
+        }
+    };
+
     const fetchTrendingMovies = async () => {
         const url = `${baseApiUrl}/trending/movie/week?api_key=${apiKey}`;
         try {
@@ -263,6 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const displayMedia = async (media, mediaType) => {
     console.log('Displaying media...');
     const watchedMovies = await fetchWatchedMovies();
+    const watchLaterMovies = await fetchWatchLaterMovies();
     console.log('Watched movies list:', watchedMovies);
 
     const mediaContainer = document.createElement('div');
@@ -291,6 +334,13 @@ const displayMedia = async (media, mediaType) => {
         if (watchedMovies.includes(item.id.toString())) {
             console.log('Movie is watched:', item.id);
             applyWatchedStyle(mediaItem);
+        } else {
+            console.log('Movie is not watched:', item.id);
+        }
+
+        if (watchLaterMovies.includes(item.id.toString())) {
+            console.log('Movie is watched:', item.id);
+            applyWatchLaterMovie(mediaItem);
         } else {
             console.log('Movie is not watched:', item.id);
         }
@@ -406,6 +456,7 @@ const loadMoreMovies = async () => {
 const displayMoreMedia = async (media, mediaType) => {
     console.log('Displaying more media...');
     const watchedMovies = await fetchWatchedMovies(); // Fetch watched movies
+    const watchLaterMovies = await fetchWatchLaterMovies(); // Fetch watched movies
     console.log('Watched movies list:', watchedMovies);
 
     const mediaContainer = document.querySelector('.media-container');
@@ -431,6 +482,14 @@ const displayMoreMedia = async (media, mediaType) => {
         if (watchedMovies.includes(item.id.toString())) {
             console.log('Movie is watched:', item.id);
             applyWatchedStyle(mediaItem);
+        } else {
+            console.log('Movie is not watched:', item.id);
+        }
+
+        // Check if the movie is watched and apply the style
+        if (watchLaterMovies.includes(item.id.toString())) {
+            console.log('Movie is watched:', item.id);
+            applyWatchLaterMovie(mediaItem);
         } else {
             console.log('Movie is not watched:', item.id);
         }

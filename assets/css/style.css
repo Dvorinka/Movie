@@ -3383,7 +3383,21 @@ summary {
   border-radius: 5px;
   font-size: 14px;
   font-weight: bold;
-  z-index: 10;
+  z-index: 1;
+}
+
+
+.watch-later-label {
+  position: absolute;
+  top: 10px;
+  left: 215px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  z-index: 1;
 }
 
 .mark-watched-btn {
