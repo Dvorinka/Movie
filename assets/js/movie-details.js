@@ -441,57 +441,45 @@ if (streamButton) {
     });
 }
 
-    const streamMagnet = document.getElementById('stream-magnet');
+const streamMagnet = document.getElementById('stream-magnet');
 
-    // Function to fetch the Full HD magnet link dynamically based on IMDb ID
-    const getFullHdMagnetLink = async (movieId) => {
-        try {
-            // Fetch IMDb ID from TMDB
-            const imdbId = await fetchYtsImdbId(movieId);
-            if (!imdbId) throw new Error("IMDb ID not available for this movie.");
-        
-            // Use IMDb ID to query YTS for the torrent
-            const ytsUrl = `https://yts.mx/api/v2/list_movies.json?query_term=${imdbId}`;
-            const response = await fetch(ytsUrl);
-            const data = await response.json();
-        
-            if (!data.data || !data.data.movies || data.data.movies.length === 0) {
-                throw new Error("Movie not found.");
-            }
-        
-            // Get the first movie entry
-            const movie = data.data.movies[0];
-        
-            // Try to find 4K torrent first
-            let torrent4K = movie.torrents.find(torrent => torrent.quality === "2160p" && torrent.type === "web");
-            if (!torrent4K) {
-                // Fall back to Blu-ray if no 4K web quality found
-                torrent4K = movie.torrents.find(torrent => torrent.quality === "2160p" && torrent.type === "bluray");
-            }
-        
-            if (torrent4K) {
-                // Construct magnet link for 4K
-                const magnetLink = `magnet:?xt=urn:btih:${torrent4K.hash}&dn=${encodeURIComponent(movie.title)}%20${movie.year}%20[2160p]%20[YTS.MX]`;
-                return magnetLink;
-            }
-        
-            // If 4K is not available, fallback to Full HD
-            let torrentHD = movie.torrents.find(torrent => torrent.quality === "1080p" && torrent.type === "web");
-            if (!torrentHD) {
-                // Fall back to Blu-ray if no Full HD web quality found
-                torrentHD = movie.torrents.find(torrent => torrent.quality === "1080p" && torrent.type === "bluray");
-            }
-        
-            if (!torrentHD) throw new Error("Full HD or 4K torrent not available for this movie.");
-        
-            // Construct magnet link for Full HD
-            const magnetLink = `magnet:?xt=urn:btih:${torrentHD.hash}&dn=${encodeURIComponent(movie.title)}%20${movie.year}%20[1080p]%20[YTS.MX]`;
-            return magnetLink;
-        } catch (error) {
-            console.error("Error fetching magnet link:", error);
-            return null;
+// Function to fetch the Full HD magnet link dynamically based on IMDb ID
+const getFullHdMagnetLink = async (movieId) => {
+    try {
+        // Fetch IMDb ID from TMDB
+        const imdbId = await fetchYtsImdbId(movieId);
+        if (!imdbId) throw new Error("IMDb ID not available for this movie.");
+    
+        // Use IMDb ID to query YTS for the torrent
+        const ytsUrl = `https://yts.mx/api/v2/list_movies.json?query_term=${imdbId}`;
+        const response = await fetch(ytsUrl);
+        const data = await response.json();
+    
+        if (!data.data || !data.data.movies || data.data.movies.length === 0) {
+            throw new Error("Movie not found.");
         }
-    };
+    
+        // Get the first movie entry
+        const movie = data.data.movies[0];
+    
+        // Try to find Full HD torrent first
+        let torrentHD = movie.torrents.find(torrent => torrent.quality === "1080p" && torrent.type === "web");
+        if (!torrentHD) {
+            // Fall back to Blu-ray if no Full HD web quality found
+            torrentHD = movie.torrents.find(torrent => torrent.quality === "1080p" && torrent.type === "bluray");
+        }
+    
+        if (!torrentHD) throw new Error("Full HD torrent not available for this movie.");
+    
+        // Construct magnet link for Full HD
+        const magnetLink = `magnet:?xt=urn:btih:${torrentHD.hash}&dn=${encodeURIComponent(movie.title)}%20${movie.year}%20[1080p]%20[YTS.MX]`;
+        return magnetLink;
+    } catch (error) {
+        console.error("Error fetching magnet link:", error);
+        return null;
+    }
+};
+
 
     const updateStreamButton = async () => {
         const movieId = getMovieIdFromUrl();
