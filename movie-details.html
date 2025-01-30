@@ -13,7 +13,6 @@
 
   <!-- custom css link -->
   <link rel="stylesheet" href="./assets/css/style.css">
-  <link rel="stylesheet" href="./assets/css/movie-details.css">
 
   <!-- google font link -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,6 +25,49 @@
   <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta property="og:url" content="https://spark.tdvorak.dev/movie-details.html?id=${movieId}">
+  <script>
+    async function loadMovieDetails() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const movieId = urlParams.get('id');
+
+        if (movieId) {
+            // Show loading message initially
+            document.getElementById('movie-details').innerHTML = "Fetching movie details...";
+
+            // Define the authorization token
+            const supabaseToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU';
+
+            // Fetch the movie details from the Supabase Edge function
+            const response = await fetch(`https://cbnwekzbcxbmeevdjgoq.supabase.co/functions/v1/movie_embed?details=${movieId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${supabaseToken}`
+                }
+            });
+
+            const data = await response.text();
+
+            // Inject the meta tags into the head of the document
+            const headElement = document.getElementsByTagName('head')[0];
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = data;
+
+            // Find all the meta tags from the response and append them to the head
+            const metaTags = tempDiv.querySelectorAll('meta');
+            metaTags.forEach(meta => {
+                headElement.appendChild(meta);
+            });
+
+            // Optionally, update the body with the movie title or other content
+            document.getElementById('movie-details').innerHTML = "Movie details are now embedded in the head.";
+        } else {
+            document.getElementById('movie-details').innerHTML = "Movie ID is missing.";
+        }
+    }
+
+    // Ensure that the function runs once the window has loaded
+    window.onload = loadMovieDetails;
+</script>
 </head>
 
 <body id="top">
@@ -148,8 +190,7 @@
               <ion-icon name="play-circle-outline"></ion-icon> <!-- Plays trailer of the movie -->
             </button>
           </figure>
-          <h1>Loading...</h1>
-          <div id="movie-details"></div>
+
   
           <div class="movie-detail-content">
             <h1 class="h1 detail-title">Movie Name</h1> <!-- Movie Name -->
@@ -184,6 +225,8 @@
                   <ion-icon name="time-outline"></ion-icon>
                 </a>
               </div>
+
+              <div id="movie-details"></div>
 <!-- 
               <div class="add-to-list-container">
                 <a href="#" id="add-to-list">
@@ -343,37 +386,6 @@
   -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-  
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const movieId = urlParams.get('id');
-
-    if (movieId) {
-      // Show loading message initially
-      document.getElementById('movie-details').innerHTML = "Fetching movie details...";
-
-      // Define the authorization token (make sure to replace this with your actual token)
-      const supabaseToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU';
-
-      // Fetch the movie details from the Supabase Edge function
-      fetch(`https://cbnwekzbcxbmeevdjgoq.supabase.co/functions/v1/movie_embed?details=${movieId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${supabaseToken}`
-        }
-      })
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('movie-details').innerHTML = data;
-        })
-        .catch(error => {
-          console.error('Error fetching movie details:', error);
-          document.getElementById('movie-details').innerHTML = "Failed to load movie details.";
-        });
-    } else {
-      document.getElementById('movie-details').innerHTML = "Movie ID is missing.";
-    }
-  </script>
 </body>
 
 </html>

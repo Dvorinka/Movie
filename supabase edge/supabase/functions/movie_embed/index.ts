@@ -1,18 +1,33 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 serve(async (req) => {
+  // Set CORS headers to allow access from your domain
+  const headers = {
+    "Access-Control-Allow-Origin": "*", // Specify your domain
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization", // Include Authorization header
+  };
+
+  // Handle preflight request
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204, // No content for preflight
+      headers: headers,
+    });
+  }
+
   const url = new URL(req.url);
   const movieId = url.searchParams.get("details");
 
   if (!movieId) {
-    return new Response("Movie ID missing", { status: 400 });
+    return new Response("Movie ID missing", { status: 400, headers });
   }
 
   // Fetch the TMDB API key from environment secrets
   const tmdbApiKey = Deno.env.get("tmdb_api");
 
   if (!tmdbApiKey) {
-    return new Response("TMDB API key not set", { status: 500 });
+    return new Response("TMDB API key not set", { status: 500, headers });
   }
 
   const tmdbUrl = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${tmdbApiKey}&language=en-US`;
@@ -25,15 +40,14 @@ serve(async (req) => {
 
   // Handle movie not found or TMDB error
   if (movie.status_code && movie.status_code === 34) {
-    return new Response("Movie not found", { status: 404 });
+    return new Response("Movie not found", { status: 404, headers });
   }
 
   // Check if required fields are available
   if (!movie.title || !movie.overview || !movie.poster_path) {
-    return new Response("Invalid movie data", { status: 404 });
+    return new Response("Invalid movie data", { status: 404, headers });
   }
 
-  // HTML content for the movie page
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -52,17 +66,8 @@ serve(async (req) => {
     </html>
   `;
 
-  // Create the response
-  const responseHeaders = new Headers();
-  responseHeaders.set('Access-Control-Allow-Origin', '*');  // Allow all origins
-  responseHeaders.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');  // Allow specific methods
-  responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');  // Allow necessary headers
-
   return new Response(html, {
     status: 200,
-    headers: {
-      "Content-Type": "text/html",
-      ...responseHeaders,
-    },
+    headers: { "Content-Type": "text/html", ...headers },
   });
 });
