@@ -27,26 +27,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta property="og:url" content="https://spark.tdvorak.dev/movie-details.html?id=${movieId}">
   <meta http-equiv="refresh" content="0; URL=https://spark.tdvorak.dev/movie-details.html?id=${movieId}">
-
-  <script>
-    // Get the 'id' parameter from the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const movieId = urlParams.get('id');
-
-    if (movieId) {
-      // Fetch the movie details from the Edge Function
-      fetch(`https://cbnwekzbcxbmeevdjgoq.supabase.co/functions/v1/movie_embed?details=${movieId}`)
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('movie-details').innerHTML = data;
-        })
-        .catch(error => {
-          console.error('Error fetching movie details:', error);
-        });
-    } else {
-      document.getElementById('movie-details').innerHTML = "Movie ID is missing.";
-    }
-  </script>
 </head>
 
 <body id="top">
@@ -364,6 +344,29 @@
   -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get('id');
+
+    if (movieId) {
+      // Show loading message initially
+      document.getElementById('movie-details').innerHTML = "Fetching movie details...";
+
+      // Fetch the movie details from the Supabase Edge function
+      fetch(`https://cbnwekzbcxbmeevdjgoq.supabase.co/functions/v1/movie_embed?details=${movieId}`)
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('movie-details').innerHTML = data;
+        })
+        .catch(error => {
+          console.error('Error fetching movie details:', error);
+          document.getElementById('movie-details').innerHTML = "Failed to load movie details.";
+        });
+    } else {
+      document.getElementById('movie-details').innerHTML = "Movie ID is missing.";
+    }
+  </script>
 </body>
 
 </html>

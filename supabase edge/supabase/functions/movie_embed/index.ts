@@ -42,7 +42,6 @@ serve(async (req) => {
       <meta property="og:image" content="https://image.tmdb.org/t/p/original${movie.poster_path}">
       <meta property="og:url" content="https://spark.tdvorak.dev/movie-details.html?id=${movieId}">
       <meta name="twitter:card" content="summary_large_image">
-      <meta http-equiv="refresh" content="0; URL=https://spark.tdvorak.dev/movie-details.html?id=${movieId}">
     </head>
     <body>
       <h1>${movie.title}</h1>
