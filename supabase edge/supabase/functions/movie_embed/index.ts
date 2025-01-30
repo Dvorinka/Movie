@@ -33,6 +33,7 @@ serve(async (req) => {
     return new Response("Invalid movie data", { status: 404 });
   }
 
+  // HTML content for the movie page
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -51,7 +52,17 @@ serve(async (req) => {
     </html>
   `;
 
+  // Create the response
+  const responseHeaders = new Headers();
+  responseHeaders.set('Access-Control-Allow-Origin', '*');  // Allow all origins
+  responseHeaders.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');  // Allow specific methods
+  responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');  // Allow necessary headers
+
   return new Response(html, {
-    headers: { "Content-Type": "text/html" },
+    status: 200,
+    headers: {
+      "Content-Type": "text/html",
+      ...responseHeaders,
+    },
   });
 });

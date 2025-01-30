@@ -352,8 +352,16 @@
       // Show loading message initially
       document.getElementById('movie-details').innerHTML = "Fetching movie details...";
 
+      // Define the authorization token (make sure to replace this with your actual token)
+      const supabaseToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU';
+
       // Fetch the movie details from the Supabase Edge function
-      fetch(`https://cbnwekzbcxbmeevdjgoq.supabase.co/functions/v1/movie_embed?details=${movieId}`)
+      fetch(`https://cbnwekzbcxbmeevdjgoq.supabase.co/functions/v1/movie_embed?details=${movieId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${supabaseToken}`
+        }
+      })
         .then(response => response.text())
         .then(data => {
           document.getElementById('movie-details').innerHTML = data;
