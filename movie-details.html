@@ -25,6 +25,28 @@
   <script src="https://unpkg.com/xdomain@0.8.2/dist/xdomain.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta property="og:url" content="https://spark.tdvorak.dev/movie-details.html?id=${movieId}">
+  <meta http-equiv="refresh" content="0; URL=https://spark.tdvorak.dev/movie-details.html?id=${movieId}">
+
+  <script>
+    // Get the 'id' parameter from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get('id');
+
+    if (movieId) {
+      // Fetch the movie details from the Edge Function
+      fetch(`https://cbnwekzbcxbmeevdjgoq.supabase.co/functions/v1/movie_embed?details=${movieId}`)
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('movie-details').innerHTML = data;
+        })
+        .catch(error => {
+          console.error('Error fetching movie details:', error);
+        });
+    } else {
+      document.getElementById('movie-details').innerHTML = "Movie ID is missing.";
+    }
+  </script>
 </head>
 
 <body id="top">
@@ -147,6 +169,8 @@
               <ion-icon name="play-circle-outline"></ion-icon> <!-- Plays trailer of the movie -->
             </button>
           </figure>
+          <h1>Loading...</h1>
+          <div id="movie-details"></div>
   
           <div class="movie-detail-content">
             <h1 class="h1 detail-title">Movie Name</h1> <!-- Movie Name -->
