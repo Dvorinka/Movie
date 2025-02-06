@@ -1,5 +1,6 @@
 // movie-details.js
 document.addEventListener('DOMContentLoaded', () => {
+    const sparkApiUrl = "https://sparkscreen-api-production.up.railway.app/";
 
     // Initialize Supabase client
     const supabase = window.supabase.createClient(
@@ -18,10 +19,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(url);
             const data = await response.json();
             displayMovieDetails(data);
+            fetchMetacriticScores(movieId); // Fetch Metacritic scores
             displaySimilarMovies(movieId); // Fetch and display similar movies
         } catch (error) {
             console.error('Error fetching movie details:', error);
         }
+    };
+
+    const fetchMetacriticScores = async (movieId) => {
+        try {
+            const response = await fetch(`${sparkApiUrl}/movie/${movieId}`);
+            const data = await response.json();
+
+            if (data.metacritic) {
+                displayMetacriticScores(data.metacritic);
+            }
+        } catch (error) {
+            console.error('Error fetching Metacritic scores:', error);
+        }
+    };
+
+    const displayMetacriticScores = (scores) => {
+        const metacriticScoreElement = document.querySelector('#metascore');
+        const userScoreElement = document.querySelector('#userscore');
+
+        metacriticScoreElement.textContent = scores.metascore !== "N/A" ? scores.metascore : "N/A";
+        userScoreElement.textContent = scores.userscore !== "N/A" ? scores.userscore : "N/A";
     };
 
 
