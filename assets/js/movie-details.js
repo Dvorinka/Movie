@@ -1,6 +1,6 @@
 // movie-details.js
 document.addEventListener('DOMContentLoaded', () => {
-    const sparkApiUrl = "https://sparkscreen-api-production.up.railway.app/";
+    const sparkApiUrl = "https://goapi.tdvorak.dev";
 
     // Initialize Supabase client
     const supabase = window.supabase.createClient(
