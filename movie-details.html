@@ -25,6 +25,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta property="og:url" content="https://spark.tdvorak.dev/movie-details.html?id=${movieId}">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <script>
     async function loadMovieDetails() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -71,7 +72,6 @@
 </head>
 
 <body id="top">
-
   <!-- HEADER -->
   <header class="header" data-header>
     <div class="container">
@@ -175,6 +175,15 @@
     <div id="default-results" class="results-container"></div>
   </div>
 
+  <div id="preloader">
+    <div class="spinner"></div>
+    <div class="logo-preloader">
+      <img src="assets/images/logo_blue.png" alt="Logo" class="logo-prel">
+      <p class="loading-text">
+        <span>L</span><span>o</span><span>a</span><span>d</span><span>i</span><span>n</span><span>g</span><span>.</span><span>.</span><span>.</span>
+      </p>
+    </div>
+  </div>
   <main>
     <article>
       <!-- MOVIE DETAIL -->
@@ -214,6 +223,7 @@
                 </div>
               </div>
 
+
               <div class="watched-icon">
                 <a href="#" id="mark-as-watched">
                   <ion-icon name="eye-outline"></ion-icon>
@@ -247,16 +257,6 @@
               <div class="writer">
                 Writer:</span> <!-- Director's name will be dynamically inserted here -->
               </div>
-            </div>
-            
-            <div class="tomato-rating">
-              <div id="tomatometer"></div>
-              <div id="audience-score"></div>
-            </div>
-
-            <div class="metacritic-rating">
-              <div id="metascore"></div>
-              <div id="userscore"></div>
             </div>
 
             <div class="add-to-list-container" style="display: none;">
@@ -337,7 +337,79 @@
         <div class="streaming-icons">
         </div>
       </section> -->
-  
+      <section class="info">
+        <div class="container">
+          <p class="section-subtitle" style="margin-top: 75px; color:white;">Additonal Information</p>
+          <div class="additional-info">
+            <div class="left-column"></div>
+              <div class="right-column">
+                <h1 style="font-weight: normal; text-align: center; margin-bottom: 20px;">
+                <div class="views is-small" data-text="views" style="display: inline-block;">
+                  <i class="fas fa-fire-flame-curved" style="display: inline-block; font-size: 15px; color: white;"></i>
+                  <span class="watcher-count" style="display: inline-block; color: white; font-size: 15px;"></span> <!-- This span will be updated with the actual count -->
+                  <span style="display: inline-block; color: white; font-size: 15px;">views</span>
+              </div>
+            </h1>
+              <div class="ai-rating-wrapper">
+                  <div class="ai-rating-score">
+                    <h1 class="ai-rating" id="ai-rating">61</h1><span class="ai-rating-percentage">%</span>
+                  </div>
+                    <span class="ai-rating-badge">AI</span>
+                    <p class="ai-rating-desc">SparkScreen Fusion</p>
+              </div>
+              <div class="quick-functions">
+                <div class="watched-function">
+                    <a href="#" id="watched-function">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </a>
+                    <p>Watched</p>
+                </div>
+                <div class="later-function">
+                    <a href="#" id="watch-later-function">
+                      <ion-icon name="time-outline"></ion-icon>
+                    </a>
+                    <p>Watchlist</p>
+                </div>
+                <div class="favourite-function">
+                    <a href="#" id="favourite-function">
+                      <ion-icon name="heart-outline"></ion-icon>
+                  </a>
+                  <p>Favourite</p>
+                </div>
+                <div class="share-function">
+                    <a href="#" id="share-function">
+                      <ion-icon name="share-social-outline"></ion-icon>
+                    </a>
+                    <p>Share</p>
+                </div>
+              </div>
+              <!-- <div class="where-to-watch">
+                <div class="title-wrapper">
+                  <img class="image-of-service">
+                  <p class="title">One service</p>
+                  <p class="text">Type Rent or Buy (integrate spark when streaming available)</p>
+                </div>
+              </div> -->
+              <div class="scraper-rating">
+                <div class="tomato-rating">
+                  <div id="tomatometer"></div>
+                  <div id="popcornmeter"></div>
+                </div>
+                <div class="metacritic-rating">
+                  <div id="metascore"></div>
+                  <div id="userscore"></div>
+                </div>
+                <div class="csfd-rating">
+                  <div id="csfdscore"></div>
+                  <div id="csfdbest"></div>
+                  <div id="csfdfav"></div>
+                </div>
+              </div>
+        </div>
+        </div>
+        </div>
+      </section>
+
       <section class="tv-series">
         <div class="container">
           <p class="section-subtitle">Similar Movies</p>

@@ -7,10 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
         'https://cbnwekzbcxbmeevdjgoq.supabase.co', // Replace with your Supabase URL
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU' // Replace with your Supabase public API key
     );
+
   
     const getMovieIdFromUrl = () => {
         const params = new URLSearchParams(window.location.search);
         return params.get('id');
+    };
+
+    const showPreloader = () => {
+        document.getElementById("preloader").style.display = "flex";
+    };
+    
+    const hidePreloader = () => {
+        document.getElementById("preloader").style.display = "none";
     };
 
     const fetchMovieDetails = async (movieId) => {
@@ -19,33 +28,229 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(url);
             const data = await response.json();
             displayMovieDetails(data);
-            fetchMetacriticScores(movieId); // Fetch Metacritic scores
+            fetchAIRating(movieId);
             displaySimilarMovies(movieId); // Fetch and display similar movies
+            fetchMovieData(movieId); // Fetch and display similar movies
+            displayRatings(movieId); // Fetch and display similar movies
         } catch (error) {
             console.error('Error fetching movie details:', error);
         }
     };
 
-    const fetchMetacriticScores = async (movieId) => {
+    const fetchMovieData = async (movieId) => {
+        showPreloader();
         try {
             const response = await fetch(`${sparkApiUrl}/movie/${movieId}`);
-            const data = await response.json();
-
-            if (data.metacritic) {
-                displayMetacriticScores(data.metacritic);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
+            const data = await response.json();
+            if (data.ai_score !== undefined) {
+                displayAIRating(data.ai_score);
+            } else {
+                console.warn('AI score not found in the response.');
+            }
+            displayRatings(data);
         } catch (error) {
-            console.error('Error fetching Metacritic scores:', error);
+            console.error('Error fetching movie data:', error);
+        } finally {
+            hidePreloader();
         }
     };
 
-    const displayMetacriticScores = (scores) => {
-        const metacriticScoreElement = document.querySelector('#metascore');
-        const userScoreElement = document.querySelector('#userscore');
-
-        metacriticScoreElement.textContent = scores.metascore !== "N/A" ? scores.metascore : "N/A";
-        userScoreElement.textContent = scores.userscore !== "N/A" ? scores.userscore : "N/A";
+    const fetchAIRating = async (movieId) => {
+        showPreloader();
+        try {
+            const response = await fetch(`${sparkApiUrl}/movie/${movieId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.ai_score !== undefined) {
+                displayAIRating(data.ai_score);
+            } else {
+                console.warn('AI score not found in the response.');
+            }
+        } catch (error) {
+            console.error('Error fetching AI score:', error);
+        } finally {
+            hidePreloader();
+        }
     };
+    
+
+    const displayAIRating = (aiScore) => {
+        const aiRatingElement = document.querySelector('#ai-rating');
+        const aiBadgeElement = document.querySelector('.ai-rating-badge');
+    
+        if (aiRatingElement) {
+            aiRatingElement.textContent = aiScore !== undefined && aiScore !== null ? aiScore : "N/A";
+        } else {
+            console.error('Element with id #ai-rating not found in the DOM.');
+        }
+    
+    
+        if (aiBadgeElement) {
+            let rightPosition = '122px'; // Default position
+    
+            if (aiScore === 100) {
+                rightPosition = '116px';
+            } else if (aiScore === 0) {
+                rightPosition = '133px';
+            }
+    
+            aiBadgeElement.style.right = rightPosition;
+        } else {
+            console.error('Element with class .ai-rating-badge not found in the DOM.');
+        }
+    };
+
+    const displayRatings = (data) => {
+        // Define SVG images
+        const freshSvg = '<img src="assets/images/fresh-audience.svg" alt="Fresh Audience">';
+        const midSvg = '<img src="assets/images/mid-audience.svg" alt="Mid Audience">';
+        const rottenSvg = '<img src="assets/images/rotten-audience.svg" alt="Rotten Audience">';
+        const unknownSvg = '<img src="assets/images/unknown-audience.svg" alt="Unknown Audience">';
+    
+        const freshCriticsSvg = '<img src="assets/images/fresh-critics.svg" alt="Fresh Critics">';
+        const midCriticsSvg = '<img src="assets/images/mid-critics.svg" alt="Mid Critics">';
+        const rottenCriticsSvg = '<img src="assets/images/rotten-critics.svg" alt="Rotten Critics">';
+        const unknownCriticsSvg = '<img src="assets/images/unknown-critics.svg" alt="Unknown Critics">';
+    
+        // Rotten Tomatoes
+        const tomatometerElement = document.querySelector('#tomatometer');
+        const popcornmeterElement = document.querySelector('#popcornmeter');
+    
+        if (tomatometerElement) {
+            const criticScore = data.rotten_tomatoes.critic_score;
+            const criticCertifiedFresh = data.rotten_tomatoes.critic_certified_fresh;
+            let svgImage = unknownCriticsSvg;
+            let scoreText = "N/A";
+    
+            if (criticScore !== undefined) {
+                scoreText = `${criticScore}`;
+                const scoreValue = parseFloat(criticScore);
+    
+                if (criticCertifiedFresh) {
+                    svgImage = freshCriticsSvg;
+                } else if (scoreValue >= 60) {
+                    svgImage = midCriticsSvg;
+                } else {
+                    svgImage = rottenCriticsSvg;
+                }
+            }
+    
+            tomatometerElement.innerHTML = `
+              <div class="tomatometer">
+                ${svgImage}
+                <p class="score-value">${scoreText}</p>
+                <a>Tomatometer</a>
+              </div>
+            `;
+        } else {
+            console.error('Element with id #tomatometer not found in the DOM.');
+        }
+    
+        if (popcornmeterElement) {
+            const audienceScore = data.rotten_tomatoes.audience_score;
+            const audienceCertifiedFresh = data.rotten_tomatoes.audience_certified_fresh;
+            let svgImage = unknownSvg;
+            let scoreText = "N/A";
+    
+            if (audienceScore !== undefined) {
+                scoreText = `${audienceScore}`;
+                const scoreValue = parseFloat(audienceScore);
+    
+                if (audienceCertifiedFresh) {
+                    svgImage = freshSvg;
+                } else if (scoreValue >= 60) {
+                    svgImage = midSvg;
+                } else {
+                    svgImage = rottenSvg;
+                }
+            }
+    
+            popcornmeterElement.innerHTML = `
+              <div class="audience-score">
+                ${svgImage}
+                <p class="score-value">${scoreText}</p>
+                <a>Popcornmeter</a>
+              </div>
+            `;
+        } else {
+            console.error('Element with id #popcornmeter not found in the DOM.');
+        }
+    
+        // Metacritic
+        const metascoreElement = document.querySelector('#metascore');
+        const userscoreElement = document.querySelector('#userscore');
+    
+        if (metascoreElement) {
+            const metascore = data.metacritic.metascore || "N/A";
+            const metacriticCertified = data.metacritic.metacritic_certified;
+            let badgeHtml = "";
+    
+            if (metacriticCertified) {
+                badgeHtml = `<img src="assets/images/must-watch.svg" alt="Must Watch" class="badge-image">`;
+            }
+    
+            metascoreElement.innerHTML = `
+              <div class="score-item">
+                <p class="text">MetaScore: <span class="score-value">${metascore}</span></p>
+                ${badgeHtml}
+              </div>
+            `;
+        } else {
+            console.error('Element with id #metascore not found in the DOM.');
+        }
+    
+        if (userscoreElement) {
+            const userscore = data.metacritic.userscore || "N/A";
+            userscoreElement.innerHTML = `
+              <div class="score-item">
+                <p class="text">UserScore: <span class="score-value">${userscore}</span></p>
+              </div>
+            `;
+        } else {
+            console.error('Element with id #userscore not found in the DOM.');
+        }
+    
+        // CSFD
+        const csfdscoreElement = document.querySelector('#csfdscore');
+        const csfdfavElement = document.querySelector('#csfdfav');
+        const csfdbestElement = document.querySelector('#csfdbest');
+
+        if (csfdscoreElement) {
+            csfdscoreElement.innerHTML = `
+            <p class="label" style="text-align:center;">ČSFD Score</p>
+            <p class="score-value" style="text-align: center;font-size: var(--fs-6);font-weight: 500;">${data.csfd.csfd_rating || "N/A"}</p>
+            `;
+        } else {
+            console.error('Element with id #csfdscore not found in the DOM.');
+        }
+
+        if (csfdfavElement) {
+            const favRank = data.csfd.csfd_fav_rank ? data.csfd.csfd_fav_rank.replace(/ nejoblíbenější$/, '') : "N/A";
+            csfdfavElement.innerHTML = `
+            <p class="score-value" style="text-align:center;">${favRank}</p>
+            <p class="label" style="text-align:center;">Favorites</p>
+            `;
+        } else {
+            console.error('Element with id #csfdfav not found in the DOM.');
+        }
+
+        if (csfdbestElement) {
+            const bestRank = data.csfd.csfd_best_rank ? data.csfd.csfd_best_rank.replace(/ nejlepší$/, '') : "N/A";
+            csfdbestElement.innerHTML = `
+            <p class="score-value" style="text-align:center;">${bestRank}</p>
+            <p class="label" style="text-align:center;">Best Ranking</p>
+            `;
+        } else {
+            console.error('Element with id #csfdbest not found in the DOM.');
+        }
+    };
+    
+
 
 
     const displayMovieDetails = async (movie) => {
@@ -704,85 +909,20 @@ const getFullHdMagnetLink = async (movieId) => {
     };
 
     const fetchAndDisplayMovieDetails = async (movieId) => {
-    
         try {
             // Fetch IMDb ID using TMDB API
             const imdbId = await fetchImdbId(movieId);
-    
+
             if (imdbId) {
                 const omdbUrl = `https://www.omdbapi.com/?i=${imdbId}&apikey=${omdbApiKey}`;
-    
+
                 // Fetch data from OMDB API
                 const response = await fetch(omdbUrl);
                 const data = await response.json();
-    
+
                 // Check if the data is valid and update UI accordingly
                 if (data.Response === "True") {
-                    const ratings = data.Ratings;
-                    let criticsScore = 'N/A';
-                    let audienceScore = 'N/A';
-    
-                    ratings.forEach(rating => {
-                        if (rating.Source === 'Rotten Tomatoes') {
-                            criticsScore = rating.Value;
-                        }
-                        if (rating.Source === 'Internet Movie Database') {
-                            audienceScore = `${parseFloat(rating.Value) * 10}%`;
-                        }
-                    });
-    
-                    const criticsScoreElement = document.getElementById('tomatometer');
-                        if (criticsScoreElement) {
-                            criticsScoreElement.classList.add('tomatometer');
-                            criticsScoreElement.innerHTML = `
-                                <img src="${getCriticsScoreImage(criticsScore)}" alt="Critics Score">
-                                <p>${criticsScore}</p>
-                                <a href="#" class="tomatometer-link">Tomatometer</a>
-                            `;
-                            
-                            const tomatometerLink = criticsScoreElement.querySelector('.tomatometer-link');
-                            if (tomatometerLink) {
-                                tomatometerLink.addEventListener('click', function(event) {
-                                    event.preventDefault();
-                                    if (criticsScore !== 'N/A') {
-                                        window.location.href = `discover.html?critics=${criticsScore.replace('%', '')}`;
-                                }
-                                });
-                            }
-                        }
-
-                        // Function to toggle display of audience-info div
-                        const audienceScoreElement = document.getElementById('audience-score');
-                        if (audienceScoreElement) {
-                            audienceScoreElement.classList.add('audience-score');
-                            audienceScoreElement.innerHTML = `
-                                <img src="${getAudienceScoreImage(audienceScore)}" alt="Audience Score">
-                                <p>${audienceScore}</p>
-                                <a href="#" class="audienceScore-link">Popcornmeter</a>
-                            `;
-                            
-                            const audienceScoreLink = audienceScoreElement.querySelector('.audienceScore-link');
-                            if (audienceScoreLink) {
-                                audienceScoreLink.addEventListener('click', function(event) {
-                                    event.preventDefault();
-                                    if (audienceScore !== 'N/A') {
-                                        window.location.href = `discover.html?audience=${audienceScore.replace('%', '')}`;
-            }
-                                });
-                            }
-                        }
-
-                        document.addEventListener('click', function(event) {
-                            const tomatometerInfo = document.querySelector('.tomatometer-info');
-                            if (tomatometerInfo && !event.target.closest('#tomatometer')) {
-                                tomatometerInfo.style.display = 'none';
-                            }
-
-                            const audienceInfo = document.querySelector('.audience-info');
-                            if (audienceInfo && !event.target.closest('#audience-score')) {
-                                audienceInfo.style.display = 'none';
-                            }
-                        });
+                    // Remove audience score and critics score handling
                 } else {
                     console.log('OMDB API returned no valid data.');
                     // Handle case where data.Response is not true
@@ -794,37 +934,6 @@ const getFullHdMagnetLink = async (movieId) => {
         } catch (error) {
             console.error('Error fetching or displaying movie details:', error);
             // Handle other errors related to fetching or displaying
-        }
-    };
-    
-
-    const getAudienceScoreImage = (score) => {
-        if (score === 'N/A') {
-            return 'assets/images/unknown-audience.svg';
-        } else {
-            const scoreValue = parseFloat(score);
-            if (scoreValue >= 84) {
-                return 'assets/images/fresh-audience.svg';
-            } else if (scoreValue > 50) {
-                return 'assets/images/mid-audience.svg';
-            } else {
-                return 'assets/images/rotten-audience.svg';
-            }
-        }
-    };
-
-    const getCriticsScoreImage = (score) => {
-        if (score === 'N/A') {
-            return 'assets/images/unknown-critics.svg';
-        } else {
-            const scoreValue = parseInt(score); // Assuming score is in percentage
-            if (scoreValue < 60) {
-                return 'assets/images/rotten-critics.svg';
-            } else if (scoreValue < 90) {
-                return 'assets/images/mid-critics.svg';
-            } else {
-                return 'assets/images/fresh-critics.svg';
-            }
         }
     };
 
@@ -1013,6 +1122,13 @@ const getFullHdMagnetLink = async (movieId) => {
                             watchedIconElement.name = 'eye-outline';
                             watchedIcon.title = 'Mark as Watched';
                             isWatched = false; // Update local state
+    
+                            // Update watcher count
+                            const updatedWatcherCount = await getWatcherCount(movie.id);
+                            if (updatedWatcherCount !== null) {
+                                console.log(`Updated number of people who watched this movie: ${updatedWatcherCount}`);
+                                updateWatcherCountDisplay(updatedWatcherCount);
+                            }
                         }
                     } else {
                         // Add movie to the watched_movies table
@@ -1032,12 +1148,57 @@ const getFullHdMagnetLink = async (movieId) => {
                             watchedIconElement.name = 'eye-off-outline';
                             watchedIcon.title = 'Unmark as Watched';
                             isWatched = true; // Update local state
+    
+                            // Update watcher count
+                            const updatedWatcherCount = await getWatcherCount(movie.id);
+                            if (updatedWatcherCount !== null) {
+                                console.log(`Updated number of people who watched this movie: ${updatedWatcherCount}`);
+                                updateWatcherCountDisplay(updatedWatcherCount);
+                            }
                         }
                     }
                 });
             }
+    
+            // Get the number of people who watched the movie
+            const watcherCount = await getWatcherCount(movie.id);
+            if (watcherCount !== null) {
+                console.log(`Number of people who watched this movie: ${watcherCount}`);
+                updateWatcherCountDisplay(watcherCount);
+            }
         } catch (err) {
             console.error('Error in markAsWatchedFeature:', err);
+        }
+    };
+    
+    const getWatcherCount = async (movieId) => {
+        if (!supabase) {
+            console.error('Supabase client is not initialized.');
+            return null;
+        }
+    
+        try {
+            const { data, error } = await supabase
+                .from('watched_movies')
+                .select('user_id', { count: 'exact' })
+                .eq('movie_id', movieId);
+    
+            if (error) {
+                console.error('Error fetching watcher count:', error);
+                return null;
+            }
+    
+            return data.length;
+        } catch (err) {
+            console.error('Error in getWatcherCount:', err);
+            return null;
+        }
+    };
+
+    const updateWatcherCountDisplay = (count) => {
+        const watcherCountElement = document.querySelector('.watcher-count');
+        if (watcherCountElement) {
+            watcherCountElement.textContent = count;
         }
     };
     
