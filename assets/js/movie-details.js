@@ -22,6 +22,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById("preloader").style.display = "none";
     };
 
+    const getBucketName = () => "scraped-movie";
+
+    const fetchFromSupabase = async (movieId) => {
+        const bucket = getBucketName();
+        console.log(`[INFO] Attempting to fetch movie data from Supabase bucket: ${bucket} with movie id: ${movieId}`);
+        try {
+            const { data, error } = await supabase
+                .storage
+                .from(bucket)
+                .download(`${movieId}.json`);
+
+            if (error) {
+                console.error("[ERROR] Supabase download error:", error);
+                return null;
+            }
+            const text = await data.text();
+            const jsonData = JSON.parse(text);
+            console.log("[INFO] Successfully fetched data from Supabase for movie id:", movieId);
+            return jsonData;
+        } catch (err) {
+            console.error("[ERROR] Exception fetching from Supabase:", err);
+            return null;
+        }
+    };
+
+
     const fetchMovieDetails = async (movieId) => {
         const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&append_to_response=release_dates,videos`;
         try {
@@ -29,8 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             displayMovieDetails(data);
             fetchAIRating(movieId);
-            displaySimilarMovies(movieId); // Fetch and display similar movies
             fetchMovieData(movieId); // Fetch and display similar movies
+            displaySimilarMovies(movieId); // Fetch and display similar movies
             displayRatings(movieId); // Fetch and display similar movies
         } catch (error) {
             console.error('Error fetching movie details:', error);
@@ -39,45 +65,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchMovieData = async (movieId) => {
         showPreloader();
-        try {
-            const response = await fetch(`${sparkApiUrl}/movie/${movieId}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const data = await response.json();
+        let data = await fetchFromSupabase(movieId);
+        if (data) {
+            console.log("[INFO] Fetched movie data from Supabase Storage for movie id:", movieId);
             if (data.ai_score !== undefined) {
                 displayAIRating(data.ai_score);
-            } else {
-                console.warn('AI score not found in the response.');
             }
             displayRatings(data);
-        } catch (error) {
-            console.error('Error fetching movie data:', error);
-        } finally {
-            hidePreloader();
+            // Fire background scraping request without waiting for its result
+            fetch(`${sparkApiUrl}/movie/${movieId}`)
+                .then(() => console.log(`[INFO] Background scraping completed for movie id: ${movieId}`))
+                .catch(err => console.error(`[ERROR] Background scraping error for movie id: ${movieId}`, err));
+        } else {
+            console.log("[INFO] No data in Supabase, scraping new data for movie id:", movieId);
+            try {
+                const response = await fetch(`${sparkApiUrl}/movie/${movieId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                data = await response.json();
+                console.log("[INFO] Scraped new movie data from API for movie id:", movieId);
+                if (data.ai_score !== undefined) {
+                    displayAIRating(data.ai_score);
+                }
+                displayRatings(data);
+            } catch (error) {
+                console.error(`[ERROR] Error fetching movie data from API for movie id: ${movieId}`, error);
+            }
         }
+        hidePreloader();
     };
 
     const fetchAIRating = async (movieId) => {
         showPreloader();
+        let data = null;
         try {
-            const response = await fetch(`${sparkApiUrl}/movie/${movieId}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+            data = await fetchFromSupabase(movieId);
+            if (data) {
+                console.log("[INFO] Fetched AI rating from Supabase Storage for movie id:", movieId);
+            } else {
+                console.log("[INFO] AI rating not found in Supabase Storage, scraping new data for movie id:", movieId);
+                const response = await fetch(`${sparkApiUrl}/movie/${movieId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                data = await response.json();
+                console.log("[INFO] Scraped new AI rating data from API for movie id:", movieId);
             }
-            const data = await response.json();
             if (data.ai_score !== undefined) {
                 displayAIRating(data.ai_score);
             } else {
-                console.warn('AI score not found in the response.');
+                console.warn("[WARN] AI score not found in the response for movie id:", movieId);
             }
         } catch (error) {
-            console.error('Error fetching AI score:', error);
+            console.error("[ERROR] Error fetching AI rating for movie id:", movieId, error);
         } finally {
             hidePreloader();
         }
     };
-    
 
     const displayAIRating = (aiScore) => {
         const aiRatingElement = document.querySelector('#ai-rating');
