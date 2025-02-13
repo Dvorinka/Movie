@@ -65,34 +65,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchMovieData = async (movieId) => {
         showPreloader();
-        let data = await fetchFromSupabase(movieId);
+        let data;
+    
+        // List of movie IDs to fetch directly from Supabase without background scraping
+        const directFetchMovieIds = [591273]; // Add more movie IDs here as needed
+    
+        if (directFetchMovieIds.includes(movieId)) {
+            // Fetch data only from Supabase for specified movie IDs
+            data = await fetchFromSupabase(movieId);
+            if (data) {
+                console.log("[INFO] Fetched movie data from Supabase Storage for movie id:", movieId);
+            } else {
+                console.log("[INFO] No data in Supabase for movie id:", movieId);
+            }
+        } else {
+            // For other movie IDs, follow the existing logic
+            data = await fetchFromSupabase(movieId);
+            if (data) {
+                console.log("[INFO] Fetched movie data from Supabase Storage for movie id:", movieId);
+            } else {
+                console.log("[INFO] No data in Supabase, scraping new data for movie id:", movieId);
+                try {
+                    const response = await fetch(`${sparkApiUrl}/movie/${movieId}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    data = await response.json();
+                    console.log("[INFO] Scraped new movie data from API for movie id:", movieId);
+                } catch (error) {
+                    console.error(`[ERROR] Error fetching movie data from API for movie id: ${movieId}`, error);
+                }
+            }
+        }
+    
         if (data) {
-            console.log("[INFO] Fetched movie data from Supabase Storage for movie id:", movieId);
             if (data.ai_score !== undefined) {
                 displayAIRating(data.ai_score);
             }
             displayRatings(data);
+    
             // Fire background scraping request without waiting for its result
-            fetch(`${sparkApiUrl}/movie/${movieId}`)
-                .then(() => console.log(`[INFO] Background scraping completed for movie id: ${movieId}`))
-                .catch(err => console.error(`[ERROR] Background scraping error for movie id: ${movieId}`, err));
-        } else {
-            console.log("[INFO] No data in Supabase, scraping new data for movie id:", movieId);
-            try {
-                const response = await fetch(`${sparkApiUrl}/movie/${movieId}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                data = await response.json();
-                console.log("[INFO] Scraped new movie data from API for movie id:", movieId);
-                if (data.ai_score !== undefined) {
-                    displayAIRating(data.ai_score);
-                }
-                displayRatings(data);
-            } catch (error) {
-                console.error(`[ERROR] Error fetching movie data from API for movie id: ${movieId}`, error);
+            if (!directFetchMovieIds.includes(movieId)) { // Only scrape in background for non-specified movie IDs
+                fetch(`${sparkApiUrl}/movie/${movieId}`)
+                    .then(() => console.log(`[INFO] Background scraping completed for movie id: ${movieId}`))
+                    .catch(err => console.error(`[ERROR] Background scraping error for movie id: ${movieId}`, err));
             }
         }
+    
         hidePreloader();
     };
 
