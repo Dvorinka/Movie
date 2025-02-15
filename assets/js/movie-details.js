@@ -709,7 +709,7 @@ const torrentYTS = async () => {
         // Disable the download button if there is an error
         const downloadBtn = document.querySelector('.download-btn');
         downloadBtn.href = '#';
-        downloadBtn.style.cursor = 'not-allowed';
+        downloadBtn.style.cursor = 'not-allowed';   
         downloadBtn.style.pointerEvents = 'none';
         const icon = downloadBtn.querySelector('ion-icon');
         if (icon) {
@@ -771,6 +771,46 @@ const getFullHdMagnetLink = async (movieId) => {
         return null;
     }
 };
+
+const updateDownloadButton = async () => {
+    const movieId = getMovieIdFromUrl();  // Retrieve the movie ID
+    const dirDownloadBtn = document.querySelector('.dir-download-btn');  // Select the button
+
+    // Fetch the Full HD magnet link
+    const magnetLink = await getFullHdMagnetLink(movieId);
+
+    if (!magnetLink) {
+        // If the magnet link isn't available, disable the button and update the UI
+        dirDownloadBtn.href = '#';  // Remove the link
+        dirDownloadBtn.style.cursor = 'not-allowed';  // Change the cursor to not-allowed
+        dirDownloadBtn.style.pointerEvents = 'none';  // Disable the button
+        const icon = dirDownloadBtn.querySelector('ion-icon');  // Select the icon
+        if (icon) {
+            icon.style.fontSize = '16px';  // Adjust the icon size if necessary
+        }
+        dirDownloadBtn.innerHTML = '<ion-icon name="close-circle-outline"></ion-icon>';  // Change the icon and text
+    } else {
+        // If the magnet link is available, set up the button to open the Webtor page
+        const hashMatch = magnetLink.match(/btih:([a-f0-9]+)/i);
+        if (hashMatch && hashMatch[1]) {
+            const hash = hashMatch[1].toLowerCase();
+
+            // Enable the button and restore the normal icon
+            dirDownloadBtn.style.cursor = 'pointer';  // Change the cursor back to pointer
+            dirDownloadBtn.style.pointerEvents = 'auto';  // Enable the button
+            dirDownloadBtn.innerHTML = '<ion-icon name="download-outline"></ion-icon>';  // Reset the icon
+
+            // Set up the click event to redirect the user to Webtor
+            dirDownloadBtn.addEventListener('click', (event) => {
+                event.preventDefault();  // Prevent default link behavior
+                const webtorUrl = `https://webtor.io/${hash}`;  // Create the Webtor URL with the hash
+                window.open(webtorUrl, '_blank');  // Open Webtor in a new tab
+            });
+        }
+    }
+};
+
+updateDownloadButton();
 
 
     const updateStreamButton = async () => {

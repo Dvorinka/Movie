@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Details</title>
+
+  <!-- favicon -->
+  <link rel="shortcut icon" href="./favicon.png" type="image/svg+xml">
+    
+
+  <!-- custom css link -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
+  <script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/3.0.1/Youtube.min.js"></script>
+  <!-- google font link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/movie-details.js"></script>
+  <script src="./assets/js/search.js"></script>
+  <script src="https://unpkg.com/xdomain@0.8.2/dist/xdomain.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+
+<body id="top">
+  <!-- HEADER -->
+  <header class="header" data-header>
+    <div class="container">
+
+      <div class="overlay" data-overlay></div>
+
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/heading_purple.png" class="sparkscreen">
+      </a>
+      
+
+      <div class="header-actions">
+        <div class="search-btn-container">
+          <button class="search-btn" onclick="toggleSearchInput()">
+            <ion-icon name="search-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+      
+      <button class="menu-open-btn" data-menu-open-btn>
+        <ion-icon name="reorder-two"></ion-icon>
+      </button>
+
+      <nav class="navbar" data-navbar>
+
+        <div class="navbar-top">
+
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/logo.svg" alt="FilFuse logo">
+          </a>
+
+          <button class="menu-close-btn" data-menu-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+
+
+        </div>
+
+        <ul class="navbar-list">
+
+          <li>
+            <a href="./index.html" class="navbar-link">Home</a>
+          </li>
+
+          <li>
+            <a href="./discover.html" class="navbar-link">Discover</a>
+            <ul>
+              <li>
+                <a href="./top-100.html" class="navbar-link">Top 100</a>
+              </li>
+              <li>
+                <a href="./best-movies-2024.html" class="navbar-link">Best Movies of 2024</a>
+              </li>
+            </ul>
+
+          </li>
+
+          <li>
+            <a href="./suggestions.html" class="navbar-link">Suggestions</a>
+            <ul>
+              <li>
+                <a href="./date-night.html" class="navbar-link">Date Night</a>
+              </li>
+            </ul>
+          </li>
+
+          <li>
+            <a href="./ai-finder.html" class="navbar-link">Find lost movies</a>
+          </li>
+
+          <li>
+            <a href="./about.html" class="navbar-link">About</a>
+          </li>
+
+        </ul>
+
+        <ul class="navbar-social-list">
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-github"></ion-icon>
+            </a>
+          </li>
+
+        </ul>
+
+      </nav>
+    </div>
+</header>
+
+  <div class="search-el">
+    <div class="input-main-div">
+    <input name="query" type="text" tabindex="1" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false" id="search-input" placeholder="Search for a movie, tv show, person..." class="input-main">
+    </div>
+    <div id="default-results" class="results-container"></div>
+  </div>
+  <main style="align-items: center;padding-left: 2rem;padding-right: 2rem;flex-direction: column;width: 100%; display: flex;padding-top: 140px; padding-bottom: 140px;">
+    <div style="max-width: 48rem;">
+        <h1 style="color: white;">DMCA</h1>
+        <p style="color: white; text-align: justify;">SparkScreen respects the intellectual property of others. Webtor.io takes matters of Intellectual Property very seriously and is committed to meeting the needs of content owners while helping them manage publication of their content online.
+
+        It should be noted that Webtor.io is a simple search engine of videos available at a wide variety websites. If you believe that your copyrighted work has been copied in a way that constitutes copyright infringement and is accessible on this site, you may notify our copyright agent, as set forth in the Digital Millennium Copyright Act of 1998 (DMCA). For your complaint to be valid under the DMCA, you must provide the following information when providing notice of the claimed copyright infringement:
+
+        A physical or electronic signature of a person authorized to act on behalf of the copyright owner Identification of the copyrighted work claimed to have been infringed Identification of the material that is claimed to be infringing or to be the subject of the infringing activity and that is to be removed Information reasonably sufficient to permit the service provider to contact the complaining party, such as an address, telephone number, and, if available, an electronic mail address A statement that the complaining party "in good faith believes that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or law" A statement that the "information in the notification is accurate", and "under penalty of perjury, the complaining party is authorized to act on behalf of the owner of an exclusive right that is allegedly infringed" The above information must be submitted as a written, faxed or emailed notification to the following Designated Agent:
+
+        Attn: DMCA Office
+
+        Contact Us : spark@tdvorak.dev
+
+        WE CAUTION YOU THAT UNDER FEDERAL LAW, IF YOU KNOWINGLY MISREPRESENT THAT ONLINE MATERIAL IS INFRINGING, YOU MAY BE SUBJECT TO HEAVY CIVIL PENALTIES. THESE INCLUDE MONETARY DAMAGES, COURT COSTS, AND ATTORNEYS FEES INCURRED BY US, BY ANY COPYRIGHT OWNER, OR BY ANY COPYRIGHT OWNER'S LICENSEE THAT IS INJURED AS A RESULT OF OUR RELYING UPON YOUR MISREPRESENTATION. YOU MAY ALSO BE SUBJECT TO CRIMINAL PROSECUTION FOR PERJURY.
+
+        This information should not be construed as legal advice, for further details on the information required for valid DMCA notifications, see 17 U.S.C. 512(c)(3).
+    </p>
+</div>
+  </main>
+  
+
+  <footer class="footer">
+
+    <div class="footer-bottom">
+      <div class="container">
+
+        <p class="copyright">
+          &copy; 2024 <a href="https://tdvorak.dev" target="_blank">TDvorak</a>. All Rights Reserved
+        </p>
+        <p class="powered-by">Powered by <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>, 
+        <a href="https://www.justwatch.com/" target="_blank">JustWatch</a>, 
+        <a href="https://www.rottentomatoes.com/" target="_blank">RottenTomatoes</a>, 
+        <a href="https://yts.mx/" target="_blank">YTS</a>, 
+        <a href="https://rivestream.vercel.app/" target="_blank">Rive</a> & <a href="https://1337x.to/" target="_blank">1337x</a>.</p>
+        <!-- && Google Gemini -->
+
+
+      </div>
+    </div>
+
+  </footer>
+
+  <a href="#top" class="go-top" data-go-top>
+    <ion-icon name="chevron-up"></ion-icon>
+  </a>
+
+
+
+
+
+  <!-- 
+    - custom js link
+  -->
+  <script src="./assets/js/script.js"></script>
+
+  <!-- 
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+
+</html>
