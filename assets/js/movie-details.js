@@ -641,6 +641,14 @@ const torrentYTS = async () => {
         // Get the download button
         const downloadBtn = document.querySelector('.download-btn');
 
+        // Update file size on the buttons
+        if (torrent4k) {
+            document.getElementById('size-4k').textContent = `[${torrent4k.size}]`; // Show 4K file size
+        }
+        if (torrentHD) {
+            document.getElementById('size-hd').textContent = `[${torrentHD.size}]`; // Show HD file size
+        }
+
         // Disable the download link if no quality is available
         if (availableQualities.length === 0) {
             console.log('No available torrents. Disabling download button.'); // Debugging no available torrents
@@ -773,44 +781,79 @@ const getFullHdMagnetLink = async (movieId) => {
 };
 
 const updateDownloadButton = async () => {
-    const movieId = getMovieIdFromUrl();  // Retrieve the movie ID
-    const dirDownloadBtn = document.querySelector('.dir-download-btn');  // Select the button
+    const movieId = getMovieIdFromUrl(); // Retrieve the movie ID
+    const dirDownloadBtn = document.querySelector('.dir-download-btn'); // Select the button
+    const fileSizeElement = document.querySelector('.file-size'); // Select the file size element
+    let hoveredOnce = false; // Flag to track if the user has hovered once
 
-    // Fetch the Full HD magnet link
-    const magnetLink = await getFullHdMagnetLink(movieId);
+    try {
+        const response = await fetch(`https://goapi.tdvorak.dev/movie/download/${movieId}`);
+        if (!response.ok) throw new Error('Failed to fetch download data');
+        
+        const { download_url, file_size } = await response.json();
 
-    if (!magnetLink) {
-        // If the magnet link isn't available, disable the button and update the UI
-        dirDownloadBtn.href = '#';  // Remove the link
-        dirDownloadBtn.style.cursor = 'not-allowed';  // Change the cursor to not-allowed
-        dirDownloadBtn.style.pointerEvents = 'none';  // Disable the button
-        const icon = dirDownloadBtn.querySelector('ion-icon');  // Select the icon
-        if (icon) {
-            icon.style.fontSize = '16px';  // Adjust the icon size if necessary
+        if (!download_url) {
+            throw new Error('No download URL available');
         }
-        dirDownloadBtn.innerHTML = '<ion-icon name="close-circle-outline"></ion-icon>';  // Change the icon and text
-    } else {
-        // If the magnet link is available, set up the button to open the Webtor page
-        const hashMatch = magnetLink.match(/btih:([a-f0-9]+)/i);
-        if (hashMatch && hashMatch[1]) {
-            const hash = hashMatch[1].toLowerCase();
 
-            // Enable the button and restore the normal icon
-            dirDownloadBtn.style.cursor = 'pointer';  // Change the cursor back to pointer
-            dirDownloadBtn.style.pointerEvents = 'auto';  // Enable the button
-            dirDownloadBtn.innerHTML = '<ion-icon name="download-outline"></ion-icon>';  // Reset the icon
+        // Enable the button and set the link
+        dirDownloadBtn.style.cursor = 'pointer';
+        dirDownloadBtn.style.pointerEvents = 'auto';
+        dirDownloadBtn.innerHTML = `<ion-icon name="download-outline"></ion-icon>`;
+        dirDownloadBtn.href = download_url;
+        dirDownloadBtn.target = '_blank';
+        fileSizeElement.href = download_url;
 
-            // Set up the click event to redirect the user to Webtor
-            dirDownloadBtn.addEventListener('click', (event) => {
-                event.preventDefault();  // Prevent default link behavior
-                const webtorUrl = `https://webtor.io/${hash}`;  // Create the Webtor URL with the hash
-                window.open(webtorUrl, '_blank');  // Open Webtor in a new tab
-            });
+        // Format file size
+        let formattedSize = 'N/A';
+        if (file_size) {
+            let size = parseFloat(file_size);
+            if (!isNaN(size)) {
+                size = Math.min(size, 9.9); // Lock at 9.9GB max
+                formattedSize = size % 1 === 0 ? `${size.toFixed(1)}GB` : `${size}GB`;
+            }
+        }
+
+        // Update file size element
+        if (fileSizeElement) {
+            if (formattedSize === 'N/A') {
+                fileSizeElement.style.display = 'none';
+            } else {
+                fileSizeElement.style.display = 'block';
+                fileSizeElement.textContent = formattedSize;
+            }
+        }
+
+        // Add hover effect dynamically
+        dirDownloadBtn.addEventListener('mouseenter', () => {
+            if (!hoveredOnce) {
+                if (fileSizeElement) {
+                    fileSizeElement.style.bottom = '-79px'; // Change position on hover
+                }
+                hoveredOnce = true; // Set flag to true after the first hover
+            }
+        });
+
+        // Remove the event listener for mouseleave since we no longer want to hide it
+        // No need for `mouseleave` now, as we want to keep it visible after the first hover
+
+    } catch (error) {
+        // Handle errors by disabling the button
+        dirDownloadBtn.href = '#';
+        dirDownloadBtn.style.cursor = 'not-allowed';
+        dirDownloadBtn.style.pointerEvents = 'none';
+        dirDownloadBtn.innerHTML = '<ion-icon name="close-circle-outline"></ion-icon>';
+        
+        // Set file size to unavailable
+        if (fileSizeElement) {
+            fileSizeElement.style.display = 'none';
         }
     }
 };
 
 updateDownloadButton();
+
+
 
 
     const updateStreamButton = async () => {

@@ -1145,9 +1145,31 @@ body.active { overflow: hidden; }
   padding: 40px 13px 40px 10px;
   letter-spacing: 5px;
   border-radius: 6px;
+  z-index: 2;
 }
 
 .dir-download-btn ion-icon { font-size: 16px; }
+
+.file-size {
+  max-width: max-content;
+  background: var(--citrine);
+  color: var(--rich-black-fogra-29);
+  font-size: 10px;
+  font-weight: var(--fw-500);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 13px 40px 10px;
+  letter-spacing: 5px;
+  border-radius: 6px;
+  z-index: 1;
+  user-select: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.file-size ion-icon { font-size: 16px; }
 
 .stream-btn {
   max-width: max-content;
@@ -1622,6 +1644,12 @@ body.active { overflow: hidden; }
     bottom: -80px;
   }
 
+  .file-size {
+    position: absolute;
+    left: 15px;
+    bottom: -80px;
+  }
+
   .stream-btn {
     position: absolute;
     right: 20px;
@@ -1767,6 +1795,21 @@ body.active { overflow: hidden; }
     font-size: 20px;
     transform: rotate(-0.25turn);
   }
+
+  .file-size {
+    left: auto;
+    right: 28px;
+    bottom: -56px;
+    transform-origin: bottom right;
+    padding: 11px 6px 5px 10px;
+    transition: .3s ease-in-out;
+}
+
+
+.file-size ion-icon {
+font-size: 20px;
+transform: rotate(-0.25turn);
+}
 
   .stream-btn {
     left: auto;
@@ -2916,6 +2959,7 @@ details {
 	color: #6b7280;
 	display: flex;
 	flex-direction: column;
+  z-index: 999;
 
 	div {
 		background-color: #1e1e27;
@@ -3946,4 +3990,95 @@ summary {
 
 #popcornmeter{
   margin-top: 20px;
+}
+.left-column {
+  position: relative;
+  width: 100%;
+  height: 500px; /* Adjust height as needed */
+}
+
+.play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  background: url('path/to/play-icon.png') no-repeat center center; /* Path to your play icon */
+  background-size: contain;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.main-video, .behind-the-scenes-video {
+  margin-top: 20px; /* Adjust margin as needed */
+  width: 100%;
+  height: 300px; /* Adjust height as needed */
+  position: relative;
+}
+
+.slider-list{
+  overflow-x: overlay;
+  
+}
+
+.slider-list .slider-inner{
+  position: relative;
+  display: flex;
+  gap: 16px;
+}
+
+.video-card{
+  background-image: url(../images/video-bg-icon.png);
+  aspect-ratio: 16 / 9;
+  flex-shrink: 0;
+  max-width: 500px;
+}
+
+.poster-box, .video-card{
+  background-repeat: no-repeat;
+  background-size: 50px;
+  background-position: center;
+  background-color: var(--banner-background);
+  border-radius: var(--radius-16);
+  overflow: hidden;
+}
+
+.img-cover{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  .movie-detail .slider-list {
+      margin-inline-start: 0;
+      border-radius: var(--radius-16) 0 0 var(--radius-16);
+  }
+}
+
+@media (min-width: 768px) {
+  .slider-list {
+      margin-inline: -24px;
+  }
+}
+
+.slider-list {
+  margin-inline: -20px;
+  overflow-x: overlay;
+  padding-block-end: 16px;
+  margin-block-end: -16px;
+}
+
+.slider-list::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 8px;
+}
+
+.slider-list:is(:hover, :focus-within)::-webkit-scrollbar-thumb {
+  background-color: #737373;
+}
+
+.slider-list::-webkit-scrollbar {
+  height: 8px; /* Adjust height if it's horizontal */
 }

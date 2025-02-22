@@ -23,6 +23,7 @@
   <script src="./assets/js/api.js"></script>
   <script src="./assets/js/movie-details.js"></script>
   <script src="./assets/js/search.js"></script>
+  <script src="./assets/js/youtube.js"></script>
   <script src="https://unpkg.com/xdomain@0.8.2/dist/xdomain.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -203,6 +204,27 @@
             </button>
           </figure>
 
+          
+      <details>
+        <summary>
+          <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" fill="currentColor" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none"></rect>
+            <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></circle>
+            <circle cx="128" cy="180" r="12"></circle>
+            <path d="M127.9995,144.0045v-8a28,28,0,1,0-28-28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></path>
+          </svg>
+        </summary>
+        <div>
+          <p>Here's the process for downloading torrents with <code>Free Download Manager</code>:</p>
+          <ol>
+            <li><strong>Download FDM</strong>: <a href="https://www.freedownloadmanager.org/" target="_blank" style="color: #6f95d3;">Click here to download FDM</a></li><br>
+            <li><strong>Install FDM</strong>: Open the downloaded file and follow the installation instructions.</li><br>
+            <li><strong>Set Default</strong>: After installation, open FDM and select the "Set as default" option, which can be found at the top of the page.</li><br>
+            <li><strong>Add Browser Extension</strong>: Add the browser extension for <a href="https://chromewebstore.google.com/detail/free-download-manager/ahmpjcflkgiildlgicmcieglgoilbfdp" target="_blank" style="color: #6f95d3; display: inline;">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/free-download-manager-addon/" target="_blank" style="color: #6f95d3; display: inline;">Firefox</a>, and you’re all set!</li>
+          </ol>
+        </div>
+      </details>
+
   
           <div class="movie-detail-content">
             <h1 class="h1 detail-title">Movie Name</h1> <!-- Movie Name -->
@@ -269,7 +291,7 @@
 
             <!-- Download button -->
             <a href="#" class="download-btn" title="Use only if you know how to work with Torrents.">
-              <span>Download</span>
+              <span>Sparkseed</span>
               <ion-icon name="download-outline"></ion-icon>
             </a>
 
@@ -277,17 +299,20 @@
               <ion-icon name="download-outline"></ion-icon>
             </a>
 
-          
+            <a href="#" class="file-size"></a>
+
+                      
             <!-- Popup for selecting quality -->
             <div id="quality-popup" class="popup" style="display: none;">
               <div class="popup-content">
                 <h3>Select Quality</h3>
                 <h4>Download Torrent</h4>
-                <button id="btn-4k">Download 4K</button>
-                <button id="btn-hd">Download Full HD</button>
+                <button id="btn-4k">Download 4K<span id="size-4k"></span></button>
+                <button id="btn-hd">Download Full HD<span id="size-hd"></span></button>
                 <button id="btn-cancel">Cancel</button>
               </div>
             </div>
+
 
   
             <div class="stream-buttons">
@@ -305,26 +330,6 @@
 
             <div id="stream-container" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); z-index: 1000;">
             </div>
-
-            <details>
-              <summary>
-                <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" fill="currentColor" viewBox="0 0 256 256">
-                  <rect width="256" height="256" fill="none"></rect>
-                  <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></circle>
-                  <circle cx="128" cy="180" r="12"></circle>
-                  <path d="M127.9995,144.0045v-8a28,28,0,1,0-28-28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></path>
-                </svg>
-              </summary>
-              <div>
-                <p>Here's the process for downloading torrents with <code>Free Download Manager</code>:</p>
-                <ol>
-                  <li><strong>Download FDM</strong>: <a href="https://www.freedownloadmanager.org/" target="_blank" style="color: #6f95d3;">Click here to download FDM</a></li><br>
-                  <li><strong>Install FDM</strong>: Open the downloaded file and follow the installation instructions.</li><br>
-                  <li><strong>Set Default</strong>: After installation, open FDM and select the "Set as default" option, which can be found at the top of the page.</li><br>
-                  <li><strong>Add Browser Extension</strong>: Add the browser extension for <a href="https://chromewebstore.google.com/detail/free-download-manager/ahmpjcflkgiildlgicmcieglgoilbfdp" target="_blank" style="color: #6f95d3; display: inline;">Chrome</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/free-download-manager-addon/" target="_blank" style="color: #6f95d3; display: inline;">Firefox</a>, and you’re all set!</li>
-                </ol>
-              </div>
-            </details>
             
             
             <div class="stream-magnet" id="stream-magnet">
@@ -349,7 +354,15 @@
         <div class="container">
           <p class="section-subtitle" style="margin-top: 75px; color:white;">Additonal Information</p>
           <div class="additional-info">
-            <div class="left-column"></div>
+              <div class="left-column">
+                <div class="slider-list">
+                    <div class="slider-inner">
+                        <!-- Video containers for the main trailer and behind-the-scenes video -->
+                        <div class="video-card" id="main-video"></div>
+                        <div class="video-card" id="behind-the-scenes-video"></div>
+                    </div>
+                </div>
+            </div>
               <div class="right-column">
                 <h1 style="font-weight: normal; text-align: center; margin-bottom: 20px;">
                 <div class="views is-small" data-text="views" style="display: inline-block;">
@@ -465,6 +478,7 @@
     - custom js link
   -->
   <script src="./assets/js/script.js"></script>
+  <script src="assets/js/youtube.js"></script>
 
   <!-- 
     - ionicon link
