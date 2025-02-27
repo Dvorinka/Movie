@@ -1894,6 +1894,14 @@ transform: rotate(-0.25turn);
     height: 220px;
   }
 
+  .additional-info {
+    flex-direction: column;
+  }
+
+  .right-column {
+    max-width: 431px !important;
+  }
+
   .modal-content iframe {
     width: 100%;
     height: 200px; /* Further reduce iframe height for small screens */
@@ -3758,9 +3766,10 @@ summary {
 
 .left-column {
   flex: 3;
-  padding: 20px;
+  padding: 50px 40px 0px 75px;
   border-radius: 8px;
   background-color: #151515;
+  max-width: 800px;
 }
 
 .right-column {
@@ -3768,6 +3777,7 @@ summary {
   padding: 20px;
   border-radius: 8px;
   background-color: #151515;
+  max-width: 375px;
 }
 
 .quick-functions {
@@ -3993,8 +4003,6 @@ summary {
 }
 .left-column {
   position: relative;
-  width: 100%;
-  height: 500px; /* Adjust height as needed */
 }
 
 .play-button {
@@ -4013,13 +4021,13 @@ summary {
 .main-video, .behind-the-scenes-video {
   margin-top: 20px; /* Adjust margin as needed */
   width: 100%;
-  height: 300px; /* Adjust height as needed */
   position: relative;
 }
 
 .slider-list{
   overflow-x: overlay;
-  
+  width: 100%;
+  height: 100%;
 }
 
 .slider-list .slider-inner{
@@ -4032,7 +4040,6 @@ summary {
   background-image: url(../images/video-bg-icon.png);
   aspect-ratio: 16 / 9;
   flex-shrink: 0;
-  max-width: 500px;
 }
 
 .poster-box, .video-card{
