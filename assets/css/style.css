@@ -3766,7 +3766,7 @@ summary {
 
 .left-column {
   flex: 3;
-  padding: 50px 40px 0px 75px;
+  padding: 50px;
   border-radius: 8px;
   background-color: #151515;
   max-width: 800px;
@@ -4027,7 +4027,6 @@ summary {
 .slider-list{
   overflow-x: overlay;
   width: 100%;
-  height: 100%;
 }
 
 .slider-list .slider-inner{
@@ -4071,10 +4070,10 @@ summary {
 }
 
 .slider-list {
-  margin-inline: -20px;
+  margin-inline: 0px;
   overflow-x: overlay;
   padding-block-end: 16px;
-  margin-block-end: -16px;
+  margin-block-end: 21px;
 }
 
 .slider-list::-webkit-scrollbar-thumb {
@@ -4088,4 +4087,88 @@ summary {
 
 .slider-list::-webkit-scrollbar {
   height: 8px; /* Adjust height if it's horizontal */
+}
+
+.status {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Color coding */
+.released { background-color: green; }
+.in-production { background-color: orange; }
+.planned { background-color: blue; }
+.rumored { background-color: darkorange; }
+.post-production { background-color: purple; }
+.canceled { background-color: red; }
+.unknown { background-color: gray; }
+
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: #00aaff;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.description p {
+  font-size: 1rem;
+  color: #ddd;
+  margin: 5px 0;
+}
+
+.original-name, .release-date-full, .status {
+  font-weight: 500;
+}
+
+.original-name strong, .release-date-full strong {
+  color: #00aaff;
+}
+
+.cast-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.actor-singular {
+  background: rgba(255, 255, 255, 0.07);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+  width: 120px;
+}
+
+.actor-singular:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.actor-singular img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
+.actor-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  margin-top: 5px;
+}
+
+.actor-character {
+  font-size: 0.8rem;
+  color: #aaa;
 }

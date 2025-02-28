@@ -41,25 +41,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const showDetailBadge = document.querySelector('.badge-fill');
         const showDetailGenres = document.querySelector('.ganre-wrapper');
         const showDetailFirstAirDate = document.querySelector('.date-time time[datetime]');
-
+        const showDetailLastAirDate = document.querySelector('.date-time .last-air-date'); // Assuming you have an element for last air date
+    
         const showDetailStoryline = document.querySelector('.storyline');
         const showDetailCertification = document.querySelector('.badge-outline');
         const showDetailPosterPath = show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : 'placeholder-image-url';
         const showDetailYear = new Date(show.first_air_date).getFullYear();
         const showDetailTrailer = show.videos.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
-
+    
         // Update the document title
         document.title = `${show.name} (${showDetailYear})`;
-
+    
         // Update show banner
         showDetailBanner.src = showDetailPosterPath;
         showDetailBanner.alt = `${show.name} Poster`;
-
+    
         // Format and update show title
         const titleWords = show.name.split(' ');
         const formattedTitle = `<strong>${titleWords[0]}</strong> ${titleWords.slice(1).join(' ')}`;
         showDetailTitle.innerHTML = formattedTitle;
-
+    
         // Update other show details
         showDetailBadge.addEventListener('click', () => {
             // Redirect the user to the desired URL
@@ -70,9 +71,31 @@ document.addEventListener('DOMContentLoaded', () => {
         showDetailBadge.style.cursor = 'pointer';
         showDetailBadge.textContent = show.vote_average ? show.vote_average.toFixed(1) : 'NR';
         showDetailGenres.innerHTML = show.genres.map(genre => `<a href="genre-details.html?genreId=${genre.id}" target="_blank">${genre.name}</a>`).join(' ');
-        showDetailFirstAirDate.textContent = showDetailYear;
+    
+        // Determine first air date and last air date
+        let firstAirYear = new Date(show.first_air_date).getFullYear();
+        let lastAirYear = show.last_air_date ? new Date(show.last_air_date).getFullYear() : null;
+        let status = show.status || '';
+    
+        if (lastAirYear === null || status === 'Returning Series' || status === 'In Production') {
+            // Make an additional request to get the full TV show details
+            let tvShowDetailsUrl = `https://api.themoviedb.org/3/tv/${show.id}?api_key=${apiKey}&append_to_response=content_ratings,videos`;
+            console.log('Fetching TV show details from:', tvShowDetailsUrl); // Debugging line
+            let tvShowDetailsResponse = await fetch(tvShowDetailsUrl);
+            if (!tvShowDetailsResponse.ok) throw new Error('Network response was not ok');
+            let tvShowDetailsData = await tvShowDetailsResponse.json();
+            lastAirYear = tvShowDetailsData.last_air_date ? new Date(tvShowDetailsData.last_air_date).getFullYear() : 'Present';
+            status = tvShowDetailsData.status || '';
+        }
+    
+        if (status === 'Returning Series' || status === 'In Production') {
+            showDetailFirstAirDate.textContent = `${firstAirYear} - Ongoing`;
+        } else {
+            showDetailFirstAirDate.textContent = `${firstAirYear} - ${lastAirYear}`;
+        }
+    
         showDetailFirstAirDate.setAttribute('datetime', show.first_air_date);
-
+    
         // Update seasons and episodes
         const seasonsCount = show.number_of_seasons;
         const episodesCount = show.number_of_episodes;
@@ -80,22 +103,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('seasons-count').setAttribute('datetime', seasonsCount);
         document.getElementById('episodes-count').textContent = `Episodes: ${episodesCount}`;
         document.getElementById('episodes-count').setAttribute('datetime', episodesCount);
-
+    
         showDetailStoryline.textContent = show.overview; // Assign the whole overview
-
+    
         // Set the background image dynamically
         const showDetail = document.querySelector('.show-detail');
         const showBackdropPath = show.backdrop_path ? `https://image.tmdb.org/t/p/original${show.backdrop_path}` : 'default-backdrop-url';
         showDetail.style.backgroundImage = `url("movie-detail-bg.png"), url(${showBackdropPath})`;
-
+    
         const creditsUrl = `https://api.themoviedb.org/3/tv/${show.id}/credits?api_key=${apiKey}`;
         try {
             const creditsResponse = await fetch(creditsUrl);
             const creditsData = await creditsResponse.json();
-        
+            
             // Get top 5 billed actors
             const actors = creditsData.cast.slice(0, 5);
-
+    
             // Create comma-separated list of actor names with links
             const actorElements = actors.map(actor => {
                 // Assuming actor has a profile_path or image_url property
@@ -109,21 +132,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         <a href="./people-details.html?id=${actor.id}" target="_blank">
                             <img src="${imageUrl}" alt="${actor.name}">
                             <div class="actors-info">
-                            <p>${actor.name}</p>
+                                <p>${actor.name}</p>
+                            </div>
                         </a>
                         <p>${characterFirstName}</p>
-                        </div>
                     </div>`;
             }).join('');
-
+    
             // Update actors in HTML
             const actorsContainer = document.querySelector('.actors');
             actorsContainer.innerHTML = ''; // Clear existing content
-
+    
             const starsElement = document.createElement('div');
             starsElement.innerHTML += actorElements;
             actorsContainer.appendChild(starsElement);
-        
+            
         } catch (error) {
             console.error('Error fetching credits:', error);
             // Handle error if necessary

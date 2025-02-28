@@ -115,10 +115,8 @@ function displaySuggestions(suggestions) {
             let name = suggestion.name || suggestion.title;
             let mediaType = suggestion.media_type;
             let posterPath = suggestion.poster_path || suggestion.profile_path;
-
             let defaultImageUrl = mediaType === 'person' ? 'assets/images/person.svg' : 'assets/images/movie-tv.svg';
             let posterUrl = posterPath ? `https://image.tmdb.org/t/p/w92${posterPath}` : defaultImageUrl;
-
             let details = '';
             let actors = '';
 
@@ -126,8 +124,25 @@ function displaySuggestions(suggestions) {
                 let releaseYear = suggestion.release_date ? new Date(suggestion.release_date).getFullYear() : 'N/A';
                 if (mediaType === 'tv') {
                     let firstAirYear = suggestion.first_air_date ? new Date(suggestion.first_air_date).getFullYear() : 'N/A';
-                    let lastAirYear = suggestion.last_air_date ? new Date(suggestion.last_air_date).getFullYear() : 'Present';
-                    details = `${firstAirYear} - ${lastAirYear}`;
+                    let lastAirYear = suggestion.last_air_date ? new Date(suggestion.last_air_date).getFullYear() : null;
+                    let status = suggestion.status || '';
+
+                    if (lastAirYear === null || status === 'Returning Series' || status === 'In Production') {
+                        // Make an additional request to get the full TV show details
+                        let tvShowDetailsUrl = `https://api.themoviedb.org/3/tv/${suggestion.id}?api_key=${apiKey}`;
+                        console.log('Fetching TV show details from:', tvShowDetailsUrl); // Debugging line
+                        let tvShowDetailsResponse = await fetch(tvShowDetailsUrl);
+                        if (!tvShowDetailsResponse.ok) throw new Error('Network response was not ok');
+                        let tvShowDetailsData = await tvShowDetailsResponse.json();
+                        lastAirYear = tvShowDetailsData.last_air_date ? new Date(tvShowDetailsData.last_air_date).getFullYear() : 'Present';
+                        status = tvShowDetailsData.status || '';
+                    }
+
+                    if (status === 'Returning Series' || status === 'In Production') {
+                        details = `${firstAirYear} - Ongoing`;
+                    } else {
+                        details = `${firstAirYear} - ${lastAirYear}`;
+                    }
                 } else {
                     details = `${releaseYear}`;
                 }
@@ -138,7 +153,6 @@ function displaySuggestions(suggestions) {
                 if (!creditsResponse.ok) throw new Error('Network response was not ok');
                 let creditsData = await creditsResponse.json();
                 let cast = creditsData.cast.slice(0, 2).map(actor => actor.name).join(', ');
-
                 actors = cast ? `${cast}` : '<br>'; // Add <br> only if no actors
             } else if (mediaType === 'person') {
                 let knownFor = suggestion.known_for_department || 'N/A';
@@ -181,7 +195,6 @@ function displaySuggestions(suggestions) {
         console.error('Results container not found.');
     }
 }
-
 /**
  * Event listeners and initialization
  */
