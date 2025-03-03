@@ -1,13 +1,50 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Script loaded and DOM content fully loaded');
+    
+    // Proxy URLs in rotation order
+    const proxies = [
+        'https://ytbproxy.tdvorak.dev',
+        'https://ytbproxy2.tdvorak.dev',
+        'https://ytbproxy3.tdvorak.dev'
+    ];
+
+    // Helper function to fetch YouTube data with proxy rotation
+    async function fetchYouTubeWithProxy(searchQuery) {
+        for (const proxy of proxies) {
+            const apiUrl = `${proxy}/youtube?q=${encodeURIComponent(searchQuery)}`;
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    if (response.status === 500) {
+                        console.log(`Proxy ${proxy} returned 500, trying next.`);
+                        continue;
+                    }
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+                return data; // Return valid data
+            } catch (error) {
+                console.error(`Error with ${proxy}:`, error);
+                if (error instanceof SyntaxError) {
+                    console.log('Invalid JSON response, trying next proxy.');
+                    continue;
+                }
+                break; // Stop on unrecoverable error
+            }
+        }
+        return null; // All proxies failed
+    }
+
     const getMovieIdFromUrl = () => {
         const params = new URLSearchParams(window.location.search);
         return params.get('id');
     };
+
     const movieId = getMovieIdFromUrl();
     console.log(`Extracted movie ID from URL: ${movieId}`);
+
     const fetchMovieDetails = async (movieId) => {
-        const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&append_to_response=videos`;
+        const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&append_to_response=videos,genres`;
         console.log(`Fetching movie details from: ${url}`);
         try {
             const response = await fetch(url);
@@ -16,60 +53,96 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchAlternativeTrailer(data.title, data.release_dates);
             if (data.status === "Released") {
                 fetchBehindTheScenesVideos(data.title, data.release_dates);
+                fetchHowToBeatVideo(data.title, data.release_dates);
+                fetchThingsYouMissedVideo(data.title, data.release_dates);
+                fetchHistoryVideo(data.title, data.release_dates);
             } else {
-                console.log('Movie is not released, skipping behind-the-scenes videos.');
+                console.log('Movie is not released, skipping additional videos.');
             }
         } catch (error) {
             console.error('Error fetching movie details:', error);
         }
     };
+
     const fetchAlternativeTrailer = async (movieTitle, releaseDates) => {
         const releaseYear = getReleaseYear(releaseDates);
         const searchQuery = `${movieTitle} ${releaseYear} trailer`;
         console.log(`Fetching alternative trailer for query: ${searchQuery}`);
-        fetchYouTubeVideo(searchQuery, '#main-video');
+        await fetchYouTubeVideo(searchQuery, '#main-video');
     };
+
     const fetchBehindTheScenesVideos = async (movieTitle, releaseDates) => {
         const releaseYear = getReleaseYear(releaseDates);
         const searchQuery = `${movieTitle} ${releaseYear} behind the scenes`;
         console.log(`Fetching behind-the-scenes video for query: ${searchQuery}`);
-        fetchYouTubeVideo(searchQuery, '#behind-the-scenes-video');
+        await fetchYouTubeVideo(searchQuery, '#behind-the-scenes-video');
     };
+
+    const fetchYouTubeVideoWithChannelCheck = async (searchQuery, containerSelector, allowedChannels) => {
+        const data = await fetchYouTubeWithProxy(searchQuery);
+        if (data?.video_id && allowedChannels.includes(data.channel_name)) {
+            displayVideo(data.video_id, containerSelector);
+        } else {
+            console.log(`Video for ${searchQuery} is not from an allowed channel.`);
+        }
+    };
+
+    const fetchHowToBeatVideo = async (movieTitle, releaseDates) => {
+        const releaseYear = getReleaseYear(releaseDates);
+        const searchQuery = `${movieTitle} ${releaseYear} how to beat`;
+        const allowedChannels = ["How To Beat", "Nerd Explains", "The Film Theorists"];
+        await fetchYouTubeVideoWithChannelCheck(searchQuery, '#how-to-beat-video', allowedChannels);
+    };
+
+    const fetchThingsYouMissedVideo = async (movieTitle, releaseDates) => {
+        const releaseYear = getReleaseYear(releaseDates);
+        const searchQuery = `${movieTitle} ${releaseYear} things you missed`;
+        const allowedChannels = ["Screen Rant", "The Film Theorists", "CZsWorld", "Movie Balls Deep", "Heavy Spoilers"];
+        await fetchYouTubeVideoWithChannelCheck(searchQuery, '#things-you-missed-video', allowedChannels);
+    };
+
+    const fetchHistoryVideo = async (movieTitle, releaseDates) => {
+        const releaseYear = getReleaseYear(releaseDates);
+        const searchQuery = `${movieTitle} ${releaseYear} history`;
+        const allowedChannels = ["CZsWorld"];
+        await fetchYouTubeVideoWithChannelCheck(searchQuery, '#history-video', allowedChannels);
+    };
+
     const fetchYouTubeVideo = async (searchQuery, containerSelector) => {
-        const apiUrl = `https://ytbproxy.tdvorak.dev/youtube?q=${encodeURIComponent(searchQuery)}`;
-        console.log(`Fetching YouTube video ID from API: ${apiUrl}`);
-        try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            console.log('YouTube video ID fetched successfully:', data);
-            if (data.video_id) {
-                const videoId = data.video_id;
-                console.log(`Extracted video ID: ${videoId}`);
-                displayVideo(videoId, containerSelector);
-            } else {
-                console.error('No video ID found in API response.');
-            }
-        } catch (error) {
-            console.error('Error fetching YouTube video ID:', error);
+        const data = await fetchYouTubeWithProxy(searchQuery);
+        if (data?.video_id) {
+            displayVideo(data.video_id, containerSelector);
         }
     };
+
     const displayVideo = (videoId, containerSelector) => {
-        console.log(`Displaying video with ID: ${videoId} in ${containerSelector}`);
         const container = document.querySelector(containerSelector);
-        if (!container) {
-            console.error(`Container not found for selector: ${containerSelector}`);
-            return;
+        if (container) {
+            container.innerHTML = `
+                <iframe 
+                    width="560" 
+                    height="315" 
+                    src="https://www.youtube.com/embed/${videoId}"
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen
+                ></iframe>
+            `;
+        } else {
+            console.error(`Container not found: ${containerSelector}`);
         }
-        container.innerHTML = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
     };
+
     const getReleaseYear = (releaseDates) => {
-        console.log('Extracting release year from movie data');
         if (!releaseDates || !releaseDates.results) return '';
         const releaseInfo = releaseDates.results.find(country => country.iso_3166_1 === 'US');
-        return releaseInfo && releaseInfo.release_dates.length > 0 
-            ? new Date(releaseInfo.release_dates[0].release_date).getFullYear() 
+        return releaseInfo?.release_dates?.[0]?.release_date 
+            ? new Date(releaseInfo.release_dates[0].release_date).getFullYear()
             : '';
     };
+
     if (movieId) {
         fetchMovieDetails(movieId);
     }

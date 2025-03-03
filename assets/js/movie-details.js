@@ -1,7 +1,7 @@
 // movie-details.js
 document.addEventListener( 'DOMContentLoaded', () =>
     {
-        const sparkApiUrl = "https://goapi.tdvorak.dev";
+        const sparkApiUrl = "https://goapi.tdvorak.dev"; //Přednačtení externí GOlang API na serveru hostovaném na Railway.
     
         // Initialize Supabase client
         const supabase = window.supabase.createClient(
