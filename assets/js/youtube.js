@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return null; // All proxies failed
     }
+    
 
     const getMovieIdFromUrl = () => {
         const params = new URLSearchParams(window.location.search);
@@ -44,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(`Extracted movie ID from URL: ${movieId}`);
 
     const fetchMovieDetails = async (movieId) => {
-        const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&append_to_response=videos,genres`;
+        const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&append_to_response=videos,genres,release_dates`;
         console.log(`Fetching movie details from: ${url}`);
         try {
             const response = await fetch(url);
@@ -138,9 +139,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const getReleaseYear = (releaseDates) => {
         if (!releaseDates || !releaseDates.results) return '';
         const releaseInfo = releaseDates.results.find(country => country.iso_3166_1 === 'US');
-        return releaseInfo?.release_dates?.[0]?.release_date 
-            ? new Date(releaseInfo.release_dates[0].release_date).getFullYear()
-            : '';
+        if (!releaseInfo || !releaseInfo.release_dates) return '';
+        
+        // Find theatrical release (type 3)
+        const theatricalRelease = releaseInfo.release_dates.find(date => date.type === 3);
+        // If no theatrical release, take the first available
+        const releaseDateEntry = theatricalRelease || releaseInfo.release_dates[0];
+        if (!releaseDateEntry) return '';
+        
+        const releaseDate = releaseDateEntry.release_date;
+        if (!releaseDate) return '';
+        
+        const date = new Date(releaseDate);
+        // Check if the parsed date is valid
+        if (isNaN(date.getFullYear())) {
+            console.error(`Invalid release date: ${releaseDate}`);
+            return '';
+        }
+        
+        return date.getFullYear().toString(); // Return as string for safe interpolation
     };
 
     if (movieId) {

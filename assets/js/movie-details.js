@@ -1205,48 +1205,108 @@ document.addEventListener( 'DOMContentLoaded', () =>
         streamButton.addEventListener( 'click', openStreamModal );
         streamMagnet.addEventListener( 'click', closeStreamModal );
     
-        const redirectToSDStream = ( event ) =>
-        {
+        async function getImdbIdFromTmdb(tmdbId) {
+            const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${apiKey}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                return data.imdb_id || null;
+            } catch (error) {
+                console.error('Error fetching IMDb ID:', error);
+                return null;
+            }
+        }
+        
+        
+        const redirectToHDStream = async (event) => {
             event.preventDefault(); // Prevents the default link behavior
-    
-            const streamUrl = `https://rivestream.org/watch?type=movie&id=${movieId}`;
-    
+        
+            const tmdbId = movieId; // Use your existing TMDB movie ID variable
+            const imdbId = await getImdbIdFromTmdb(tmdbId);
+        
+            if (!imdbId) {
+                console.error('Could not retrieve IMDb ID');
+                return;
+            }
+        
+            const streamUrl = `https://godriveplayer.com/player.php?imdb=${imdbId}&noads=1`;
+        
             // Create an iframe element
-            const iframe = document.createElement( 'iframe' );
+            const iframe = document.createElement('iframe');
             iframe.src = streamUrl;
             iframe.width = '100%';
             iframe.height = '100%';
             iframe.frameBorder = '0';
-            iframe.allow = 'autoplay; fullscreen'; // Allow fullscreen and autoplay
-            iframe.allowfullscreen = true; // Explicitly set the allowfullscreen attribute
-    
+            iframe.allow = 'autoplay; fullscreen';
+            iframe.allowFullscreen = true;
+        
             // Insert the iframe into the container
-            const container = document.getElementById( 'stream-container' );
-            container.innerHTML = ''; // Clear any previous content in the container
-            container.appendChild( iframe );
-    
-            // Display the container
+            const container = document.getElementById('stream-container');
+            container.innerHTML = ''; // Clear any previous content
+            container.appendChild(iframe);
             container.style.display = 'flex'; // Show the stream container
-    
+        
             // Add event listener to close the iframe when clicking outside
-            document.addEventListener( 'click', closeIframeOnClickOutside );
+            document.addEventListener('click', closeIframeOnClickOutside);
         };
-    
-        const closeIframeOnClickOutside = ( event ) =>
-        {
-            const container = document.getElementById( 'stream-container' );
-            const iframe = container.querySelector( 'iframe' );
-    
-            if ( iframe && !iframe.contains( event.target ) && !event.target.closest( '.sd-stream-btn' ) )
-            {
-                container.style.display = 'none'; // Hide the stream container
-                container.innerHTML = ''; // Clear the iframe content
-                document.removeEventListener( 'click', closeIframeOnClickOutside ); // Remove the event listener
+        
+        const closeIframeOnClickOutside = (event) => {
+            const container = document.getElementById('stream-container');
+            const iframe = container.querySelector('iframe');
+        
+            if (iframe && !iframe.contains(event.target) && !event.target.closest('.hd-stream-btn')) {
+                container.style.display = 'none';
+                container.innerHTML = ''; // Clear content
+                document.removeEventListener('click', closeIframeOnClickOutside);
             }
         };
-    
-        const sdstreamButton = document.querySelector( '.sd-stream-btn' );
-        sdstreamButton.addEventListener( 'click', redirectToSDStream );
+        
+        const hdstreamButton = document.querySelector('.hd-stream-btn');
+        hdstreamButton.addEventListener('click', redirectToHDStream);
+
+
+        const redirectToSDStream = ( event ) =>
+            {
+                event.preventDefault(); // Prevents the default link behavior
+        
+                const streamUrl = `https://rivestream.org/watch?type=movie&id=${movieId}`;
+        
+                // Create an iframe element
+                const iframe = document.createElement( 'iframe' );
+                iframe.src = streamUrl;
+                iframe.width = '100%';
+                iframe.height = '100%';
+                iframe.frameBorder = '0';
+                iframe.allow = 'autoplay; fullscreen'; // Allow fullscreen and autoplay
+                iframe.allowfullscreen = true; // Explicitly set the allowfullscreen attribute
+        
+                // Insert the iframe into the container
+                const container = document.getElementById( 'stream-container' );
+                container.innerHTML = ''; // Clear any previous content in the container
+                container.appendChild( iframe );
+        
+                // Display the container
+                container.style.display = 'flex'; // Show the stream container
+        
+                // Add event listener to close the iframe when clicking outside
+                document.addEventListener( 'click', closeIframeOnClickOutside2 );
+            };
+        
+            const closeIframeOnClickOutside2 = ( event ) =>
+            {
+                const container = document.getElementById( 'stream-container' );
+                const iframe = container.querySelector( 'iframe' );
+        
+                if ( iframe && !iframe.contains( event.target ) && !event.target.closest( '.sd-stream-btn' ) )
+                {
+                    container.style.display = 'none'; // Hide the stream container
+                    container.innerHTML = ''; // Clear the iframe content
+                    document.removeEventListener( 'click', closeIframeOnClickOutside2 ); // Remove the event listener
+                }
+            };
+        
+            const sdstreamButton = document.querySelector( '.sd-stream-btn' );
+            sdstreamButton.addEventListener( 'click', redirectToSDStream );
     
     
     
@@ -1998,4 +2058,4 @@ document.addEventListener( 'DOMContentLoaded', () =>
     } );
     
     
-    updateredirectToSDStream();
+    updateredirectToHDStream();
