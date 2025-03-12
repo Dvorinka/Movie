@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const redirectToStream = (event) => {
         event.preventDefault();  // Prevents the default link behavior
         
-        const streamUrl = `https://rivestream.live/watch?type=tv&id=${showId}&season=1&episode=1`;
+        const streamUrl = `https://rivestream.org/watch?type=tv&id=${showId}&season=1&episode=1`;
     
         // Create an iframe element
         const iframe = document.createElement('iframe');

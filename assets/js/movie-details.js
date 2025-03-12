@@ -1580,175 +1580,128 @@ document.addEventListener( 'DOMContentLoaded', () =>
         };
     
     
-        const markAsWatchedFeature = async ( movie ) =>
-        {
-            if ( !supabase || !supabase.auth )
-            {
-                console.error( 'Supabase client is not initialized.' );
+        const markAsWatchedFeature = async (movie) => {
+            if (!supabase || !supabase.auth) {
+                console.error('Supabase client is not initialized.');
                 return;
             }
-    
-            try
-            {
-                const
-                {
-                    data:
-                    {
-                        session
-                    },
-                    error
-                } = await supabase.auth.getSession();
-                if ( error )
-                {
-                    console.error( 'Error getting session:', error );
+        
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) {
+                    console.error('Error getting session:', error);
                     return;
                 }
-    
-                // Select the watched icon container
-                const watchedIcon = document.querySelector( '.watched-icon #mark-as-watched' );
-                const watchedIconElement = document.querySelector( '.watched-icon ion-icon' );
-    
-                if ( !watchedIcon || !watchedIconElement )
-                {
-                    console.error( 'Watched icon not found.' );
-                    return;
+        
+                // Select all watched icon containers (both original and new elements)
+                const watchedContainers = document.querySelectorAll('.watched-icon, .watched-function');
+                const movieImage = document.querySelector('.movie-detail-banner img');
+                
+                if (!movieImage) {
+                    console.error('Movie image not found.');
                 }
-    
-                // Select the movie image for grayscale effect
-                const movieImage = document.querySelector( `.movie-detail-banner img` );
-                if ( !movieImage )
-                {
-                    console.error( 'Movie image not found.' );
-                }
-    
-                // Update watched icon visibility based on session
-                watchedIcon.style.display = session ? 'block' : 'none';
-    
-                let isWatched = false; // Track watched status locally
-    
-                if ( session )
-                {
-                    // Check if the movie is already marked as watched
-                    const
-                    {
-                        data: existing,
-                        error: fetchError
-                    } = await supabase
-                        .from( 'watched_movies' )
-                        .select( 'id' )
-                        .eq( 'user_id', session.user.id )
-                        .eq( 'movie_id', movie.id );
-    
-                    if ( fetchError )
-                    {
-                        console.error( 'Error checking watched status:', fetchError );
+        
+                let isWatched = false; // Shared state variable
+        
+                if (session) {
+                    // Check if movie is watched
+                    const { data: existing, error: fetchError } = await supabase
+                        .from('watched_movies')
+                        .select('id')
+                        .eq('user_id', session.user.id)
+                        .eq('movie_id', movie.id);
+        
+                    if (fetchError) {
+                        console.error('Error checking watched status:', fetchError);
                         return;
                     }
-    
+        
                     isWatched = existing.length > 0;
-    
-                    // Set initial icon and state based on watch status
-                    if ( isWatched )
-                    {
-                        applyWatchedStyle( movieImage );
-                        watchedIconElement.name = 'eye-off-outline';
-                        watchedIcon.title = 'Unmark as Watched';
-                    }
-                    else
-                    {
-                        removeWatchedStyle( movieImage );
-                        watchedIconElement.name = 'eye-outline';
-                        watchedIcon.title = 'Mark as Watched';
-                    }
-    
-                    // Add event listener for toggling watched status
-                    watchedIcon.addEventListener( 'click', async ( e ) =>
-                    {
-                        e.preventDefault();
-    
-                        if ( isWatched )
-                        {
-                            // Remove movie from the watched_movies table
-                            const
-                            {
-                                error: deleteError
-                            } = await supabase
-                                .from( 'watched_movies' )
-                                .delete()
-                                .eq( 'user_id', session.user.id )
-                                .eq( 'movie_id', movie.id );
-    
-                            if ( deleteError )
-                            {
-                                console.error( 'Error removing watched status:', deleteError );
-                                alert( 'Failed to unmark as watched.' );
+        
+                    // Helper function to update all containers
+                    const updateAllIcons = () => {
+                        watchedContainers.forEach(container => {
+                            const link = container.querySelector('a');
+                            const icon = container.querySelector('ion-icon');
+        
+                            if (!link || !icon) return;
+        
+                            if (isWatched) {
+                                applyWatchedStyle(movieImage);
+                                icon.setAttribute('name', 'eye-off-outline');
+                                link.title = 'Unmark as Watched';
+                            } else {
+                                removeWatchedStyle(movieImage);
+                                icon.setAttribute('name', 'eye-outline');
+                                link.title = 'Mark as Watched';
                             }
-                            else
-                            {
-                                removeWatchedStyle( movieImage );
-                                watchedIconElement.name = 'eye-outline';
-                                watchedIcon.title = 'Mark as Watched';
-                                isWatched = false; // Update local state
-    
-                                // Update watcher count
-                                const updatedWatcherCount = await getWatcherCount( movie.id );
-                                if ( updatedWatcherCount !== null )
-                                {
-                                    console.log( `Updated number of people who watched this movie: ${updatedWatcherCount}` );
-                                    updateWatcherCountDisplay( updatedWatcherCount );
+                        });
+                    };
+        
+                    // Initialize all containers with current state
+                    updateAllIcons();
+        
+                    // Add event listeners
+                    watchedContainers.forEach(container => {
+                        const link = container.querySelector('a');
+                        if (!link) return;
+        
+                        link.addEventListener('click', async (e) => {
+                            e.preventDefault();
+        
+                            try {
+                                if (isWatched) {
+                                    // Remove from watched_movies
+                                    const { error: deleteError } = await supabase
+                                        .from('watched_movies')
+                                        .delete()
+                                        .eq('user_id', session.user.id)
+                                        .eq('movie_id', movie.id);
+        
+                                    if (deleteError) {
+                                        throw deleteError;
+                                    }
+        
+                                    isWatched = false;
+                                } else {
+                                    // Add to watched_movies
+                                    const { error: insertError } = await supabase
+                                        .from('watched_movies')
+                                        .insert({ user_id: session.user.id, movie_id: movie.id, movie_title: movie.title });
+        
+                                    if (insertError) {
+                                        throw insertError;
+                                    }
+        
+                                    isWatched = true;
                                 }
-                            }
-                        }
-                        else
-                        {
-                            // Add movie to the watched_movies table
-                            const
-                            {
-                                error: insertError
-                            } = await supabase
-                                .from( 'watched_movies' )
-                                .insert(
-                                {
-                                    user_id: session.user.id,
-                                    movie_id: movie.id,
-                                    movie_title: movie.title,
-                                } );
-    
-                            if ( insertError )
-                            {
-                                console.error( 'Error marking as watched:', insertError );
-                                alert( 'Failed to mark as watched.' );
-                            }
-                            else
-                            {
-                                applyWatchedStyle( movieImage );
-                                watchedIconElement.name = 'eye-off-outline';
-                                watchedIcon.title = 'Unmark as Watched';
-                                isWatched = true; // Update local state
-    
-                                // Update watcher count
-                                const updatedWatcherCount = await getWatcherCount( movie.id );
-                                if ( updatedWatcherCount !== null )
-                                {
-                                    console.log( `Updated number of people who watched this movie: ${updatedWatcherCount}` );
-                                    updateWatcherCountDisplay( updatedWatcherCount );
+        
+                                // Update all icons and watcher count
+                                updateAllIcons();
+                                const updatedCount = await getWatcherCount(movie.id);
+                                if (updatedCount !== null) {
+                                    updateWatcherCountDisplay(updatedCount);
                                 }
+        
+                            } catch (err) {
+                                console.error('Error toggling watched status:', err);
+                                alert('Failed to update watched status.');
                             }
-                        }
-                    } );
+                        });
+                    });
+                } else {
+                    // Hide all watched icons if no session
+                    watchedContainers.forEach(container => {
+                        const link = container.querySelector('a');
+                        if (link) link.style.display = 'none';
+                    });
                 }
-    
-                // Get the number of people who watched the movie
-                const watcherCount = await getWatcherCount( movie.id );
-                if ( watcherCount !== null )
-                {
-                    console.log( `Number of people who watched this movie: ${watcherCount}` );
-                    updateWatcherCountDisplay( watcherCount );
-                }
-            }
-            catch ( err )
-            {
-                console.error( 'Error in markAsWatchedFeature:', err );
+        
+                // Initialize watcher count
+                const watcherCount = await getWatcherCount(movie.id);
+                if (watcherCount !== null) updateWatcherCountDisplay(watcherCount);
+            } catch (err) {
+                console.error('Error in markAsWatchedFeature:', err);
             }
         };
     
@@ -1845,124 +1798,108 @@ document.addEventListener( 'DOMContentLoaded', () =>
     
     
     
-        const addToWatchLaterFeature = async ( movie ) =>
-        {
-            if ( !supabase || !supabase.auth )
-            {
-                console.error( 'Supabase client is not initialized.' );
+        const addToWatchLaterFeature = async (movie) => {
+            if (!supabase || !supabase.auth) {
+                console.error('Supabase client is not initialized.');
                 return;
             }
-    
-            try
-            {
-                const
-                {
-                    data:
-                    {
-                        session
-                    },
-                    error
-                } = await supabase.auth.getSession();
-                if ( error )
-                {
-                    console.error( 'Error getting session:', error );
+        
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) {
+                    console.error('Error getting session:', error);
                     return;
                 }
-    
-                const watchLaterIconContainer = document.querySelector( '#add-to-watch-later' );
-                if ( !watchLaterIconContainer )
-                {
-                    console.error( 'Watch Later icon not found.' );
-                    return;
-                }
-    
-                watchLaterIconContainer.style.display = session ? 'block' : 'none';
-    
-                let isInWatchList = false; // Track watch list status locally
-    
-                if ( session )
-                {
-                    const
-                    {
-                        data: existing,
-                        error: fetchError
-                    } = await supabase
-                        .from( 'watch_later_movies' )
-                        .select( 'id' )
-                        .eq( 'user_id', session.user.id )
-                        .eq( 'movie_id', movie.id );
-    
-                    if ( fetchError )
-                    {
-                        console.error( 'Error checking watch later status:', fetchError );
+        
+                // Select all watch-later containers (both original and new elements)
+                const watchLaterContainers = document.querySelectorAll('.watch-later-icon, .later-function');
+                
+                let isInWatchList = false; // Shared state variable
+        
+                if (session) {
+                    // Check if movie is in watch later list
+                    const { data: existing, error: fetchError } = await supabase
+                        .from('watch_later_movies')
+                        .select('id')
+                        .eq('user_id', session.user.id)
+                        .eq('movie_id', movie.id);
+        
+                    if (fetchError) {
+                        console.error('Error checking watch later status:', fetchError);
                         return;
                     }
-    
+        
                     isInWatchList = existing.length > 0;
-    
-                    const ionIconElement = watchLaterIconContainer.querySelector( 'ion-icon' );
-                    if ( !ionIconElement )
-                    {
-                        console.error( 'Ion Icon not found within the anchor tag.' );
-                        return;
-                    }
-    
-                    ionIconElement.setAttribute(
-                        'name',
-                        isInWatchList ? 'time' : 'time-outline'
-                    );
-    
-                    watchLaterIconContainer.addEventListener( 'click', async ( event ) =>
-                    {
-                        event.preventDefault();
-    
-                        if ( isInWatchList )
-                        {
-                            const
-                            {
-                                error: deleteError
-                            } = await supabase
-                                .from( 'watch_later_movies' )
-                                .delete()
-                                .eq( 'user_id', session.user.id )
-                                .eq( 'movie_id', movie.id );
-    
-                            if ( deleteError )
-                            {
-                                console.error( 'Error removing from watch later list:', deleteError );
+        
+                    // Helper function to update all containers
+                    const updateAllIcons = () => {
+                        watchLaterContainers.forEach(container => {
+                            const link = container.querySelector('a');
+                            const icon = container.querySelector('ion-icon');
+        
+                            if (!link || !icon) return;
+        
+                            icon.setAttribute('name', isInWatchList ? 'time' : 'time-outline');
+                            link.title = isInWatchList ? 'Remove from Watch Later' : 'Add to Watch Later';
+                        });
+                    };
+        
+                    // Initialize all containers with current state
+                    updateAllIcons();
+        
+                    // Add event listeners
+                    watchLaterContainers.forEach(container => {
+                        const link = container.querySelector('a');
+                        if (!link) return;
+        
+                        link.addEventListener('click', async (e) => {
+                            e.preventDefault();
+        
+                            try {
+                                if (isInWatchList) {
+                                    // Remove from watch_later_movies
+                                    const { error: deleteError } = await supabase
+                                        .from('watch_later_movies')
+                                        .delete()
+                                        .eq('user_id', session.user.id)
+                                        .eq('movie_id', movie.id);
+        
+                                    if (deleteError) {
+                                        throw deleteError;
+                                    }
+        
+                                    isInWatchList = false;
+                                } else {
+                                    // Add to watch_later_movies
+                                    const { error: insertError } = await supabase
+                                        .from('watch_later_movies')
+                                        .insert({ user_id: session.user.id, movie_id: movie.id, movie_title: movie.title });
+        
+                                    if (insertError) {
+                                        throw insertError;
+                                    }
+        
+                                    isInWatchList = true;
+                                }
+        
+                                // Update all icons
+                                updateAllIcons();
+        
+                            } catch (err) {
+                                console.error('Error toggling watch later status:', err);
+                                alert('Failed to update watch later status.');
                             }
-                        }
-                        else
-                        {
-                            const
-                            {
-                                error: insertError
-                            } = await supabase
-                                .from( 'watch_later_movies' )
-                                .insert( [
-                                {
-                                    user_id: session.user.id,
-                                    movie_id: movie.id,
-                                    movie_title: movie.title // Add the movie title here
-                                } ] );
-    
-                            if ( insertError )
-                            {
-                                console.error( 'Error adding to watch later list:', insertError );
-                            }
-                        }
-    
-                        isInWatchList = !isInWatchList;
-                        ionIconElement.setAttribute(
-                            'name',
-                            isInWatchList ? 'time' : 'time-outline'
-                        );
-                    } );
+                        });
+                    });
+                } else {
+                    // Hide all watch-later icons if no session
+                    watchLaterContainers.forEach(container => {
+                        const link = container.querySelector('a');
+                        if (link) link.style.display = 'none';
+                    });
                 }
-            }
-            catch ( error )
-            {
-                console.error( 'An unexpected error occurred:', error );
+            } catch (error) {
+                console.error('An unexpected error occurred:', error);
             }
         };
     

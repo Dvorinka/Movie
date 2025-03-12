@@ -3915,6 +3915,8 @@ summary {
   left: 0;
   width: 100%;
   text-align: center;
+  font-family: var(--ff-poppins) !important;
+  letter-spacing: -2px;
   color: #fff;
   font-size: 1.5em;
   opacity: 0;
@@ -3924,6 +3926,7 @@ summary {
 .loading-text span {
   display: inline-block;
   animation: bounce 1s infinite;
+  font-family: var(--ff-poppins) !important;
 }
 
 
@@ -4222,3 +4225,5 @@ summary {
   font-size: 0.8rem;
   color: #aaa;
 }
+
+

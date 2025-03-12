@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.73/build/spline-viewer.js"></script>
+    <style>
+        body{
+            background-color: black;
+        }
+        .flex {
+            position: relative;
+        }
+
+        .flex::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px; /* Adjust fade size */
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0), black);
+            pointer-events: none;
+        }
+        nav{
+            background-color: white;
+            color: black;
+            z-index: 99;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li>Home</li>
+                <li>Quality</li>
+                <li>Download</li>
+            </ul>
+        </nav>
+    </header>
+    <section>
+        <h1>Download Movies and TVShows in any quality.</h1>
+    <spline-viewer url="https://prod.spline.design/qkFggqNeCUK4-AAE/scene.splinecode" style="z-index: 1;"></spline-viewer>
+    </section>
+
+    <section>
+    <div class="flex">
+        <!-- <div>
+            <spline-viewer url="https://prod.spline.design/9y-KcFVzmer9VrP2/scene.splinecode"></spline-viewer>
+        </div> -->
+        <div></div>
+        <div></div>
+    </div>
+    </section>
+</body>
+<script>
+    window.onload = function() {
+        document.querySelectorAll('spline-viewer').forEach(viewer => {
+            var shadowRoot = viewer.shadowRoot;
+            if (shadowRoot) {
+                var logo = shadowRoot.querySelector('#logo');
+                if (logo) {
+                    logo.remove();
+                }
+            }
+        });
+    };
+</script>
+
+</html>

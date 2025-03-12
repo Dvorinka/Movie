@@ -4,9 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Proxy URLs in rotation order
     const proxies = [
         'https://ytbproxy.tdvorak.dev',
-        'https://ytbproxy2.tdvorak.dev',
-        'https://ytbproxy3.tdvorak.dev'
+        'https://ytbproxy2.tdvorak.dev'
     ];
+
+    // Track video IDs from Things You Missed section
+    const thingsYouMissedVideoIds = new Set();
 
     // Helper function to fetch YouTube data with proxy rotation
     async function fetchYouTubeWithProxy(searchQuery) {
@@ -35,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return null; // All proxies failed
     }
     
-
     const getMovieIdFromUrl = () => {
         const params = new URLSearchParams(window.location.search);
         return params.get('id');
@@ -79,12 +80,18 @@ document.addEventListener('DOMContentLoaded', () => {
         await fetchYouTubeVideo(searchQuery, '#behind-the-scenes-video');
     };
 
-    const fetchYouTubeVideoWithChannelCheck = async (searchQuery, containerSelector, allowedChannels) => {
+    const fetchYouTubeVideoWithChannelCheck = async (searchQuery, containerSelector, allowedChannels, excludeVideoIds = new Set()) => {
         const data = await fetchYouTubeWithProxy(searchQuery);
         if (data?.video_id && allowedChannels.includes(data.channel_name)) {
+            if (excludeVideoIds.has(data.video_id)) {
+                console.log(`Video ${data.video_id} is excluded, skipping.`);
+                return null;
+            }
             displayVideo(data.video_id, containerSelector);
+            return data.video_id;
         } else {
             console.log(`Video for ${searchQuery} is not from an allowed channel.`);
+            return null;
         }
     };
 
@@ -99,14 +106,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const releaseYear = getReleaseYear(releaseDates);
         const searchQuery = `${movieTitle} ${releaseYear} things you missed`;
         const allowedChannels = ["Screen Rant", "The Film Theorists", "CZsWorld", "Movie Balls Deep", "Heavy Spoilers"];
-        await fetchYouTubeVideoWithChannelCheck(searchQuery, '#things-you-missed-video', allowedChannels);
+        const videoId = await fetchYouTubeVideoWithChannelCheck(searchQuery, '#things-you-missed-video', allowedChannels);
+        if (videoId) {
+            thingsYouMissedVideoIds.add(videoId);
+        }
     };
 
     const fetchHistoryVideo = async (movieTitle, releaseDates) => {
         const releaseYear = getReleaseYear(releaseDates);
         const searchQuery = `${movieTitle} ${releaseYear} history`;
         const allowedChannels = ["CZsWorld"];
-        await fetchYouTubeVideoWithChannelCheck(searchQuery, '#history-video', allowedChannels);
+        await fetchYouTubeVideoWithChannelCheck(searchQuery, '#history-video', allowedChannels, thingsYouMissedVideoIds);
     };
 
     const fetchYouTubeVideo = async (searchQuery, containerSelector) => {
@@ -119,8 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const displayVideo = (videoId, containerSelector) => {
         const container = document.querySelector(containerSelector);
         if (container) {
-            container.innerHTML = `
-                <iframe 
+            container.innerHTML = 
+                `<iframe 
                     width="560" 
                     height="315" 
                     src="https://www.youtube.com/embed/${videoId}"
@@ -129,8 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     referrerpolicy="strict-origin-when-cross-origin"
                     allowfullscreen
-                ></iframe>
-            `;
+                ></iframe>`
+            ;
         } else {
             console.error(`Container not found: ${containerSelector}`);
         }
