@@ -82,11 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchYouTubeVideoWithChannelCheck = async (searchQuery, containerSelector, allowedChannels, excludeVideoIds = new Set()) => {
         const data = await fetchYouTubeWithProxy(searchQuery);
+        
         if (data?.video_id && allowedChannels.includes(data.channel_name)) {
+            // Check if the video ID is excluded
             if (excludeVideoIds.has(data.video_id)) {
                 console.log(`Video ${data.video_id} is excluded, skipping.`);
                 return null;
             }
+            
+            // Display the video and return its ID
             displayVideo(data.video_id, containerSelector);
             return data.video_id;
         } else {
@@ -106,16 +110,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const releaseYear = getReleaseYear(releaseDates);
         const searchQuery = `${movieTitle} ${releaseYear} things you missed`;
         const allowedChannels = ["Screen Rant", "The Film Theorists", "CZsWorld", "Movie Balls Deep", "Heavy Spoilers"];
+        
+        // Fetch video ID and add it to the set if valid
         const videoId = await fetchYouTubeVideoWithChannelCheck(searchQuery, '#things-you-missed-video', allowedChannels);
         if (videoId) {
             thingsYouMissedVideoIds.add(videoId);
         }
     };
-
+    
     const fetchHistoryVideo = async (movieTitle, releaseDates) => {
         const releaseYear = getReleaseYear(releaseDates);
         const searchQuery = `${movieTitle} ${releaseYear} history`;
         const allowedChannels = ["CZsWorld"];
+        
+        // Exclude video IDs already added in `thingsYouMissedVideoIds`
         await fetchYouTubeVideoWithChannelCheck(searchQuery, '#history-video', allowedChannels, thingsYouMissedVideoIds);
     };
 
