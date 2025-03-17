@@ -461,6 +461,20 @@ document.addEventListener( 'DOMContentLoaded', () =>
     
             console.log( `Updated movie status to: ${statusInfo.text}` );
         };
+
+        const fetchAdditionalStudios = async (movieId) => {
+            try {
+                const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&append_to_response=credits`;
+                const response = await fetch(url);
+                const data = await response.json();
+        
+                return data.production_companies || [];
+            } catch (error) {
+                console.error("Error fetching additional studios:", error);
+                return [];
+            }
+        };
+        
         
     
         const displayMovieDetails = async ( movie ) =>
@@ -477,6 +491,18 @@ document.addEventListener( 'DOMContentLoaded', () =>
             const movieDetailPosterPath = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'assets/images/person.svg';
             const movieDetailYear = new Date( movie.release_date ).getFullYear();
             const movieDetailTrailer = movie.videos.results.find( video => video.type === 'Trailer' && video.site === 'YouTube' );
+            const genresContainer = document.querySelector('.genres-down');
+            const budgetElement = document.querySelector('.budget');
+            const revenueElement = document.querySelector('.revenue');
+            const studiosContainer = document.querySelector('.studios');
+
+            const additionalStudios = await fetchAdditionalStudios(movie.id);
+
+
+            let allStudios = [...movie.production_companies, ...additionalStudios];
+            allStudios = allStudios.filter((studio, index, self) =>
+                index === self.findIndex((s) => s.id === studio.id)
+            );
     
             // Update the document title
             document.title = `${movie.title} (${movieDetailYear})`;
@@ -507,8 +533,66 @@ document.addEventListener( 'DOMContentLoaded', () =>
             movieDetailRuntime.setAttribute( 'datetime', `PT${movie.runtime}M` );
             const truncatedOverview = movie.overview.length > 240 ? movie.overview.substring( 0, 240 ) + '...' : movie.overview;
             movieDetailStoryline.textContent = truncatedOverview;
-    
-    
+
+            if (movie.genres && movie.genres.length > 0) {
+                genresContainer.innerHTML = "Genres: " + movie.genres
+                    .map(genre => `<a href="/discover.html?genreId=${genre.id}">${genre.name}</a>`)
+                    .join(', ');
+            }
+
+            budgetElement.textContent = `Costs: ${movie.budget ? `$${movie.budget.toLocaleString()}` : "N/A"}`;
+
+
+            const profit = movie.revenue && movie.budget ? movie.revenue - movie.budget : null;
+            revenueElement.textContent = `Profit: ${profit !== null ? `$${profit.toLocaleString()}` : "N/A"}`;
+
+            const famousStudios = [
+                // Major Hollywood Studios
+                "Warner Bros. Pictures", "Universal Pictures", "Sony Pictures",
+                "20th Century Studios", "Paramount Pictures", "Walt Disney Pictures",
+                "Columbia Pictures", "Legendary Pictures", "New Line Cinema",
+                "Metro-Goldwyn-Mayer (MGM)", "Regency Enterprises",
+            
+                // Horror & Genre Studios (Expanded)
+                "Blumhouse Productions", "A24", "Screen Gems",
+                "Ghost House Pictures", "Dark Castle Entertainment",
+                "Hammer Film Productions", "Atomic Monster", "Twisted Pictures",
+                "Platinum Dunes", "Dimension Films",
+            
+                // Superhero & Franchise Studios
+                "Marvel Studios", "DC Studios", "Lucasfilm",
+                "Pixar Animation Studios", "Blue Sky Studios",
+            
+                // Independent & Award-Winning Studios
+                "Lionsgate", "Focus Features", "Miramax Films",
+                "Neon", "STX Entertainment", "Searchlight Pictures",
+                "Village Roadshow Pictures",
+            
+                // International Studios
+                "Studio Ghibli", "Toho", "Shaw Brothers Studio",
+                "BBC Films", "Gaumont", "EuropaCorp",
+            
+                // Sci-Fi & Action Studios
+                "Skydance Media", "Bad Robot Productions", "Syncopy",
+                "Silver Pictures"
+            ];
+            
+
+            let majorStudios = allStudios.filter(studio =>
+                famousStudios.includes(studio.name)
+            );
+
+            if (majorStudios.length === 0) {
+                majorStudios = allStudios.slice(0, 5);
+            }
+
+            if (majorStudios.length > 0) {
+                studiosContainer.innerHTML = "Studios: " + majorStudios
+                    .map(studio => `<a href="/discover.html?studioId=${studio.id}">${studio.name}</a>`)
+                    .join(', ');
+            } else {
+                studiosContainer.textContent = "Studios: N/A";
+            }
     
     
             // Set the background image dynamically
