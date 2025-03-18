@@ -302,63 +302,55 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Function to display media with watched status
-const displayMedia = async (media, mediaType) => {
-    console.log('Displaying media...');
-    const watchedMovies = await fetchWatchedMovies();
-    const watchLaterMovies = await fetchWatchLaterMovies();
-    console.log('Watched movies list:', watchedMovies);
-
-    const mediaContainer = document.createElement('div');
-    mediaContainer.classList.add('media-container');
-    mediaContainer.innerHTML = '';
-
-    media.forEach(item => {
-        console.log('Processing media item:', item.id, item.title || item.name);
-
-        const mediaItem = document.createElement('div');
-        mediaItem.classList.add('media-item');
-        mediaItem.id = item.id; // Set the movie ID as the ID of the media item
-        const releaseYear = item.release_date ? new Date(item.release_date).getFullYear() : 'N/A';
-        const ratingPercentage = Math.round(item.vote_average * 10);
-        const ratingImage = getRatingImage(ratingPercentage);
-        mediaItem.innerHTML = `
-            <img src="${imageBaseUrl}${item.poster_path}" alt="${item.title || item.name}">
-            <h3>${item.title || item.name}</h3>
-            <div class="year-rating">
-                <p class="rating"><img src="${ratingImage}" alt="Rating"> ${ratingPercentage}%</p>
-                <p class="year">${releaseYear}</p>
-            </div>
-        `;
-
-        // Convert item.id to a string before checking if it's in watchedMovies
-        if (watchedMovies.includes(item.id.toString())) {
-            console.log('Movie is watched:', item.id);
-            applyWatchedStyle(mediaItem);
-        } else {
-            console.log('Movie is not watched:', item.id);
-        }
-
-        if (watchLaterMovies.includes(item.id.toString())) {
-            console.log('Movie is watched:', item.id);
-            applyWatchLaterMovie(mediaItem);
-        } else {
-            console.log('Movie is not watched:', item.id);
-        }
-
-        mediaItem.addEventListener('click', () => {
-            const id = item.id;
-            const url = mediaType === 'movie' ? `movie-details.html?id=${id}` : `tv-details.html?id=${id}`;
-            window.open(url, '_blank'); // Open the URL in a new tab
+    const displayMedia = async (media, mediaType) => {
+        console.log('Displaying media...');
+        const watchedMovies = await fetchWatchedMovies();
+        const watchLaterMovies = await fetchWatchLaterMovies();
+        console.log('Watched movies list:', watchedMovies);
+        const mediaContainer = document.createElement('div');
+        mediaContainer.classList.add('media-container');
+        mediaContainer.innerHTML = '';
+        media.forEach(item => {
+            console.log('Processing media item:', item.id, item.title || item.name);
+            const mediaItem = document.createElement('div');
+            mediaItem.classList.add('media-item');
+            mediaItem.id = item.id; // Set the movie ID as the ID of the media item
+            const releaseYear = item.release_date ? new Date(item.release_date).getFullYear() : 'N/A';
+            const ratingPercentage = Math.round(item.vote_average * 10);
+            const ratingImage = getRatingImage(ratingPercentage);
+            mediaItem.innerHTML = `
+                <img src="${imageBaseUrl}${item.poster_path}" alt="${item.title || item.name}">
+                <h3>${item.title || item.name}</h3>
+                <div class="year-rating">
+                    <p class="rating"><img src="${ratingImage}" alt="Rating"> ${ratingPercentage}%</p>
+                    <p class="year">${releaseYear}</p>
+                </div>
+            `;
+            // Check if the movie is watched and apply the style
+            if (watchedMovies.includes(item.id.toString())) {
+                console.log('Movie is watched:', item.id);
+                applyWatchedStyle(mediaItem);
+            } else {
+                console.log('Movie is not watched:', item.id);
+            }
+            // Check if the movie is watched and apply the style
+            if (watchLaterMovies.includes(item.id.toString())) {
+                console.log('Movie is watched:', item.id);
+                applyWatchLaterMovie(mediaItem);
+            } else {
+                console.log('Movie is not watched:', item.id);
+            }
+            mediaItem.addEventListener('click', () => {
+                const id = item.id;
+                const url = mediaType === 'movie' ? `movie-details.html?id=${id}` : `tv-details.html?id=${id}`;
+                window.location.href = url; // Open the URL in the same tab
+            });
+            mediaContainer.appendChild(mediaItem);
         });
-        
-        mediaContainer.appendChild(mediaItem);
-    });
-
-    // Clear previous content and append new media items
-    fetchedSorted.innerHTML = '';
-    fetchedSorted.appendChild(mediaContainer);
-};
-
+        // Clear previous content and append new media items
+        fetchedSorted.innerHTML = '';
+        fetchedSorted.appendChild(mediaContainer);
+    };
 
     const updateGenreVisibility = () => {
         const selectedMediaType = mediaTypeSelect.value;

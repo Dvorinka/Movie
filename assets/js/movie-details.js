@@ -497,6 +497,7 @@ document.addEventListener( 'DOMContentLoaded', () =>
             const studiosContainer = document.querySelector('.studios');
 
             const additionalStudios = await fetchAdditionalStudios(movie.id);
+            
 
 
             let allStudios = [...movie.production_companies, ...additionalStudios];
@@ -545,6 +546,8 @@ document.addEventListener( 'DOMContentLoaded', () =>
 
             const profit = movie.revenue && movie.budget ? movie.revenue - movie.budget : null;
             revenueElement.textContent = `Profit: ${profit !== null ? `$${profit.toLocaleString()}` : "N/A"}`;
+
+            displayFranchise(movie);
 
             const famousStudios = [
                 // Major Hollywood Studios
@@ -1999,8 +2002,38 @@ document.addEventListener( 'DOMContentLoaded', () =>
                 addToWatchLaterFeature( movie );
             }
         } );
-    
-    
+
+        const displayFranchise = async (movie) => {
+            if (movie.belongs_to_collection) {
+                const franchiseContainer = document.querySelector('.franchise');
+                const collectionId = movie.belongs_to_collection.id;
+                
+                try {
+                    // Fetch collection details from TMDB
+                    const response = await fetch(`https://api.themoviedb.org/3/collection/${collectionId}?api_key=${apiKey}`);
+                    const collectionData = await response.json();
+                    
+                    // Use the backdrop image instead of the poster
+                    const backdropUrl = collectionData.backdrop_path 
+                        ? `https://image.tmdb.org/t/p/original${collectionData.backdrop_path}`
+                        : `../images/movie-detail-bg.png`; // Fallback image
+                    
+                    // Update styling dynamically using a CSS variable
+                    franchiseContainer.style.setProperty('--collection-backdrop', `url('${backdropUrl}')`);
+        
+                    franchiseContainer.innerHTML = `
+                        <div class="franchise-box">
+                            <h3>Belongs to ${movie.belongs_to_collection.name}</h3>
+                            <a href="collection-details.html?id=${collectionId}">View Collection</a>
+                        </div>
+                    `;
+        
+                } catch (error) {
+                    console.error("Error fetching collection details:", error);
+                }
+            }
+        };
+        
     
     
         const formatRuntime = ( minutes ) =>

@@ -4227,3 +4227,93 @@ summary {
 }
 
 
+.franchise {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 40px 0; /* Extra spacing top & bottom */
+}
+
+.franchise-box {
+  position: relative;
+  background: 
+      linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)),
+      var(--collection-backdrop);
+  background-size: cover;
+  background-blend-mode: overlay;
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  width: auto;
+  max-width: 600px;
+  min-width: 300px;
+  aspect-ratio: 16/9; /* Keeps a nice horizontal layout */
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.franchise-box:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 48px 0 rgba(31,38,135,0.5);
+}
+
+.franchise-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
+}
+
+.franchise-box h3 {
+  position: relative;
+  z-index: 1;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.franchise-box a {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(45deg, #00b7ff, #009ddb);
+  color: var(--darkest);
+  padding: 12px 30px;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: background 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.franchise-box a:hover {
+  background: linear-gradient(45deg, #009ddb, #0077aa);
+  transform: translateY(-3px);
+}
+
+.studio {
+  cursor: pointer;
+  margin: 5px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.studio.selected {
+  background-color: #00b7ff;
+  color: white;
+  border-color: #00b7ff;
+}
