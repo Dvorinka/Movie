@@ -161,7 +161,6 @@
           transition: opacity 0.15s;
           z-index: 3;
           width: max-content;
-          max-width: 200px;
           text-align: center;
       }
 
@@ -291,6 +290,30 @@
             width: 40px; /* Fixed width for episodes */
             flex-shrink: 0; /* Prevent shrinking */
         }
+
+        /* Target the first two episode rows */
+#episodes .episode-row:nth-child(-n+2) .episode .tooltip {
+    bottom: auto; /* Remove original bottom positioning */
+    /* Use the user's specific calculation if needed */
+    bottom: calc(-239% + 8px);
+}
+
+/* Create the downward-pointing arrow with ::before */
+#episodes .episode-row:nth-child(-n+2) .episode .tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 56px; /* Adjust based on your layout */
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid rgba(0, 0, 0, 0.95);
+}
+
+/* Hide the original ::after arrow for these tooltips */
+#episodes .episode-row:nth-child(-n+2) .episode .tooltip::after {
+    display: none;
+}
     </style>
 <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@latest/dist/ionicons/ionicons.esm.js"></script>
 </head>
