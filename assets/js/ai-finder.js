@@ -1,17 +1,26 @@
-const API_KEY = "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"; // AI model API Key
+const API_KEY = "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"; // OpenRouter API Key
 const TMDB_API_KEY = "054582e9ee66adcbe911e0008aa482a8"; // TMDB API Key
-const ENDPOINT = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
+const ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 const TMDB_ENDPOINT = "https://api.themoviedb.org/3/search/movie";
 
 async function getAIResponse(userInput, agePreference) {
     const headers = {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
+        "Authorization": `Bearer ${API_KEY}`,
+        "HTTP-Referer": "*", // Replace with your domain or localhost for dev
+        "X-Title": "SparkScreen" // Optional, used for usage tracking
     };
 
     const ageSuffix = agePreference === "newer" ? "The movie is newer." : "The movie is older.";
     const data = {
-        inputs: `User describes a movie: "${userInput}". ${ageSuffix} Suggest possible matches. Respond only with a list of titles and years formatted as "Title (Year)", separated by new lines. Return exactly 5 suggestions.`
+        model: "meta-llama/llama-3.1-8b-instruct:free",
+        messages: [
+            {
+                role: "user",
+                content: `User describes a movie: "${userInput}". ${ageSuffix} Suggest possible matches. Respond only with a list of titles and years formatted as "Title (Year)", separated by new lines. Return exactly 5 suggestions.`
+            }
+        ],
+        temperature: 0.7
     };
 
     try {
@@ -23,23 +32,18 @@ async function getAIResponse(userInput, agePreference) {
 
         if (response.ok) {
             const jsonResponse = await response.json();
-            const aiResponse = jsonResponse[0].generated_text.trim();
+            const aiResponse = jsonResponse.choices[0].message.content.trim();
 
-            // Validate and sanitize the response
             const suggestions = aiResponse
-                .split('\n') // Split by new lines
-                .filter(item => item.match(/^(.*)\s\((\d{4})\)$/)) // Match "Title (Year)"
-                .slice(0, 5); // Limit to 5 results
+                .split('\n')
+                .filter(item => item.match(/^(.*)\s\((\d{4})\)$/))
+                .slice(0, 5);
 
             return suggestions.length > 0 ? suggestions : ["No valid suggestions found."];
         } else {
-            const errorResponse = await response.json();
-            if (errorResponse.error && errorResponse.error.includes("currently loading")) {
-                throw new Error("The AI model is currently loading. Please try again in a few seconds.");
-            } else {
-                console.error("Error:", response.status, await response.text());
-                throw new Error("Failed to fetch AI response.");
-            }
+            const errorText = await response.text();
+            console.error("Error:", response.status, errorText);
+            throw new Error("Failed to fetch AI response.");
         }
     } catch (error) {
         console.error("Fetch Error:", error);
@@ -57,13 +61,13 @@ async function getMovieDetails(title) {
         const data = await response.json();
 
         if (data.results && data.results.length > 0) {
-            const movie = data.results[0]; // Get the first match
+            const movie = data.results[0];
             return {
                 title: movie.title,
                 year: movie.release_date.split('-')[0],
                 overview: movie.overview,
-                poster: `https://image.tmdb.org/t/p/w200${movie.poster_path}`, // Poster image URL
-                id: movie.id // TMDB movie ID
+                poster: `https://image.tmdb.org/t/p/w200${movie.poster_path}`,
+                id: movie.id
             };
         } else {
             return { title: movieTitle, year: year, overview: 'No overview available', poster: '', id: null };
@@ -77,7 +81,7 @@ async function getMovieDetails(title) {
 document.getElementById('movie-finder-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const description = document.getElementById('description').value;
-    const movieAge = document.getElementById('movie-age').value; // Get the age preference
+    const movieAge = document.getElementById('movie-age').value;
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = 'Searching...';
 
@@ -85,13 +89,11 @@ document.getElementById('movie-finder-form').addEventListener('submit', async (e
         const aiResponse = await getAIResponse(description, movieAge);
 
         const movieDetailsPromises = aiResponse.map(async (movie) => {
-            const movieData = await getMovieDetails(movie);
-            return movieData;
+            return await getMovieDetails(movie);
         });
 
         const movieDetails = await Promise.all(movieDetailsPromises);
 
-        // Create HTML for displaying the movie details with clickable links
         const movieListHTML = movieDetails.map(movie => {
             if (movie.id) {
                 return `
