@@ -3,179 +3,581 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Release Calendar</title>
-    <link rel="stylesheet" href="assets/css/style.css"> <!-- Optional for styling -->
+    <title>SparkScreen - Release Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="assets/js/api.js"></script>
+    <style>
+        /* SparkScreen Theme with requested colors */
+        :root {
+            --primary: #049de6;
+            --primary-hover: #0384c3;
+            --accent: #751cd0;
+            --background: #111111;
+            --card-bg: #1a1a1a;
+            --text: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border: #2a2a33;
+        }
 
-        <style>
-/* General styling */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-.calendar-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
 
-h1 {
-    text-align: center;
-    font-size: 2.5em;
-    margin-bottom: 20px;
-    color: #333;
-}
+        .calendar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-#calendar-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-}
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
 
-#calendar-controls button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
-    border-radius: 4px;
-    margin: 0 10px;
-    transition: background-color 0.3s;
-}
+        #calendar-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
 
-#calendar-controls button:hover {
-    background-color: #0056b3;
-}
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
-#calendar-controls select {
-    padding: 10px;
-    font-size: 1em;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin: 0 10px;
-}
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(4, 157, 230, 0.3);
+        }
 
-#calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-}
+        select {
+            background-color: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 1rem;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b0b0b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 42px;
+        }
 
-.calendar-day {
-    background-color: #e9ecef;
-    padding: 20px;
-    border-radius: 4px;
-    text-align: center;
-    font-size: 1em;
-    color: #333;
-    transition: background-color 0.3s;
-    cursor: pointer;
-}
+        select:focus {
+            outline: 2px solid var(--primary);
+            border-color: var(--primary);
+        }
 
-.calendar-day:hover {
-    background-color: #dee2e6;
-}
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
 
-.date-header {
-    font-weight: bold;
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px;
-    border-radius: 4px;
-    text-align: center;
-    margin-bottom: 10px;
-}
+        .calendar-day {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            height: 280px;
+            position: relative;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
 
-.no-movie {
-    color: #999;
-    font-size: 0.9em;
-}
+        .calendar-day.has-movie:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(4, 157, 230, 0.2);
+            border-color: var(--primary);
+        }
 
-.movie-item {
-    margin-top: 10px;
-}
+        .calendar-day.no-movie {
+            opacity: 0.5;
+            cursor: default;
+            height: auto;
+            min-height: 100px;
+        }
 
-.movie-poster {
-    width: 165px; /* Set width to 165px */
-    height: 245px; /* Set height to 245px */
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    object-fit: cover; /* Ensure the image covers the entire area */
-}
+        .calendar-day.no-movie:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: var(--border);
+        }
 
-.movie-title {
-    margin-bottom: 5px;
-    font-size: 0.9em;
-    color: #007bff;
-    text-decoration: none;
-}
+        .date-header {
+            padding: 8px 12px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            font-weight: 600;
+            font-size: 1.1rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2;
+        }
 
-.movie-title:hover {
-    text-decoration: underline;
-}
+        .calendar-day.no-movie .date-header {
+            position: relative;
+            background: #1d1d1d;
+            color: var(--text-secondary);
+        }
 
-.more-movies {
-    margin-top: 5px;
-    font-size: 0.8em;
-    color: #007bff;
-    cursor: pointer;
-}
+        .movie-item {
+            height: 100%;
+            position: relative;
+        }
 
-/* Modal styling */
-.modal {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-}
+        .movie-poster {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
 
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 600px;
-    width: 100%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative;
-}
+        .movie-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            font-weight: 500;
+            z-index: 2;
+            font-size: 0.9rem;
+        }
 
-.close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 1.5em;
-    cursor: pointer;
-}
-        </style>
+        .more-movies {
+            position: absolute;
+            top: 45px;
+            right: 10px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            color: white;
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 3;
+        }
+
+        .no-movie-text {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            padding: 16px;
+            text-align: center;
+        }
+
+        /* Movie Detail Modal */
+        .movie-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .movie-modal-content {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 1.5rem;
+            color: var(--text);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background-color: var(--primary);
+        }
+
+        /* For multiple movies in a day */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            padding: 24px;
+        }
+
+        .movie-detail {
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            height: 100%;
+        }
+
+        .movie-detail-image {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+        }
+
+        .movie-detail-info {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .movie-detail-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .movie-detail-meta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .movie-detail-description {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .watch-now-btn {
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-self: flex-start;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .watch-now-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(4, 157, 230, 0.3);
+        }
+
+        .play-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Custom scrollbar */
+        .movie-modal-content::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .movie-modal-content::-webkit-scrollbar-track {
+            background: var(--background);
+            border-radius: 10px;
+        }
+
+        .movie-modal-content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        .movie-modal-content::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Responsive fixes */
+        @media (max-width: 768px) {
+            .calendar-container {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+            }
+
+            #calendar-controls {
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+
+            button, select {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            select {
+                flex-grow: 1;
+                min-width: 100px;
+            }
+
+            .calendar-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+            }
+
+            .calendar-day {
+                height: 230px;
+            }
+            
+            .movie-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 10px;
+            }
+
+            .calendar-day {
+                height: 200px;
+            }
+
+            .calendar-day.no-movie {
+                height: auto;
+                min-height: 80px;
+            }
+
+            .date-header {
+                padding: 6px 10px;
+                font-size: 1rem;
+            }
+
+            .movie-title {
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+
+            .more-movies {
+                top: 40px;
+                padding: 3px 8px;
+                font-size: 0.7rem;
+            }
+
+            #prev-month, #next-month {
+                padding: 8px;
+            }
+            
+            .movie-detail-title {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <body>
-        <div class="calendar-container">
-            <h1>Release Calendar</h1>
-            <div id="calendar-controls">
-                <button id="prev-month">&larr;</button>
-                <select id="month-select"></select>
-                <select id="year-select"></select>
-                <button id="next-month">&rarr;</button>
-            </div>        
-            <div id="calendar"></div> <!-- Calendar will be rendered here -->
+    <div class="calendar-container">
+        <h1>Release Calendar</h1>
+        <div id="calendar-controls">
+            <button id="prev-month">&larr;</button>
+            <select id="month-select"></select>
+            <select id="year-select"></select>
+            <button id="next-month">&rarr;</button>
         </div>
-
+        <div id="calendar"></div> <!-- Calendar will be rendered here -->
+    </div>
     <script src="assets/js/release-calendar.js"></script>
+
+    <script>
+        // Store movies by date globally
+        let moviesByDate = {};
+        
+        // Override the displayCalendar function to update our stored data
+        const originalDisplayCalendar = window.displayCalendar;
+        
+        window.displayCalendar = function(movies, startDateStr, endDateStr) {
+            // Create a dictionary to map dates to their movies
+            moviesByDate = {};
+        
+            // Populate the dictionary with movies grouped by release date
+            movies.forEach(movie => {
+                const releaseDate = movie.release_date;
+                if (releaseDate) {
+                    if (!moviesByDate[releaseDate]) {
+                        moviesByDate[releaseDate] = [];
+                    }
+                    moviesByDate[releaseDate].push(movie);
+                }
+            });
+        
+            // Create the calendar grid
+            let daysHTML = '';
+            const startDate = new Date(startDateStr);
+            const endDate = new Date(endDateStr);
+            
+            // Find all days with movies
+            const daysWithMovies = Object.keys(moviesByDate).length;
+            
+            // Calculate how many days to show (max 30-35 to avoid too many "No Releases" boxes)
+            const totalDaysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const daysToShow = totalDaysInMonth > 28 ? Math.min(daysWithMovies * 2, totalDaysInMonth) : totalDaysInMonth;
+            
+            // Create a compact calendar view showing primarily days with releases
+            let daysShown = 0;
+            
+            for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+                const dateString = formatDate(date);
+                const moviesForDate = moviesByDate[dateString] || [];
+                const hasMovies = moviesForDate.length > 0;
+                
+                // If we have movies or we haven't shown too many days yet
+                if (hasMovies || daysShown < daysToShow) {
+                    daysHTML += `
+                        <div class="calendar-day ${hasMovies ? 'has-movie' : 'no-movie'}" ${hasMovies ? `onclick="showMovieDetails('${dateString}')"` : ''}>
+                            <div class="date-header">${date.getDate()}</div>
+                            ${hasMovies ? `
+                                <div class="movie-item">
+                                    <img src="https://image.tmdb.org/t/p/w500${moviesForDate[0].poster_path}" 
+                                        alt="${moviesForDate[0].title}" 
+                                        class="movie-poster"
+                                        onerror="this.onerror=null; this.src='assets/images/no-poster.jpg';" />
+                                    <div class="movie-title">${moviesForDate[0].title}</div>
+                                </div>
+                                ${moviesForDate.length > 1 ? `<div class="more-movies">+${moviesForDate.length - 1} more</div>` : ''}
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    daysShown++;
+                }
+            }
+        
+            document.getElementById('calendar').innerHTML = `
+                <div class="calendar-grid">
+                    ${daysHTML}
+                </div>
+            `;
+        };
+        
+        // Show movie details modal
+        function showMovieDetails(dateString) {
+            const moviesForDate = moviesByDate[dateString] || [];
+            if (moviesForDate.length === 0) return;
+            
+            let modalHTML = '';
+            
+            // Create movie grid for all movies on this date
+            modalHTML = `<div class="movie-grid">`;
+            
+            moviesForDate.forEach(movie => {
+                const movieRating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+                const movieRuntime = movie.runtime ? `${movie.runtime} min` : '';
+                
+                modalHTML += `
+                    <div class="movie-detail">
+                        <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" 
+                            class="movie-detail-image" 
+                            alt="${movie.title}"
+                            onerror="this.onerror=null; this.src='assets/images/no-poster.jpg';" />
+                        <div class="movie-detail-info">
+                            <h3 class="movie-detail-title">${movie.title}</h3>
+                            <div class="movie-detail-meta">
+                                ${movieRuntime ? `<span>${movieRuntime}</span>` : ''}
+                                <span>⭐ ${movieRating}</span>
+                            </div>
+                            <p class="movie-detail-description">${movie.overview || 'No description available.'}</p>
+                            <a href="movie-details.html?id=${movie.id}" class="watch-now-btn">
+                                <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                                WATCH NOW
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            modalHTML += `</div>`;
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'movie-modal';
+            modal.innerHTML = `
+                <div class="movie-modal-content">
+                    <span class="modal-close" onclick="closeMovieModal()">&times;</span>
+                    ${modalHTML}
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // Close movie modal
+        function closeMovieModal() {
+            const modal = document.querySelector('.movie-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.querySelector('.movie-modal');
+            if (modal && event.target === modal) {
+                closeMovieModal();
+            }
+        });
+    </script>
 </body>
 </html>
