@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Guesser</title>
+    <link rel="stylesheet" href="assets/css/sparkle.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <h1>Screen Guesser</h1>
+        <p>The ultimate movie & TV guessing game</p>
+        <button id="leaderboardBtn">Leaderboard</button>
+        <button id="profileBtn">Profile</button>
+        <button id="dailyChallengeBtn">Daily Challenge</button>
+        <button id="easyModeBtn">Hard Mode</button> <!-- Add this button -->
+    </header>
+    
+    <main>
+        <div class="stats">
+            <div class="streak">Current Streak: <span id="currentStreak">0</span></div>
+            <div class="best-streak">Best Streak: <span id="bestStreak">0</span></div>
+        </div>
+        
+        <div class="game-container">
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="title">Title Mode</button>
+                <button class="mode-btn" data-mode="actor">Actor Mode</button>
+            </div>
+            
+            <div class="level-indicator">Level: <span id="currentLevel">1</span></div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            
+            <div class="hint-container">
+                <div class="hint-title">Hint:</div>
+                <div id="hint-content">Loading hint...</div>
+            </div>
+            
+            <!-- Title Mode -->
+            <div id="title-mode" class="game-mode active">
+                <div class="letter-grid" id="titleGrid">
+                    <!-- Will be populated by JS -->
+                </div>
+            </div>
+            
+            <!-- Actor Mode -->
+            <div id="actor-mode" class="game-mode" style="display: none;">
+                <div class="actor-info">
+                    <div class="actor-placeholder">
+                        <span>?</span>
+                    </div>
+                    <div class="actor-details">
+                        <div id="actor-hint">Actor is known for...</div>
+                        <div class="filmography" id="actor-filmography">
+                            <!-- Will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="letter-grid" id="actorGrid">
+                    <!-- Will be populated by JS -->
+                </div>
+            </div>
+            
+            <!-- Virtual Keyboard -->
+            <div class="keyboard" id="keyboard">
+                <div class="keyboard-row">
+                    <button class="key" data-key="1">1</button>
+                    <button class="key" data-key="2">2</button>
+                    <button class="key" data-key="3">3</button>
+                    <button class="key" data-key="4">4</button>
+                    <button class="key" data-key="5">5</button>
+                    <button class="key" data-key="6">6</button>
+                    <button class="key" data-key="7">7</button>
+                    <button class="key" data-key="8">8</button>
+                    <button class="key" data-key="9">9</button>
+                    <button class="key" data-key="0">0</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key" data-key="q">q</button>
+                    <button class="key" data-key="w">w</button>
+                    <button class="key" data-key="e">e</button>
+                    <button class="key" data-key="r">r</button>
+                    <button class="key" data-key="t">t</button>
+                    <button class="key" data-key="y">y</button>
+                    <button class="key" data-key="u">u</button>
+                    <button class="key" data-key="i">i</button>
+                    <button class="key" data-key="o">o</button>
+                    <button class="key" data-key="p">p</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key" data-key="a">a</button>
+                    <button class="key" data-key="s">s</button>
+                    <button class="key" data-key="d">d</button>
+                    <button class="key" data-key="f">f</button>
+                    <button class="key" data-key="g">g</button>
+                    <button class="key" data-key="h">h</button>
+                    <button class="key" data-key="j">j</button>
+                    <button class="key" data-key="k">k</button>
+                    <button class="key" data-key="l">l</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key wide" data-key="enter">enter</button>
+                    <button class="key" data-key="z">z</button>
+                    <button class="key" data-key="x">x</button>
+                    <button class="key" data-key="c">c</button>
+                    <button class="key" data-key="v">v</button>
+                    <button class="key" data-key="b">b</button>
+                    <button class="key" data-key="n">n</button>
+                    <button class="key" data-key="m">m</button>
+                    <button class="key wide" data-key="backspace">⌫</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key" data-key=" " style="width: 60%;">space</button>
+                </div>
+            </div>
+            
+            <div class="message" id="message"></div>
+            
+            <div class="input-container">
+                <input type="text" id="guessInput" placeholder="Type your guess...">
+                <div id="suggestionsContainer" class="suggestions-container"></div> <!-- Suggestions dropdown -->
+                <button id="submitGuess">Submit</button>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Level Complete Modal -->
+    <div class="modal" id="levelCompleteModal">
+        <div class="modal-content">
+            <div class="modal-title">Level Completed!</div>
+            <div class="modal-text">
+                <p>Great job! You correctly guessed: <strong><span id="completedAnswer"></span></strong></p>
+                <p>Ready for the next level?</p>
+            </div>
+            <button class="modal-btn" id="nextLevelBtn">Next Level</button>
+        </div>
+    </div>
+    
+    <!-- Game Over Modal -->
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <div class="modal-title">Game Over</div>
+            <div class="modal-text">
+                <p>The correct answer was: <strong><span id="correctAnswer"></span></strong></p>
+                <p>Your streak: <span id="finalStreak">0</span></p>
+            </div>
+            <button class="modal-btn" id="playAgainBtn">Play Again</button>
+        </div>
+    </div>
+    
+    <!-- Victory Modal -->
+    <div class="modal" id="victoryModal">
+        <div class="modal-content">
+            <div class="modal-title">Congratulations!</div>
+            <div class="modal-text">
+                <p>You've completed all levels in this mode!</p>
+                <p>Final Streak: <span id="victoryStreak">0</span></p>
+            </div>
+            <button class="modal-btn" id="newGameBtn">New Game</button>
+            <button class="modal-btn" id="switchModeBtn">Try Another Mode</button>
+        </div>
+    </div>
+    
+    <!-- Leaderboard Modal -->
+    <div class="modal" id="leaderboardModal">
+        <div class="modal-content">
+            <div class="modal-title">Leaderboard</div>
+            <div id="leaderboard-list">
+                <!-- Leaderboard entries will be populated here -->
+            </div>
+            <button id="closeLeaderboard">Close</button> <!-- Add this button -->
+        </div>
+    </div>
+    
+    <!-- Player Name Modal -->
+    <div class="modal" id="playerNameModal">
+        <div class="modal-content">
+            <div class="modal-title">Set Player Name</div>
+            <input type="text" id="playerNameInput" placeholder="Enter your name">
+            <button id="setNameBtn">Set Name</button> <!-- Add this button -->
+            <button id="closeNameModal">Close</button>
+        </div>
+    </div>
+    
+    <!-- Tutorial Modal -->
+    <div class="modal" id="tutorialModal">
+        <div class="modal-content">
+            <div class="modal-title">Welcome to Screen Guesser!</div>
+            <div class="modal-text">
+                <p>Learn how to play the game and guess movies, actors, or franchises!</p>
+            </div>
+            <button id="closeTutorial">Close</button> <!-- Add this button -->
+        </div>
+    </div>
+    
+    <!-- Link to external JavaScript file -->
+    <script src="assets/js/sparkle.js"></script>
+</body>
+</html>
