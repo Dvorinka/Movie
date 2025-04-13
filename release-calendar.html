@@ -131,7 +131,9 @@
 
         .date-header {
             padding: 8px 12px;
-            background: linear-gradient(to right, var(--primary), var(--accent));
+            background: rgb(0 0 0 / 22%);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgb(0 0 0 / 37%);
             font-weight: 600;
             font-size: 1.1rem;
             position: absolute;
@@ -173,16 +175,40 @@
 
         .more-movies {
             position: absolute;
-            top: 45px;
+            top: 52px;
             right: 10px;
-            background: linear-gradient(to right, var(--primary), var(--accent));
+            background: linear-gradient(to right, rgb(4 157 230 / 0%), rgb(138 43 226));
             color: white;
+            border: 1px solid rgb(255 255 255 / 22%);
             border-radius: 20px;
             padding: 5px 10px;
             font-size: 0.8rem;
             font-weight: 500;
             z-index: 3;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
         }
+
+        .more-movies2 {
+            position: absolute;
+            top: 52px;
+            right: 10px;
+            background: linear-gradient(to right, rgb(4, 158, 230), rgba(137, 43, 226, 0));
+            color: white;
+            border: 1px solid rgb(255 255 255 / 22%);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 3;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
 
         .no-movie-text {
             display: flex;
@@ -296,29 +322,32 @@
             line-height: 1.5;
             flex-grow: 1;
         }
-
         .watch-now-btn {
-            background: linear-gradient(to right, var(--primary), var(--accent));
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            align-self: flex-start;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
+            background: linear-gradient(to right, rgba(var(--primary-rgb), 0.25), rgba(var(--accent-rgb), 0.25));
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2); /* frosty border */
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
 
-        .watch-now-btn:hover {
-            filter: brightness(1.1);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(4, 157, 230, 0.3);
-        }
+.watch-now-btn:hover {
+    background: linear-gradient(to right, rgba(var(--primary-rgb), 0.25), rgba(var(--accent-rgb), 0.25));
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
 
         .play-icon {
             width: 16px;
@@ -476,6 +505,8 @@
             // Create a compact calendar view showing primarily days with releases
             let daysShown = 0;
             
+            let moreMoviesCount = 0; // Keep track of how many more-movies elements we've added
+
             for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
                 const dateString = formatDate(date);
                 const moviesForDate = moviesByDate[dateString] || [];
@@ -483,25 +514,32 @@
                 
                 // If we have movies or we haven't shown too many days yet
                 if (hasMovies || daysShown < daysToShow) {
+                    const moreMoviesClass = moreMoviesCount % 2 === 0 ? 'more-movies2' : 'more-movies';
+
                     daysHTML += `
                         <div class="calendar-day ${hasMovies ? 'has-movie' : 'no-movie'}" ${hasMovies ? `onclick="showMovieDetails('${dateString}')"` : ''}>
                             <div class="date-header">${date.getDate()}</div>
                             ${hasMovies ? `
                                 <div class="movie-item">
-                                    <img src="https://image.tmdb.org/t/p/w500${moviesForDate[0].poster_path}" 
+                                    <img src="https://image.tmdb.org/t/p/w780${moviesForDate[0].poster_path}" 
                                         alt="${moviesForDate[0].title}" 
                                         class="movie-poster"
                                         onerror="this.onerror=null; this.src='assets/images/no-poster.jpg';" />
                                     <div class="movie-title">${moviesForDate[0].title}</div>
                                 </div>
-                                ${moviesForDate.length > 1 ? `<div class="more-movies">+${moviesForDate.length - 1} more</div>` : ''}
+                                ${moviesForDate.length > 1 ? `<div class="${moreMoviesClass}">+${moviesForDate.length - 1} more</div>` : ''}
                             ` : ''}
                         </div>
                     `;
-                    
+
+                    if (moviesForDate.length > 1) {
+                        moreMoviesCount++; // Only increment if we actually added a "more" element
+                    }
+
                     daysShown++;
                 }
             }
+
         
             document.getElementById('calendar').innerHTML = `
                 <div class="calendar-grid">
@@ -526,7 +564,7 @@
                 
                 modalHTML += `
                     <div class="movie-detail">
-                        <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" 
+                        <img src="https://image.tmdb.org/t/p/w1280${movie.backdrop_path}" 
                             class="movie-detail-image" 
                             alt="${movie.title}"
                             onerror="this.onerror=null; this.src='assets/images/no-poster.jpg';" />
