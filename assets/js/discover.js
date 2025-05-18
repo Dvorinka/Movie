@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const releaseYearFromInput = document.getElementById('release-year-from');
     const releaseYearToInput = document.getElementById('release-year-to');
     let selectedGenre = '';
-    let selectedFilter = 'redaction-picks';
+    let selectedFilter = 'popular';
 
     const genreMap = {
         '28': 'action',
@@ -302,6 +302,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Function to display media with watched status
+    // Function to fetch detailed TV show information
+    const fetchTvShowDetails = async (showId) => {
+        try {
+            const url = `${baseApiUrl}/tv/${showId}?api_key=${apiKey}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Error fetching TV show details');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching TV show details:', error);
+            return null;
+        }
+    };
+
     const displayMedia = async (media, mediaType) => {
         console.log('Displaying media...');
         const watchedMovies = await fetchWatchedMovies();
@@ -310,12 +323,53 @@ document.addEventListener('DOMContentLoaded', () => {
         const mediaContainer = document.createElement('div');
         mediaContainer.classList.add('media-container');
         mediaContainer.innerHTML = '';
-        media.forEach(item => {
+        
+        // If we're displaying TV shows, fetch additional details for each show
+        let enhancedMedia = media;
+        if (mediaType === 'tv') {
+            enhancedMedia = await Promise.all(media.map(async (item) => {
+                // Fetch detailed information for each TV show
+                const details = await fetchTvShowDetails(item.id);
+                if (details) {
+                    return {
+                        ...item,
+                        status: details.status,
+                        last_air_date: details.last_air_date,
+                        number_of_seasons: details.number_of_seasons,
+                        number_of_episodes: details.number_of_episodes
+                    };
+                }
+                return item;
+            }));
+        }
+        
+        enhancedMedia.forEach(item => {
             console.log('Processing media item:', item.id, item.title || item.name);
             const mediaItem = document.createElement('div');
             mediaItem.classList.add('media-item');
             mediaItem.id = item.id; // Set the movie ID as the ID of the media item
-            const releaseYear = item.release_date ? new Date(item.release_date).getFullYear() : 'N/A';
+            
+            // Handle different date formats for movies vs TV shows
+            let yearDisplay = 'N/A';
+            if (mediaType === 'movie') {
+                yearDisplay = item.release_date ? new Date(item.release_date).getFullYear() : 'N/A';
+            } else if (mediaType === 'tv') {
+                // For TV shows, show the time period (first_air_date to last_air_date or 'Present')
+                const firstAirYear = item.first_air_date ? new Date(item.first_air_date).getFullYear() : 'N/A';
+                
+                // Check if the show is still running based on status
+                const isRunning = item.status === 'Returning Series' || item.status === 'In Production';
+                
+                // If we have last_air_date and the show is not running, show the end year
+                // Otherwise, show 'Present' or 'Ongoing'
+                if (item.last_air_date && !isRunning) {
+                    const lastAirYear = new Date(item.last_air_date).getFullYear();
+                    yearDisplay = `${firstAirYear} - ${lastAirYear}`;
+                } else if (firstAirYear !== 'N/A') {
+                    yearDisplay = `${firstAirYear} - ${isRunning ? 'Present' : firstAirYear}`;
+                }
+            }
+            
             const ratingPercentage = Math.round(item.vote_average * 10);
             const ratingImage = getRatingImage(ratingPercentage);
             mediaItem.innerHTML = `
@@ -323,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>${item.title || item.name}</h3>
                 <div class="year-rating">
                     <p class="rating"><img src="${ratingImage}" alt="Rating"> ${ratingPercentage}%</p>
-                    <p class="year">${releaseYear}</p>
+                    <p class="year">${yearDisplay}</p>
                 </div>
             `;
             // Check if the movie is watched and apply the style
@@ -340,10 +394,27 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 console.log('Movie is not watched:', item.id);
             }
-            mediaItem.addEventListener('click', () => {
+            mediaItem.addEventListener('click', (event) => {
                 const id = item.id;
                 const url = mediaType === 'movie' ? `movie-details.html?id=${id}` : `tv-details.html?id=${id}`;
-                window.location.href = url; // Open the URL in the same tab
+                
+                // Middle mouse button (button 1) opens in new tab
+                if (event.button === 1) {
+                    window.open(url, '_blank');
+                    event.preventDefault();
+                } else {
+                    window.location.href = url; // Open the URL in the same tab
+                }
+            });
+            
+            // Add mousedown event listener to handle middle-click
+            mediaItem.addEventListener('mousedown', (event) => {
+                if (event.button === 1) { // Middle mouse button
+                    const id = item.id;
+                    const url = mediaType === 'movie' ? `movie-details.html?id=${id}` : `tv-details.html?id=${id}`;
+                    window.open(url, '_blank');
+                    event.preventDefault();
+                }
             });
             mediaContainer.appendChild(mediaItem);
         });
@@ -486,10 +557,27 @@ const displayMoreMedia = async (media, mediaType) => {
             console.log('Movie is not watched:', item.id);
         }
 
-        mediaItem.addEventListener('click', () => {
+        mediaItem.addEventListener('click', (event) => {
             const id = item.id;
             const url = mediaType === 'movie' ? `movie-details.html?id=${id}` : `tv-details.html?id=${id}`;
-            window.open(url, '_blank'); // Open the URL in a new tab
+            
+            // Middle mouse button (button 1) opens in new tab
+            if (event.button === 1) {
+                window.open(url, '_blank');
+                event.preventDefault();
+            } else {
+                window.location.href = url; // Open the URL in the same tab
+            }
+        });
+        
+        // Add mousedown event listener to handle middle-click
+        mediaItem.addEventListener('mousedown', (event) => {
+            if (event.button === 1) { // Middle mouse button
+                const id = item.id;
+                const url = mediaType === 'movie' ? `movie-details.html?id=${id}` : `tv-details.html?id=${id}`;
+                window.open(url, '_blank');
+                event.preventDefault();
+            }
         });
 
         mediaContainer.appendChild(mediaItem);
@@ -499,10 +587,15 @@ const displayMoreMedia = async (media, mediaType) => {
 loadMoreButton.addEventListener('click', loadMoreMovies);
 
 
-    // Fetch and display trending movies by default
-    fetchRedactionPicks();
+    // Fetch and display popular movies by default
+    fetchTrendingMovies();
     updateGenreVisibility();
     updateMediaFilterOptions();
+    
+    // Set the media filter select to 'popular' by default
+    setTimeout(() => {
+        mediaFilterSelect.value = 'popular';
+    }, 100);
 
     // Event listener for media type selection
     mediaTypeSelect.addEventListener('change', (event) => {

@@ -30,6 +30,7 @@
     - custom css link
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/discover.css">
 
   <!-- 
     - google font link
@@ -155,14 +156,18 @@
               <div class="media">
                   <h3>Sort By Format</h3>
                   <select id="media-type">
-                      <option value="movie">Movies</option>
+                      <option value="movie" selected>Movies</option>
                       <option value="tv">TV Shows</option>
                   </select>
               </div>
               <div class="media-filters">
                   <h3>Sort By</h3>
                   <select id="media-filter">
-                      <!-- Options will be dynamically added here -->
+                      <option value="popular" selected>Popular Movies</option>
+                      <option value="redaction-picks">Redaction Picks</option>
+                      <option value="now-playing">Now Playing Movies</option>
+                      <option value="upcoming">Upcoming Movies</option>
+                      <option value="top-rated">Top Rated Movies</option>
                   </select>
               </div>
               <div class="genres">
@@ -199,7 +204,10 @@
 <div class="fetched-sorted">
     <!-- Results will be displayed here -->
 </div>
-<button id="load-more" class="load-more">Load More</button>
+<button id="load-more" class="load-more">
+  <span>Load More</span>
+  <ion-icon name="arrow-down-outline"></ion-icon>
+</button>
 </section>
 </main>
 

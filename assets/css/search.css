@@ -1,0 +1,118 @@
+/* Mobile Search Styles - Only affects mobile search elements */
+.search-el-mobile {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto 20px;
+}
+
+.input-main-div-mobile {
+  position: relative;
+  width: 100%;
+}
+
+.input-main-mobile {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.input-main-mobile:focus {
+  outline: none;
+  border-color: var(--citrine);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.mobile-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #1d1d1d;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: none;
+}
+
+.mobile-results:not(:empty) {
+  display: block;
+  padding: 8px 0;
+  margin-top: 5px;
+}
+
+/* Make sure these selectors only apply to mobile search results */
+.mobile-results .result-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-results .result-item:hover {
+  background-color: rgba(0, 183, 255, 0.1);
+}
+
+.mobile-results .result-img {
+  width: 40px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 12px;
+}
+
+.mobile-results .result-details {
+  flex: 1;
+}
+
+.mobile-results .result-name {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.mobile-results .result-type {
+  font-size: 12px;
+  color: #a0a0a0;
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* Media queries for responsiveness - Only for mobile search */
+@media (max-width: 768px) {
+  .search-el-mobile {
+    max-width: 100%;
+  }
+  
+  .mobile-results .result-name {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-results .result-name {
+    max-width: 120px;
+  }
+  
+  .mobile-results .result-img {
+    width: 30px;
+    height: 45px;
+  }
+}

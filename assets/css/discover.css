@@ -1,0 +1,91 @@
+/* Discover Page Specific Styles */
+
+/* Load More Button Styling */
+.load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 50px auto;
+  padding: 16px 38px;
+  background: linear-gradient(135deg, var(--citrine) 0%, #0095d1 100%);
+  color: var(--white);
+  font-size: 16px;
+  font-weight: var(--fw-500);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 20px rgba(0, 183, 255, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: relative;
+  overflow: hidden;
+  max-width: 100%;
+  width: auto;
+}
+
+.load-more::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.load-more:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 15px 25px rgba(0, 183, 255, 0.4);
+}
+
+.load-more:hover::before {
+  opacity: 1;
+}
+
+.load-more:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 5px 10px rgba(0, 183, 255, 0.3);
+}
+
+.load-more span {
+  margin-right: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.load-more ion-icon {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.load-more:hover ion-icon {
+  transform: translateY(3px);
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+/* Center the button in the container */
+.discover-wrapper {
+  position: relative;
+  text-align: center;
+}
+
+/* Make sure the button is clearly visible */
+#load-more {
+  position: relative;
+  z-index: 10;
+  min-width: 200px;
+}
