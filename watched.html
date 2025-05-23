@@ -26,8 +26,159 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="section-title">User Watched Movies</h1>
+  <header class="header" data-header>
+    <div class="container">
+
+      <div class="overlay" data-overlay></div>
+
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/heading_purple.png" class="sparkscreen">
+      </a>
+
+      <div class="header-actions">
+        <div class="search-btn-container">
+          <button class="search-btn" onclick="toggleSearchInput()">
+            <ion-icon name="search-outline"></ion-icon>
+          </button>
+        </div>
+        <div class="lang-wrapper">
+          <label for="language">
+            <ion-icon name="globe-outline" role="img" class="md hydrated" aria-label="globe outline"></ion-icon>
+          </label>
+
+          <select name="language" id="language">
+            <option value="en">EN</option>
+            <option value="cs">CS</option>
+          </select>
+        </div>
+        <div id="auth-section" class="auth-container">
+          <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+          <div id="userAccount" class="dropdown" style="display: none;">
+            <button class="btn dropdown-toggle" id="userDropdown">
+              <ion-icon name="person-circle-outline"></ion-icon>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+            </ul>
+          </div>
+        </div>       
+      </div>
+      
+      
+      <button class="menu-open-btn" data-menu-open-btn>
+        <ion-icon name="reorder-two"></ion-icon>
+      </button>
+
+      <nav class="navbar" data-navbar>
+
+        <div class="navbar-top">
+
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/logo.svg" alt="FilFuse logo">
+          </a>
+
+          <button class="menu-close-btn" data-menu-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+
+        </div>
+
+        <ul class="navbar-list">
+
+          <li>
+            <a href="./index.html" class="navbar-link">Home</a>
+          </li>
+
+          <li>
+            <a href="./discover.html" class="navbar-link">Discover</a>
+            <ul>
+              <li>
+                <a href="./top-100.html" class="navbar-link">Top 100</a>
+              </li>
+              <li>
+                <a href="./best-movies-2024.html" class="navbar-link">Best Movies of 2024</a>
+              </li>
+            </ul>
+
+          </li>
+
+          <li>
+            <a href="./suggestions.html" class="navbar-link">Suggestions</a>
+            <ul>
+              <li>
+                <a href="./date-night.html" class="navbar-link">Date Night</a>
+              </li>
+            </ul>
+          </li>
+
+          <li>
+            <!-- <div class="ai-wrapper">
+                <svg height="24" width="24" fill="#FFFFFF" viewBox="0 0 24 24" data-name="Layer 1" id="Layer_1" class="sparkle">
+                  <path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+                </svg>
+              <p class="ai-stamp">AI</p>
+            </div> -->
+
+            <a href="./ai-finder.html" class="navbar-link" style="display: inline-block;">Find lost movies</a>
+          </li>
+
+          <li>
+            <a href="./about.html" class="navbar-link">About</a>
+          </li>
+
+          <div id="auth-section" class="auth-container">
+            <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+            <div id="userAccount" class="dropdown" style="display: none;">
+              <button class="btn dropdown-toggle" id="userDropdown">
+                <ion-icon name="person-circle-outline"></ion-icon>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+              </ul>
+            </div>
+          </div>
+            
+        </ul>
+
+        <ul class="navbar-social-list">
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-github"></ion-icon>
+            </a>
+          </li>
+          
+
+        </ul>
+
+      </nav>
+    </div>
+</header>
+
+  <div class="search-el">
+    <div class="input-main-div">
+    <input name="query" type="text" tabindex="1" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false" id="search-input" placeholder="Search for a movie, tv show, person..." class="input-main">
+    </div>
+    <div id="default-results" class="results-container"></div>
+  </div>
+  <div class="container" style="margin-top: 150px;">
+    <h1 class="section-title" style="color: white">User Watched Movies</h1>
     <div class="filters">
       <select id="genre-filter">
         <option value="all">All Genres</option>
@@ -54,14 +205,23 @@
       <p id="total-runtime">Total Runtime: Loading...</p>
     </div>
     <div id="movies-container" class="movies-list">
-      <div class="loader">Loading movies...</div>
+      <div class="loader">
+        <div class="loader-spinner"></div>
+        <div id="loading-progress">Loading movies...</div>
+        <div id="loading-count">0/0 movies loaded</div>
+      </div>
     </div>
   </div>
   
   
 
-  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@latest/dist/ionicons/ionicons.esm.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/handling.js"></script>
+  <script src="assets/js/language.js"></script>
+  <script src="assets/js/search.js"></script>
+  <script src="assets/js/script.js"></script>
+
   <script>
     const supabase = window.supabase.createClient(
       'https://cbnwekzbcxbmeevdjgoq.supabase.co',
@@ -141,24 +301,50 @@
 
     const calculateRuntime = (movies, genreFilter) => {
       let totalRuntime = 0;
+      const genreCounts = {};
+      let mostWatchedGenre = { name: '', count: 0 };
 
       movies.forEach(movie => {
         const matchesGenre = genreFilter === 'all' || 
           movie.genres.some(genre => genre.id.toString() === genreFilter);
         if (matchesGenre) {
           totalRuntime += movie.runtime || 0;
+          
+          // Count genres for statistics
+          movie.genres.forEach(genre => {
+            genreCounts[genre.id] = (genreCounts[genre.id] || 0) + 1;
+            if (genreCounts[genre.id] > mostWatchedGenre.count) {
+              mostWatchedGenre = { name: genre.name, count: genreCounts[genre.id] };
+            }
+          });
         }
       });
 
-      return (totalRuntime / 60).toFixed(1); // Convert to hours
+      return {
+        hours: (totalRuntime / 60).toFixed(1),
+        mostWatchedGenre,
+        totalMovies: movies.filter(movie => 
+          genreFilter === 'all' || 
+          movie.genres.some(genre => genre.id.toString() === genreFilter)
+        ).length
+      };
     };
 
     const updateRuntimeStats = (genreFilter) => {
-      const totalHours = calculateRuntime(allMovies, genreFilter);
+      const stats = calculateRuntime(allMovies, genreFilter);
       const genreName = genreFilter === 'all' ? 'All Genres' : 
         document.getElementById('genre-filter').querySelector(`option[value="${genreFilter}"]`).textContent;
-      document.getElementById('total-runtime').textContent = 
-        `Total Runtime (${genreName}): ${totalHours} hours`;
+      
+      const statsHTML = `
+        <h2>Runtime Statistics</h2>
+        <p>Total Runtime (${genreName}): <strong>${stats.hours} hours</strong></p>
+        <p>Movies Watched: <strong>${stats.totalMovies}</strong></p>
+        ${genreFilter === 'all' ? 
+          `<p>Most Watched Genre: <strong>${stats.mostWatchedGenre.name}</strong> (${stats.mostWatchedGenre.count} movies)</p>` : ''}
+        <p>Average Runtime: <strong>${(stats.hours * 60 / stats.totalMovies).toFixed(1)} minutes</strong></p>
+      `;
+      
+      document.querySelector('.runtime-stats').innerHTML = statsHTML;
     };
 
     const attachFiltering = () => {
@@ -202,17 +388,38 @@
         if (error) throw error;
 
         if (watchedMovies?.length > 0) {
+          // Get loading elements once at start
+          const loadingProgress = document.getElementById('loading-progress');
+          const loadingCount = document.getElementById('loading-count');
+          
           moviesContainer.innerHTML = '';
           watchedMovies.sort((a, b) => new Date(b.watched_at) - new Date(a.watched_at));
+          let loadedCount = 0;
+
+          // Only update loading if elements exist
+          if (loadingProgress && loadingCount) {
+            loadingProgress.textContent = 'Loading movies...';
+            loadingCount.textContent = `0/${watchedMovies.length} movies loaded`;
+          }
 
           for (const movie of watchedMovies) {
             const movieDetails = await fetchMovieDetails(movie.movie_id);
             if (movieDetails) {
               allMovies.push(movieDetails);
               await displayMovie(movieDetails, movie.movie_title, movie.watched_at);
+              loadedCount++;
+              
+              // Only update loading if elements exist
+              if (loadingProgress && loadingCount) {
+                loadingCount.textContent = `${loadedCount}/${watchedMovies.length} movies loaded`;
+              }
             }
           }
 
+          // Only update loading if elements exist
+          if (loadingProgress) {
+            loadingProgress.textContent = 'Loading complete!';
+          }
           // Initialize runtime stats
           updateRuntimeStats('all');
           attachFiltering();
