@@ -1,0 +1,196 @@
+/* Episode ratings specific styles */
+.container-ra {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    display: flex;
+    gap: 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+.show-info {
+    flex: none;
+    width: 16rem;
+}
+
+.poster {
+    width: 100%;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.poster:hover {
+    transform: scale(1.05);
+}
+
+.show-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+}
+
+.star {
+    color: #eab308;
+    font-size: 1.25rem;
+}
+
+.rating-value {
+    font-weight: 700;
+    color: white;
+}
+
+.votes {
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.years {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.download-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    margin-top: 1rem;
+    transition: background-color 0.2s;
+}
+
+.download-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.legend-dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 9999px;
+}
+
+.episode {
+    width: 3rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    position: relative;
+}
+
+.episode:hover {
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+.episode-still {
+    width: 12rem;
+    height: 6.75rem;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.tooltip {
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    background-color: rgba(17, 24, 39, 0.95);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 20;
+    width: max-content;
+    max-width: 20rem;
+    text-align: center;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(75, 85, 99, 0.4);
+}
+
+.episode:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.episode-title {
+    display: block;
+    color: white;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.episode-info {
+    display: block;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.episode-air-date {
+    display: block;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 0.25rem;
+}
+
+.episode-overview {
+    font-size: 0.75rem;
+    color: #d1d5db;
+    margin-top: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Rating colors with improved contrast */
+.awesome { background-color: #166534; color: white; }
+.great { background-color: #16a34a; color: white; }
+.good { background-color: #eab308; color: black; }
+.regular { background-color: #f97316; color: black; }
+.bad { background-color: #dc2626; color: white; }
+.garbage { background-color: #7e22ce; color: white; }
+.unknown { background-color: #6b7280; color: white; }
+
+/* Dot colors */
+.legend-awesome { background-color: #166534; }
+.legend-great { background-color: #16a34a; }
+.legend-good { background-color: #eab308; }
+.legend-regular { background-color: #f97316; }
+.legend-bad { background-color: #dc2626; }

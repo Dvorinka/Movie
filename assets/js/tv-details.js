@@ -268,18 +268,15 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
 
-        const redirectToYTS = () => {
-            const documentTitle = document.title;
-            let showTitle = documentTitle.split(' (')[0];
-            showTitle = showTitle.replace(/:/g, '').replace(/\./g, '');
-            let formattedShowTitle = showTitle.toLowerCase().replace(/ /g, '+');
-            formattedShowTitle = formattedShowTitle.replace(/\++/g, '+'); // Fix regex to match "+"
-            const ytsUrl = `https://1337x.to/sort-category-search/${formattedShowTitle}/TV/seeders/desc/1/`;
-            window.open(ytsUrl, '_blank');
+        const redirectToDownload = () => {
+            const showId = getShowIdFromUrl();
+            window.location.href = `https://spark.tdvorak.dev/download?ns=&show=${showId}`;
         };
         
         const downloadButton = document.querySelector('.download-btn');
-        downloadButton.addEventListener('click', redirectToYTS);           
+        if (downloadButton) {
+            downloadButton.addEventListener('click', redirectToDownload);
+        }           
     };
 
     const redirectToStream = (event) => {

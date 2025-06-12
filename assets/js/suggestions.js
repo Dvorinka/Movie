@@ -6,24 +6,16 @@ function addInputField() {
     if (inputCount >= 6) return;
 
     inputCount++;
-    const inputWrapper = document.getElementById('input-wrapper');
-    const newInputContainer = document.createElement('div');
+    const inputWrapper = document.getElementById('input-wrapper');    const newInputContainer = document.createElement('div');
     newInputContainer.className = 'input-container';
-    newInputContainer.style.marginTop = '10px'; // Adjusted margin between input containers
-    newInputContainer.innerHTML = `
+    newInputContainer.style.marginTop = '10px';    newInputContainer.innerHTML = `
         <div class="movie-box" onclick="activateSearch(${inputCount})">
             <div class="plus-button">+</div>
         </div>
-        <input type="text" id="movie${inputCount}" placeholder="Enter Movie Name" oninput="searchMovie(${inputCount})" style="display:none; autocorrect="off" autofill="off" autocomplete="off" spellcheck="false">
-        ${inputCount < 6 ? '<div class="add-button" onclick="addInputField()">&#43;</div>' : ''}
+        <input type="text" id="movie${inputCount}" placeholder="Enter Movie Name" oninput="searchMovie(${inputCount})" style="display:none;" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false">
     `;
     inputWrapper.appendChild(newInputContainer);
-
-    // Update previous add button to move to the new input container
-    const prevInputContainer = document.querySelector('.input-container:nth-last-child(2)');
-    if (prevInputContainer) {
-        prevInputContainer.querySelector('.add-button').style.display = 'none';
-    }
+    updateButtonVisibility();
 }
 
 function activateSearch(index) {
@@ -229,3 +221,70 @@ function calculateSimilarityScore(movie, inputMovies) {
     const similarityPercentage = Math.min((score / maxScore) * 100, 100);
     return Math.round(similarityPercentage); // Round to whole number percentage
 }
+
+function removeInputField(index) {
+    if (inputCount <= 1) return; // Prevent removing the last input field
+
+    const inputWrapper = document.getElementById('input-wrapper');
+    const inputContainers = inputWrapper.querySelectorAll('.input-container');
+    const containerToRemove = inputContainers[inputContainers.length - 1]; // Always remove the last container
+
+    if (containerToRemove) {
+        inputWrapper.removeChild(containerToRemove);
+        selectedMovies.splice(inputContainers.length - 1, 1); // Remove the corresponding movie from the selectedMovies array
+        inputCount--;
+
+        // Reindex remaining containers and their elements
+        const remainingContainers = inputWrapper.querySelectorAll('.input-container');
+        remainingContainers.forEach((container, idx) => {
+            const newIndex = idx + 1;
+            const movieBox = container.querySelector('.movie-box');
+            const input = container.querySelector('input');
+
+            if (movieBox) movieBox.setAttribute('onclick', `activateSearch(${newIndex})`);
+            if (input) {
+                input.id = `movie${newIndex}`;
+                input.setAttribute('oninput', `searchMovie(${newIndex})`);
+            }
+        });
+
+        updateButtonVisibility();
+    }
+}
+
+function updateButtonVisibility() {
+    const containers = document.querySelectorAll('.input-container');
+    
+    // Remove all existing remove and add buttons
+    containers.forEach(container => {
+        const removeBtn = container.querySelector('.remove-button');
+        if (removeBtn) removeBtn.remove();
+        const addBtn = container.querySelector('.add-button');
+        if (addBtn) addBtn.remove();
+    });
+
+    // Add plus button to last container if we're below max
+    if (inputCount < 6) {
+        const lastContainer = containers[containers.length - 1];
+        const addBtn = document.createElement('div');
+        addBtn.className = 'add-button';
+        addBtn.innerHTML = '&#43;';
+        addBtn.onclick = () => addInputField();
+        lastContainer.appendChild(addBtn);
+    }
+
+    // Add minus button to last container only when multiple containers exist
+    if (containers.length > 1) {
+        const lastContainer = containers[containers.length - 1];
+        const removeBtn = document.createElement('div');
+        removeBtn.className = 'remove-button';
+        removeBtn.innerHTML = '&#8722;';
+        removeBtn.onclick = () => removeInputField(containers.length);
+        lastContainer.appendChild(removeBtn);
+    }
+}
+
+// Initialize button visibility when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    updateButtonVisibility();
+});

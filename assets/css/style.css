@@ -2551,8 +2551,9 @@ iframe{
 
 .add-button {
   position: absolute;
-  top: 198px;
-  right: -87px;
+  top: 50%;
+  transform: translateY(-507%);
+  right: -236px;
   font-size: 2.2rem;
   border-radius: 50%;
   border: 1px solid #0000003d;
@@ -2560,13 +2561,19 @@ iframe{
   color: var(--white);
   background: linear-gradient(309deg, rgba(0,99,255,1) 0%, rgba(0,198,255,1) 100%);
   width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  z-index: 10;
 }
 
 .remove-button {
   position: absolute;
-  top: 198px;
-  left: -87px;
+  top: 50%;
+  transform: translateY(-507%);
+  right: 177px;
   font-size: 2.2rem;
   border-radius: 50%;
   border: 1px solid #0000003d;
@@ -2574,7 +2581,12 @@ iframe{
   color: var(--white);
   background: linear-gradient(309deg, rgb(119, 0, 255) 0%, rgb(195, 0, 255) 100%);
   width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  z-index: 10;
 }
 
 .movies-list {

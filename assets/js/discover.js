@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchedSorted = document.querySelector('.fetched-sorted');
     const releaseYearFromInput = document.getElementById('release-year-from');
     const releaseYearToInput = document.getElementById('release-year-to');
+    const nativeSearchInput = document.getElementById('native-search-input');
+    const nativeSearchBtn = document.getElementById('native-search-btn');
     let selectedGenre = '';
     let selectedFilter = 'popular';
 
@@ -442,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (selectedMediaType === 'movie') {
             mediaFilterSelect.innerHTML = `
-                <option value="redaction-picks">Redaction Picks</option>
+                <option value="redaction-picks">Cracked Only</option>
                 <option value="popular">Popular Movies</option>
                 <option value="now-playing">Now Playing Movies</option>
                 <option value="upcoming">Upcoming Movies</option>
@@ -678,5 +680,39 @@ loadMoreButton.addEventListener('click', loadMoreMovies);
             }
         });
     }
-});
 
+    // Function to search movies or TV shows
+    // Function to search movies or TV shows with a filter for minimum votes
+    const searchMedia = async (query) => {
+        const selectedMediaType = mediaTypeSelect.value; // 'movie' or 'tv'
+        const url = `${baseApiUrl}/search/${selectedMediaType}?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=en-US&page=1`;
+        const minVotes = 10; // Minimum number of votes to filter results
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            // Filter results based on minimum vote count
+            const filteredResults = data.results.filter(item => item.vote_count >= minVotes);
+
+            displayMedia(filteredResults, selectedMediaType);
+        } catch (error) {
+            console.error('Error searching media:', error);
+        }
+    };
+
+    // Function to debounce the search input
+    let debounceTimeout;
+    const debounceSearch = (callback, delay) => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(callback, delay);
+    };
+
+    // Event listener for the native search input (automatic search)
+    nativeSearchInput.addEventListener('input', () => {
+        const query = nativeSearchInput.value.trim();
+        if (query) {
+            debounceSearch(() => searchMedia(query), 500); // Trigger search after 500ms of inactivity
+        }
+    });
+});
