@@ -2732,7 +2732,30 @@ iframe{
 .github{
   background: -webkit-linear-gradient(#ffffff, #404040);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+
+.language-display {
+  margin-left: 811px;
+  top: 220.5px;
+  position: absolute;
+  z-index: 999;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-size: 12px;
+  color: #fff;
+  display: inline-flex
+;
+  align-items: center;
+  height: 32px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgb(255 255 255 / 29%);
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
 /* Basic popup styles */

@@ -914,7 +914,25 @@ document.addEventListener( 'DOMContentLoaded', () =>
                 }
     
                 console.log( 'Movie Details:', movieDetails ); // Debugging movie details fetch
-    
+                
+                // Display language information if available
+                if (movieDetails.language) {
+                    const languageDisplay = document.getElementById('language-display');
+                    if (languageDisplay) {
+                        // Convert language code to full name
+                        const languageNames = new Intl.DisplayNames(['en'], {type: 'language'});
+                        let languageName;
+                        try {
+                            languageName = languageNames.of(movieDetails.language);
+                        } catch (e) {
+                            console.warn('Could not get language name for code:', movieDetails.language);
+                            languageName = movieDetails.language.toUpperCase();
+                        }
+                        languageDisplay.textContent = languageName;
+                        languageDisplay.title = `Language: ${languageName}`;
+                    }
+                }
+                
                 // Try to find the 4K torrent first (2160p)
                 let torrent4k = movieDetails.torrents.find( torrent => torrent.quality === "2160p" );
                 console.log( '4K Torrent:', torrent4k ); // Debugging 4K torrent

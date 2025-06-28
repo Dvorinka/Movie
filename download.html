@@ -82,6 +82,7 @@
             50% { opacity: 0.5; }
         }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@vscode/codicons@latest/dist/codicon.css">
 </head>
 <body class="min-h-screen text-white bg-dark">
     
@@ -109,6 +110,12 @@
                     </div>
                 </div>
 
+                <!-- Add Movie/TV Tabs -->
+                <div class="flex gap-2 mb-4">
+                    <button id="tabTV" class="px-4 py-2 rounded-lg font-medium bg-blue-600/80 text-white">TV Shows</button>
+                    <button id="tabMovie" class="px-4 py-2 rounded-lg font-medium bg-slate-700/80 text-gray-300">Movies</button>
+                </div>
+
                 <!-- Search Results -->
                 <div id="searchResults" class="hidden">
                     <h3 class="text-lg font-semibold mb-4 text-blue-300">Search Results</h3>
@@ -117,7 +124,7 @@
             </div>
         </div>
 
-        <!-- Selected Show Details -->
+        <!-- Selected Show/Movie Details -->
         <div id="showDetails" class="max-w-4xl mx-auto hidden">
             <div class="glass-card rounded-2xl p-8">
                 <div id="showInfo" class="flex gap-6 mb-8"></div>
@@ -141,10 +148,10 @@
                     </div>
 
                     <!-- Season Selection -->
-                    <div>
+                    <div id="seasonSection">
                         <label class="block text-sm font-medium text-gray-300 mb-3">Season</label>
                         <div id="seasonContainer">
-                            <button class="season-btn w-full px-4 py-2 bg-slate-800/50 border border-slate-600/50 rounded-xl hover:border-blue-500 transition-colors text-left" data-season="all">
+                            <button class="season-btn w-full px-4 py-2 bg-slate-800/50 border border-slate-600/50 rounded-xl hover:border-blue-500 transition-colors" data-season="all">
                                 All Seasons (Complete)
                             </button>
                             <div id="seasonList" class="space-y-2 max-h-40 overflow-y-auto"></div>
@@ -152,7 +159,7 @@
                     </div>
 
                     <!-- Episode Selection -->
-                    <div>
+                    <div id="episodeSection">
                         <label class="block text-sm font-medium text-gray-300 mb-3">Episode (Optional)</label>
                         <div id="episodeContainer">
                             <select id="episodeSelect" class="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white disabled:opacity-50" disabled>
@@ -193,6 +200,8 @@
         const torrentAPI = '1337x.tdvorak.dev';
         
         let selectedShow = null;
+        let selectedMovie = null;
+        let selectedType = 'tv'; // 'tv' or 'movie'
         let selectedQuality = '1080p';
         let selectedSeason = 'all';
         let selectedEpisode = null;
@@ -217,6 +226,7 @@
             const params = new URLSearchParams(window.location.search);
             return {
                 showId: params.get('show'),
+                movieId: params.get('movie'),
                 query: params.get('q'),
                 quality: params.get('quality') || '1080p',
                 season: params.get('season') || 'all',
@@ -227,62 +237,89 @@
 
         function updateUrl(params) {
             const url = new URL(window.location);
-            
             // Clear existing params except ns
             const keepNs = url.searchParams.has('ns');
             url.searchParams.delete('show');
+            url.searchParams.delete('movie');
             url.searchParams.delete('q');
             url.searchParams.delete('quality');
             url.searchParams.delete('season');
             url.searchParams.delete('episode');
-            
             // Add new params
             if (params.showId) url.searchParams.set('show', params.showId);
+            if (params.movieId) url.searchParams.set('movie', params.movieId);
             if (params.query) url.searchParams.set('q', params.query);
             if (params.quality && params.quality !== '1080p') url.searchParams.set('quality', params.quality);
             if (params.season && params.season !== 'all') url.searchParams.set('season', params.season);
             if (params.episode) url.searchParams.set('episode', params.episode);
-            
             // Keep ns parameter if it was there
             if (keepNs) url.searchParams.set('ns', '');
-            
             window.history.pushState({}, '', url);
         }
 
         // Initialize from URL on page load
         async function initFromUrl() {
             const params = getUrlParams();
-            
             // Hide search section if ns parameter is present
             if (params.noSearch) {
                 searchSection.style.display = 'none';
             }
-            
             if (params.query && !params.noSearch) {
                 searchInput.value = params.query;
                 // Trigger search for the query from URL
                 searchTVShows(params.query);
             }
-            
-            if (params.showId) {
-                await loadShowById(params.showId);
-                
+            if (params.movieId) {
+                selectedType = 'movie';
+                await selectMovie({ id: params.movieId }, false);
                 // Set quality
                 if (params.quality) {
                     selectedQuality = params.quality;
                     updateQualitySelection();
                 }
-                
+                // Hide season/episode selectors for movies (ensure correct on direct load)
+                const seasonSection = document.getElementById('seasonSection');
+                const episodeSection = document.getElementById('episodeSection');
+                if (seasonSection) seasonSection.style.display = 'none';
+                if (episodeSection) episodeSection.style.display = 'none';
+                // Switch layout to flex for movie
+                const downloadOptions = showDetails.querySelector('.grid, .flex');
+                if (downloadOptions) {
+                    downloadOptions.classList.remove('grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-6');
+                    downloadOptions.classList.add('flex', 'justify-center');
+                    const firstDiv = downloadOptions.querySelector('div');
+                    if (firstDiv) firstDiv.classList.add('w-full', 'max-w-xs', 'mx-auto');
+                }
+            } else if (params.showId) {
+                selectedType = 'tv';
+                await loadShowById(params.showId);
+                // Set quality
+                if (params.quality) {
+                    selectedQuality = params.quality;
+                    updateQualitySelection();
+                }
                 // Set season
                 if (params.season) {
                     selectedSeason = params.season;
                     await updateSeasonSelection();
                 }
-                
                 // Set episode
                 if (params.episode) {
                     selectedEpisode = params.episode;
                     updateEpisodeSelection();
+                }
+                // Show season/episode selectors for TV
+                const seasonSection = document.getElementById('seasonSection');
+                const episodeSection = document.getElementById('episodeSection');
+                if (seasonSection) seasonSection.style.display = '';
+                if (episodeSection) episodeSection.style.display = '';
+                // Switch layout to grid for TV
+                const downloadOptions = showDetails.querySelector('.grid, .flex');
+                if (downloadOptions) {
+                    downloadOptions.classList.remove('flex', 'justify-center');
+                    downloadOptions.classList.add('grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-6');
+                    const firstDiv = downloadOptions.querySelector('div');
+                    if (firstDiv) firstDiv.classList.remove('w-full', 'max-w-xs', 'mx-auto');
                 }
             }
         }
@@ -460,10 +497,16 @@
             searchBtn.disabled = true;
             
             try {
-                const response = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${apiKey}&query=${encodeURIComponent(searchQuery)}`);
-                const data = await response.json();
-                
-                displaySearchResults(data.results);
+                let response, data;
+                if (selectedType === 'tv') {
+                    response = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${apiKey}&query=${encodeURIComponent(searchQuery)}`);
+                    data = await response.json();
+                    displaySearchResults(data.results, 'tv');
+                } else {
+                    response = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(searchQuery)}`);
+                    data = await response.json();
+                    displaySearchResults(data.results, 'movie');
+                }
                 searchResults.classList.remove('hidden');
             } catch (error) {
                 console.error('Search error:', error);
@@ -477,27 +520,26 @@
             }
         }
 
-        function displaySearchResults(results) {
+        function displaySearchResults(results, type) {
             resultsContainer.innerHTML = '';
-            
-            results.slice(0, 10).forEach(show => {
+            results.slice(0, 10).forEach(item => {
                 const showCard = document.createElement('div');
                 showCard.className = 'flex gap-4 p-4 bg-slate-800/50 rounded-xl cursor-pointer hover:bg-slate-700/50 transition-colors';
-                showCard.onclick = () => selectShow(show);
-                
-                const posterUrl = show.poster_path 
-                    ? `https://image.tmdb.org/t/p/w92${show.poster_path}`
+                showCard.onclick = () => {
+                    if (type === 'tv') selectShow(item);
+                    else selectMovie(item, true);
+                };
+                const posterUrl = item.poster_path 
+                    ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
                     : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTIiIGhlaWdodD0iMTM4IiB2aWV3Qm94PSIwIDAgOTIgMTM4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSI5MiIgaGVpZ2h0PSIxMzgiIGZpbGw9IiMzNzM3MzciLz48L3N2Zz4=';
-                
                 showCard.innerHTML = `
-                    <img src="${posterUrl}" alt="${show.name}" class="w-12 h-18 object-cover rounded-lg">
+                    <img src="${posterUrl}" alt="${item.name || item.title}" class="w-12 h-18 object-cover rounded-lg">
                     <div class="flex-1">
-                        <h4 class="font-semibold text-white">${show.name}</h4>
-                        <p class="text-sm text-gray-400 mt-1">${show.first_air_date ? new Date(show.first_air_date).getFullYear() : 'N/A'}</p>
-                        <p class="text-sm text-gray-500 mt-1 line-clamp-2">${show.overview || 'No description available.'}</p>
+                        <h4 class="font-semibold text-white">${item.name || item.title}</h4>
+                        <p class="text-sm text-gray-400 mt-1">${(item.first_air_date || item.release_date) ? new Date(item.first_air_date || item.release_date).getFullYear() : 'N/A'}</p>
+                        <p class="text-sm text-gray-500 mt-1 line-clamp-2">${item.overview || 'No description available.'}</p>
                     </div>
                 `;
-                
                 resultsContainer.appendChild(showCard);
             });
         }
@@ -540,6 +582,48 @@
             }
         }
 
+        async function selectMovie(movie, updateUrlFlag = true) {
+            showLoading(true);
+            try {
+                if (!movie.title && !movie.original_title) {
+                    // Only id provided, fetch details
+                    const response = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}`);
+                    if (!response.ok) throw new Error('Movie not found');
+                    movie = await response.json();
+                }
+                if (!movie || !movie.id || (!movie.title && !movie.original_title)) throw new Error('Movie not found');
+                selectedMovie = movie;
+                selectedShow = null;
+                selectedType = 'movie';
+                selectedQuality = '1080p';
+                selectedSeason = 'all';
+                selectedEpisode = null;
+                if (updateUrlFlag) {
+                    updateUrl({ movieId: movie.id, quality: selectedQuality, season: 'all', type: 'movie' });
+                }
+                displayMovieDetails(movie);
+                showDetails.classList.remove('hidden');
+                // Always hide season/episode selectors for movies (hide parent divs)
+                const seasonSection = document.getElementById('seasonSection');
+                const episodeSection = document.getElementById('episodeSection');
+                if (seasonSection) seasonSection.style.display = 'none';
+                if (episodeSection) episodeSection.style.display = 'none';
+                const downloadOptions = showDetails.querySelector('.grid, .flex');
+                if (downloadOptions) {
+                    downloadOptions.classList.remove('grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-6');
+                    downloadOptions.classList.add('flex', 'justify-center');
+                    const firstDiv = downloadOptions.querySelector('div');
+                    if (firstDiv) firstDiv.classList.add('w-full', 'max-w-xs', 'mx-auto');
+                }
+                updateQualitySelection();
+                showDetails.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                alert('Error loading movie details. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
         function displayShowDetails(show) {
             const posterUrl = show.poster_path 
                 ? `https://image.tmdb.org/t/p/w300${show.poster_path}`
@@ -570,6 +654,37 @@
                 seasonBtn.textContent = `Season ${i}`;
                 seasonList.appendChild(seasonBtn);
             }
+
+            // Show season/episode selectors and restore grid layout for TV
+            const seasonSection = document.getElementById('seasonSection');
+            const episodeSection = document.getElementById('episodeSection');
+            if (seasonSection) seasonSection.style.display = '';
+            if (episodeSection) episodeSection.style.display = '';
+            const downloadOptions = showDetails.querySelector('.grid');
+            downloadOptions.classList.remove('flex', 'justify-center');
+            downloadOptions.classList.add('grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-6');
+            downloadOptions.querySelector('div').classList.remove('w-full', 'max-w-xs', 'mx-auto');
+        }
+
+        function displayMovieDetails(movie) {
+            const posterUrl = movie.poster_path 
+                ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+                : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQ1MCIgdmlld0JveD0iMCAwIDMwMCA0NTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSI0NTAiIGZpbGw9IiMzNzM3MzciLz48L3N2Zz4=';
+            const movieTitle = movie.title || movie.original_title || 'Unknown Title';
+            showInfo.innerHTML = `
+                <img src="${posterUrl}" alt="${movieTitle}" class="w-32 h-48 object-cover rounded-xl">
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold text-white mb-2">${movieTitle}</h2>
+                    <p class="text-gray-300 mb-4">${movie.overview || ''}</p>
+                    <div class="flex gap-4 text-sm text-gray-400 mb-2">
+                        <span>Release: ${movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A'}</span>
+                        <span>Runtime: ${movie.runtime ? movie.runtime + ' min' : 'N/A'}</span>
+                    </div>
+                    <div class="flex gap-2 mt-3 mb-2">
+                        ${(movie.genres || []).map(genre => `<span class=\"px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs\">${genre.name}</span>`).join('')}
+                    </div>
+                </div>
+            `;
         }
 
         async function loadEpisodes(season) {
@@ -600,44 +715,49 @@
         }
 
         async function downloadTorrent() {
-            if (!selectedShow) return;
-            
             showLoading(true);
-            
             try {
                 let apiUrl;
-                
-                if (selectedSeason === 'all') {
-                    apiUrl = `https://${torrentAPI}/${selectedQuality}/all/${selectedShow.id}`;
-                } else if (selectedEpisode && selectedEpisode.trim() !== '') {
-                    apiUrl = `https://${torrentAPI}/${selectedQuality}/${selectedSeason}/${selectedEpisode}/${selectedShow.id}`;
+                if (selectedType === 'movie' && selectedMovie) {
+                    apiUrl = `https://${torrentAPI}/movie/${selectedQuality}/${selectedMovie.id}`;
+                } else if (selectedShow) {
+                    if (selectedSeason === 'all') {
+                        apiUrl = `https://${torrentAPI}/${selectedQuality}/all/${selectedShow.id}`;
+                    } else if (selectedEpisode && selectedEpisode.trim() !== '') {
+                        apiUrl = `https://${torrentAPI}/${selectedQuality}/${selectedSeason}/${selectedEpisode}/${selectedShow.id}`;
+                    } else {
+                        apiUrl = `https://${torrentAPI}/${selectedQuality}/${selectedSeason}/${selectedShow.id}`;
+                    }
                 } else {
-                    apiUrl = `https://${torrentAPI}/${selectedQuality}/${selectedSeason}/${selectedShow.id}`;
-                }
-                
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                
-                if (data.error) {
-                    alert(data.error);
+                    showLoading(false);
                     return;
                 }
-                
-                displayTorrentInfo(data);
-                downloadResult.classList.remove('hidden');
-                downloadResult.scrollIntoView({ behavior: 'smooth' });
-                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    displayTorrentInfo(data); // Pass the whole array
+                    downloadResult.classList.remove('hidden');
+                    downloadResult.scrollIntoView({ behavior: 'smooth' });
+                } else if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert('No torrents found.');
+                }
             } catch (error) {
-                console.error('Download error:', error);
                 alert('Error fetching torrent. Please try again.');
             } finally {
                 showLoading(false);
             }
         }
 
-        function displayTorrentInfo(data) {
-            torrentInfo.innerHTML = `
-                <div class="bg-slate-800/50 rounded-xl p-6 space-y-4">
+        // Update to display all torrents and new fields
+        function displayTorrentInfo(torrents) {
+            function escapeForOnclick(str) {
+                return str.replace(/'/g, "&#39;").replace(/\\/g, "\\\\");
+            }
+            torrentInfo.innerHTML = torrents.map((data, idx) => `
+                <div class="bg-slate-800/50 rounded-xl p-6 space-y-4 mb-8 relative">
+                    ${idx === 0 ? '<span class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">Our Recommendation</span>' : ''}
                     <h4 class="text-lg font-semibold text-blue-300">${data.title}</h4>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
@@ -656,8 +776,47 @@
                             <a href="${data.link}" target="_blank" class="text-blue-400 hover:text-blue-300">View on 1337x</a>
                         </div>
                     </div>
-                    <div class="flex gap-4">
-                        <button onclick="copyToClipboard('${data.magnet}')" class="btn-secondary px-6 py-2 rounded-lg font-medium">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-2">
+                        <div>
+                            <span class="text-gray-400">Uploader:</span>
+                            <span class="text-white ml-2">${data.uploader || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Language:</span>
+                            <span class="text-white ml-2">${data.language || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Category:</span>
+                            <span class="text-white ml-2">${data.category || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Subtitles:</span>
+                            <span class="text-white ml-2">${data.audio || 'N/A'}</span>
+                        </div>
+                    </div>
+                    ${data.files && Array.isArray(data.files) && data.files.length > 0 ? `
+                        <div class="mt-2">
+                            <span class="text-gray-400">Files:</span>
+                            <ul class="text-white ml-2 list-none">
+                                ${data.files.map(f => {
+                                    let iconClass = 'codicon codicon-file';
+                                    const ext = f.split('.').pop().toLowerCase();
+                                    if (["mp4","mkv","avi","mov","wmv","flv","webm"].includes(ext)) iconClass = 'codicon codicon-file-media';
+                                    else if (["srt","sub","vtt","ass"].includes(ext)) iconClass = 'codicon codicon-comment-discussion';
+                                    else if (["jpg","jpeg","png","gif","bmp","webp","svg"].includes(ext)) iconClass = 'codicon codicon-file-media';
+                                    else if (["mp3","aac","flac","wav","ogg"].includes(ext)) iconClass = 'codicon codicon-file-sound';
+                                    else if (["pdf"].includes(ext)) iconClass = 'codicon codicon-file-pdf';
+                                    else if (["zip","rar","7z","tar","gz","bz2"].includes(ext)) iconClass = 'codicon codicon-file-zip';
+                                    else if (["js","ts","jsx","tsx","json","css","scss","html","xml","py","java","c","cpp","cs","rb","php","go","rs","sh","bat","pl","lua"].includes(ext)) iconClass = 'codicon codicon-file-code';
+                                    else if (["exe","msi","apk","app","bin","dmg"].includes(ext)) iconClass = 'codicon codicon-gear';
+                                    else if (["md","txt","rtf","log"].includes(ext)) iconClass = 'codicon codicon-file-text';
+                                    return `<li class='flex items-center gap-2 py-1 px-2 rounded hover:bg-slate-700/40 transition'><span class='text-lg'><i class='${iconClass}'></i></span><span class='truncate'>${f}</span></li>`;
+                                }).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    <div class="flex gap-4 mt-4 flex-wrap">
+                        <button onclick="copyToClipboard(\"${escapeForOnclick(data.magnet)}\")" class="btn-secondary px-6 py-2 rounded-lg font-medium">
                             Copy Magnet Link
                         </button>
                         <a href="${data.magnet}" class="btn-primary px-6 py-2 rounded-lg font-medium">
@@ -665,7 +824,7 @@
                         </a>
                     </div>
                 </div>
-            `;
+            `).join('');
         }
 
         function copyToClipboard(text) {
@@ -685,6 +844,42 @@
         
         // Handle browser back/forward buttons
         window.addEventListener('popstate', initFromUrl);
+
+        // Add Movie/TV Tabs event listeners after DOM is loaded
+        const tabTV = document.getElementById('tabTV');
+        const tabMovie = document.getElementById('tabMovie');
+        if (tabTV && tabMovie) {
+            tabTV.addEventListener('click', () => {
+                selectedType = 'tv';
+                tabTV.classList.add('bg-blue-600/80', 'text-white');
+                tabTV.classList.remove('bg-slate-700/80', 'text-gray-300');
+                tabMovie.classList.remove('bg-blue-600/80', 'text-white');
+                tabMovie.classList.add('bg-slate-700/80', 'text-gray-300');
+                searchInput.placeholder = 'Start typing to search TV shows...';
+                searchResults.classList.add('hidden');
+                // Show season/episode selectors for TV
+                const seasonSection = document.getElementById('seasonSection');
+                const episodeSection = document.getElementById('episodeSection');
+                if (seasonSection) seasonSection.style.display = '';
+                if (episodeSection) episodeSection.style.display = '';
+            });
+            tabMovie.addEventListener('click', () => {
+                selectedType = 'movie';
+                tabMovie.classList.add('bg-blue-600/80', 'text-white');
+                tabMovie.classList.remove('bg-slate-700/80', 'text-gray-300');
+                tabTV.classList.remove('bg-blue-600/80', 'text-white');
+                tabTV.classList.add('bg-slate-700/80', 'text-gray-300');
+                searchInput.placeholder = 'Start typing to search movies...';
+                searchResults.classList.add('hidden');
+                // Hide season/episode selectors for movies
+                const seasonSection = document.getElementById('seasonSection');
+                const episodeSection = document.getElementById('episodeSection');
+                if (seasonSection) seasonSection.style.display = 'none';
+                if (episodeSection) episodeSection.style.display = 'none';
+            });
+        }
     </script>
+    <script type="module" src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.2.1/dist/ionicons/ionicons.js"></script>
 </body>
 </html>

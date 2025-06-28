@@ -6,15 +6,37 @@ function addInputField() {
     if (inputCount >= 6) return;
 
     inputCount++;
-    const inputWrapper = document.getElementById('input-wrapper');    const newInputContainer = document.createElement('div');
+    const inputWrapper = document.getElementById('input-wrapper');
+    const newInputContainer = document.createElement('div');
     newInputContainer.className = 'input-container';
-    newInputContainer.style.marginTop = '10px';    newInputContainer.innerHTML = `
+    
+    // Add the square plus button
+    newInputContainer.innerHTML = `
         <div class="movie-box" onclick="activateSearch(${inputCount})">
             <div class="plus-button">+</div>
         </div>
+        <button class="remove-button" onclick="removeInputField(${inputCount})">-</button>
         <input type="text" id="movie${inputCount}" placeholder="Enter Movie Name" oninput="searchMovie(${inputCount})" style="display:none;" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false">
     `;
+    
     inputWrapper.appendChild(newInputContainer);
+    
+    // Update the previous container to show circular plus button
+    const prevContainer = newInputContainer.previousElementSibling;
+    if (prevContainer && prevContainer.classList.contains('input-container')) {
+        prevContainer.querySelector('.movie-box').style.display = 'none';
+        const circularPlus = document.createElement('div');
+        circularPlus.className = 'movie-box';
+        circularPlus.style.display = 'flex';
+        circularPlus.style.width = '30px';
+        circularPlus.style.height = '30px';
+        circularPlus.style.borderRadius = '50%';
+        circularPlus.style.backgroundColor = '#00b7ff';
+        circularPlus.innerHTML = '<div class="plus-button">+</div>';
+        circularPlus.onclick = () => addInputField();
+        prevContainer.insertBefore(circularPlus, prevContainer.firstChild);
+    }
+    
     updateButtonVisibility();
 }
 
