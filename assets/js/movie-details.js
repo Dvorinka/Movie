@@ -916,9 +916,9 @@ document.addEventListener( 'DOMContentLoaded', () =>
                 console.log( 'Movie Details:', movieDetails ); // Debugging movie details fetch
                 
                 // Display language information if available
-                if (movieDetails.language) {
-                    const languageDisplay = document.getElementById('language-display');
-                    if (languageDisplay) {
+                const languageDisplay = document.getElementById('language-display');
+                if (languageDisplay) {
+                    if (movieDetails.language) {
                         // Convert language code to full name
                         const languageNames = new Intl.DisplayNames(['en'], {type: 'language'});
                         let languageName;
@@ -930,8 +930,14 @@ document.addEventListener( 'DOMContentLoaded', () =>
                         }
                         languageDisplay.textContent = languageName;
                         languageDisplay.title = `Language: ${languageName}`;
+                        languageDisplay.style.display = 'inline-block';
+                    } else {
+                        // Hide the language display if no language is available
+                        languageDisplay.style.display = 'none';
                     }
                 }
+                // Hide preloader only after language and all YTS data is loaded
+                hidePreloader();
                 
                 // Try to find the 4K torrent first (2160p)
                 let torrent4k = movieDetails.torrents.find( torrent => torrent.quality === "2160p" );
@@ -966,6 +972,12 @@ document.addEventListener( 'DOMContentLoaded', () =>
                     downloadBtn.href = '#';
                     downloadBtn.style.cursor = 'not-allowed';
                     downloadBtn.innerHTML = 'Unavailable <ion-icon name="alert-circle-outline"></ion-icon>';
+                    // Hide language display if no torrents are available
+                    const languageDisplay = document.getElementById('language-display');
+                    if (languageDisplay) {
+                        languageDisplay.style.visibility = 'hidden';
+                        languageDisplay.style.display = 'none';
+                    }
                     return; // Exit the function early
                 }
     
@@ -2126,8 +2138,18 @@ document.addEventListener( 'DOMContentLoaded', () =>
             }
         };
     
+        // Add redirect function to the 'goto-download-btn'
+        const gotoDownloadBtn = document.getElementById('goto-download-btn');
+        if (gotoDownloadBtn) {
+            gotoDownloadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const movieId = getMovieIdFromUrl();
+                if (movieId) {
+                    window.location.href = `/download.html?movie=${encodeURIComponent(movieId)}&ns&af`;
+                }
+            });
+        }
     
     } );
-    
     
     updateredirectToHDStream();

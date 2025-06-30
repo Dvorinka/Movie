@@ -2747,8 +2747,7 @@ iframe{
   border-radius: 4px;
   font-size: 12px;
   color: #fff;
-  display: inline-flex
-;
+  display: inline-flex;
   align-items: center;
   height: 32px;
   backdrop-filter: blur(5px);
@@ -4116,6 +4115,16 @@ summary {
   gap: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* Language display */
+#language-display {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#language-display:not(:empty) {
+  opacity: 1;
 }
 
 /* Color coding */

@@ -269,6 +269,7 @@
                 // Trigger search for the query from URL
                 searchTVShows(params.query);
             }
+            let autoFetch = window.location.search.includes('&af') || window.location.search.startsWith('?af') || window.location.search.includes('?af') || window.location.search.includes('&af=') || window.location.search.includes('?af=');
             if (params.movieId) {
                 selectedType = 'movie';
                 await selectMovie({ id: params.movieId }, false);
@@ -289,6 +290,9 @@
                     downloadOptions.classList.add('flex', 'justify-center');
                     const firstDiv = downloadOptions.querySelector('div');
                     if (firstDiv) firstDiv.classList.add('w-full', 'max-w-xs', 'mx-auto');
+                }
+                if (autoFetch) {
+                    downloadTorrent();
                 }
             } else if (params.showId) {
                 selectedType = 'tv';
@@ -320,6 +324,9 @@
                     downloadOptions.classList.add('grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-6');
                     const firstDiv = downloadOptions.querySelector('div');
                     if (firstDiv) firstDiv.classList.remove('w-full', 'max-w-xs', 'mx-auto');
+                }
+                if (autoFetch) {
+                    downloadTorrent();
                 }
             }
         }
