@@ -1132,6 +1132,43 @@ body.active { overflow: hidden; }
 
 .download-btn ion-icon { font-size: 16px; }
 
+/* New Download Options Button */
+.goto-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--rich-black-fogra-29);
+  color: var(--white);
+  border: 1px solid var(--citrine);
+  border-radius: 6px;
+  font-size: var(--fs-11);
+  font-weight: var(--fw-500);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  margin-left: 10px;
+}
+
+.goto-download-btn:hover {
+  background: var(--citrine);
+  color: var(--rich-black-fogra-29);
+  border-color: var(--citrine);
+}
+
+.goto-download-btn ion-icon {
+  font-size: 14px;
+  --ionicon-stroke-width: 32px;
+}
+
+.download-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
 .dir-download-btn {
   max-width: max-content;
   background: #ffffff;

@@ -968,10 +968,33 @@ document.addEventListener( 'DOMContentLoaded', () =>
                 // Disable the download link if no quality is available
                 if ( availableQualities.length === 0 )
                 {
-                    console.log( 'No available torrents. Disabling download button.' ); // Debugging no available torrents
-                    downloadBtn.href = '#';
-                    downloadBtn.style.cursor = 'not-allowed';
-                    downloadBtn.innerHTML = 'Unavailable <ion-icon name="alert-circle-outline"></ion-icon>';
+                    console.log( 'No available torrents. Replacing with redirect button.' );
+                    // Get the download container and button
+                    const downloadContainer = document.querySelector('.download-container');
+                    const downloadBtn = document.querySelector('.download-btn');
+                    
+                    // Replace the download button with the redirect button
+                    if (downloadContainer && downloadBtn) {
+                        // Create a new redirect button with the same styling as the original
+                        const redirectBtn = document.createElement('a');
+                        redirectBtn.href = '#';
+                        redirectBtn.className = 'download-btn';
+                        redirectBtn.title = 'Redirect to download page';
+                        redirectBtn.innerHTML = '<span>Download</span> <ion-icon name="open-outline"></ion-icon>';
+                        
+                        // Add click handler for the redirect
+                        redirectBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const movieId = getMovieIdFromUrl();
+                            if (movieId) {
+                                window.location.href = `/download.html?movie=${encodeURIComponent(movieId)}&ns&af`;
+                            }
+                        });
+                        
+                        // Replace the original button
+                        downloadContainer.replaceChild(redirectBtn, downloadBtn);
+                    }
+                    
                     // Hide language display if no torrents are available
                     const languageDisplay = document.getElementById('language-display');
                     if (languageDisplay) {
@@ -1045,21 +1068,48 @@ document.addEventListener( 'DOMContentLoaded', () =>
             {
                 console.error( 'Error in torrentYTS function:', error );
     
-                // Disable the download button if there is an error
-                const downloadBtn = document.querySelector( '.download-btn' );
-                downloadBtn.href = '#';
-                downloadBtn.style.cursor = 'not-allowed';
-                downloadBtn.style.pointerEvents = 'none';
-                const icon = downloadBtn.querySelector( 'ion-icon' );
-                if ( icon )
-                {
-                    icon.style.fontSize = '16px !important';
+                // Replace the download button with redirect button when there's an error
+                console.log( 'Error occurred. Replacing with redirect button.' );
+                // Get the download container and button
+                const downloadContainer = document.querySelector('.download-container');
+                const downloadBtn = document.querySelector('.download-btn');
+                
+                // Replace the download button with the redirect button and hide 'More Download Options'
+                if (downloadContainer && downloadBtn) {
+                    // Create a new redirect button with the same styling as the original
+                    const redirectBtn = document.createElement('a');
+                    redirectBtn.href = '#';
+                    redirectBtn.className = 'download-btn';
+                    redirectBtn.title = 'Redirect to download page';
+                    redirectBtn.innerHTML = '<span>Download</span> <ion-icon name="open-outline"></ion-icon>';
+                    
+                    // Add click handler for the redirect
+                    redirectBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const movieId = getMovieIdFromUrl();
+                        if (movieId) {
+                            window.location.href = `/download.html?movie=${encodeURIComponent(movieId)}&ns&af`;
+                        }
+                    });
+                    
+                    // Replace the original button
+                    downloadContainer.replaceChild(redirectBtn, downloadBtn);
+                    
+                    // Hide the 'More Download Options' button
+                    const moreOptionsBtn = document.getElementById('goto-download-btn');
+                    if (moreOptionsBtn) {
+                        moreOptionsBtn.style.display = 'none';
+                    }
                 }
-                downloadBtn.innerHTML = 'Unavailable <ion-icon name="alert-circle-outline"></ion-icon>';
+                
+                // Hide language display if there was an error
+                const languageDisplay = document.getElementById('language-display');
+                if (languageDisplay) {
+                    languageDisplay.style.visibility = 'hidden';
+                    languageDisplay.style.display = 'none';
+                }
             }
         };
-    
-    
     
         // Call the function when the page loads
         window.onload = torrentYTS;
