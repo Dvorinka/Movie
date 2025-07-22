@@ -102,8 +102,23 @@ function changeMonth(months) {
 // Fetch movies and TV shows within a specific date range
 async function fetchMoviesInDateRange(startDate, endDate) {
     try {
+        // Determine if we should filter by vote count (for current/previous months)
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+        const startDateObj = new Date(startDate);
+        const isCurrentOrPastMonth = 
+            (startDateObj.getFullYear() === currentYear && startDateObj.getMonth() <= currentMonth) ||
+            startDateObj.getFullYear() < currentYear;
+            
+        // Build the movie API URL with conditional vote count
+        let movieUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&region=US&release_date.gte=${startDate}&release_date.lte=${endDate}`;
+        if (isCurrentOrPastMonth) {
+            movieUrl += '&vote_count.gte=50'; // Only include movies with at least 50 votes for current/past months
+        }
+        
         // Fetch movies
-        const moviesResponse = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&region=US&release_date.gte=${startDate}&release_date.lte=${endDate}`);
+        const moviesResponse = await fetch(movieUrl);
         const moviesData = await moviesResponse.json();
         const movies = moviesData.results
             .filter(movie => movie.poster_path) // Only include movies with poster images
@@ -113,13 +128,14 @@ async function fetchMoviesInDateRange(startDate, endDate) {
                 title: movie.title || 'Untitled Movie',
                 name: movie.title, // For consistency with TV shows
                 display_title: movie.title || 'Untitled Movie',
-                detail_url: `movie-details.html?id=${movie.id}`
+                detail_url: `movie-details.html?id=${movie.id}`,
+                is_new_season: false // Flag to identify new seasons
             }));
 
-        // Fetch TV shows
+        // Fetch TV shows (new series)
         const tvResponse = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&language=en-US&first_air_date.gte=${startDate}&first_air_date.lte=${endDate}`);
         const tvData = await tvResponse.json();
-        const tvShows = tvData.results
+        let tvShows = tvData.results
             .filter(show => show.poster_path) // Only include shows with poster images
             .map(show => ({
                 ...show,
@@ -128,11 +144,48 @@ async function fetchMoviesInDateRange(startDate, endDate) {
                 name: show.name || 'Untitled TV Show',
                 display_title: show.name || 'Untitled TV Show',
                 release_date: show.first_air_date,
-                detail_url: `tv-details.html?id=${show.id}`
+                detail_url: `tv-details.html?id=${show.id}`,
+                is_new_season: false // This is a new show, not a new season
             }));
 
-        // Combine and sort by date
-        const allItems = [...movies, ...tvShows];
+        // Fetch upcoming seasons of existing shows
+        const upcomingSeasonsResponse = await fetch(`https://api.themoviedb.org/3/tv/on_the_air?api_key=${apiKey}&language=en-US&page=1`);
+        const upcomingSeasonsData = await upcomingSeasonsResponse.json();
+        
+        // Filter to only include shows with new seasons in our date range
+        const upcomingSeasons = [];
+        for (const show of upcomingSeasonsData.results) {
+            try {
+                // Get the show details to check the next episode to air
+                const showDetailsResponse = await fetch(`https://api.themoviedb.org/3/tv/${show.id}?api_key=${apiKey}&language=en-US&append_to_response=next_episode_to_air`);
+                const showDetails = await showDetailsResponse.json();
+                
+                // Check if the next episode is in our date range and it's a new season
+                if (showDetails.next_episode_to_air && 
+                    showDetails.next_episode_to_air.air_date >= startDate && 
+                    showDetails.next_episode_to_air.air_date <= endDate &&
+                    showDetails.next_episode_to_air.season_number > 1) {
+                    
+                    upcomingSeasons.push({
+                        ...show,
+                        type: 'tv',
+                        title: `${show.name} (Season ${showDetails.next_episode_to_air.season_number})`,
+                        name: show.name,
+                        display_title: `${show.name} (Season ${showDetails.next_episode_to_air.season_number})`,
+                        release_date: showDetails.next_episode_to_air.air_date,
+                        detail_url: `tv-details.html?id=${show.id}&season=${showDetails.next_episode_to_air.season_number}`,
+                        is_new_season: true,
+                        poster_path: show.poster_path,
+                        first_air_date: showDetails.next_episode_to_air.air_date
+                    });
+                }
+            } catch (error) {
+                console.error(`Error fetching details for show ${show.id}:`, error);
+            }
+        }
+
+        // Combine all items (movies, new TV shows, and new seasons)
+        const allItems = [...movies, ...tvShows, ...upcomingSeasons];
         console.log('Fetched items with images:', allItems); // Debug log
         
         return allItems.sort((a, b) => 
@@ -159,19 +212,36 @@ function displayCalendar(items, startDateStr, endDateStr) {
     // Create a dictionary to map dates to their items
     const itemsByDate = {};
 
-    // Populate the dictionary with items grouped by release date
-    // Only include items that have a poster image
-    items.forEach(item => {
-        if (!item.poster_path) return; // Skip items without poster images
-        
+    // First, filter out any items without poster paths or release dates
+    const validItems = items.filter(item => {
+        if (!item.poster_path) return false;
         const releaseDate = item.release_date || item.first_air_date;
-        if (releaseDate) {
-            const formattedDate = releaseDate.split('T')[0]; // Ensure we only get YYYY-MM-DD
-            if (!itemsByDate[formattedDate]) {
-                itemsByDate[formattedDate] = [];
-            }
-            itemsByDate[formattedDate].push(item);
+        if (!releaseDate) return false;
+        
+        // Additional validation for TV shows
+        if (item.type === 'tv' && !item.first_air_date) return false;
+        
+        return true;
+    });
+    
+    // Now group the valid items by date
+    validItems.forEach(item => {
+        const releaseDate = item.release_date || item.first_air_date;
+        if (!releaseDate) return; // Skip items without a valid release date
+        
+        const formattedDate = releaseDate.split('T')[0]; // Ensure we only get YYYY-MM-DD
+        if (!itemsByDate[formattedDate]) {
+            itemsByDate[formattedDate] = [];
         }
+        itemsByDate[formattedDate].push(item);
+    });
+    
+    // Store the filtered items in a way that's accessible to showMoreDetails
+    window.filteredItemsByDate = {};
+    
+    // Create a deep copy of the filtered items to avoid reference issues
+    Object.keys(itemsByDate).forEach(date => {
+        window.filteredItemsByDate[date] = [...itemsByDate[date]];
     });
 
     // Create the calendar grid
@@ -181,8 +251,7 @@ function displayCalendar(items, startDateStr, endDateStr) {
 
     for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
         const dateString = formatDate(date);
-        const itemsForDate = itemsByDate[dateString] || [];
-        const validItems = itemsForDate.filter(item => item.poster_path);
+        const validItems = window.filteredItemsByDate[dateString] || [];
         const hasValidItems = validItems.length > 0;
         
         if (!hasValidItems) continue; // Skip dates with no valid items
@@ -190,14 +259,20 @@ function displayCalendar(items, startDateStr, endDateStr) {
         const firstItem = validItems[0];
         
         // Add type indicator and appropriate styling
-        const typeBadge = `<span class="type-badge ${firstItem.type}">${firstItem.type.toUpperCase()}</span>`;
+        let typeBadge = `<span class="type-badge ${firstItem.type}">${firstItem.type.toUpperCase()}</span>`;
+        
+        // Add new season badge if applicable
+        if (firstItem.is_new_season) {
+            typeBadge += `<span class="type-badge new-season">NEW SEASON</span>`;
+        }
             
         // Get the first item's display title, defaulting to 'Untitled' if not available
         const displayTitle = firstItem.display_title || firstItem.name || 'Untitled';
         
         // Determine if this is a TV show to apply specific styling
         const isTvShow = firstItem.type === 'tv';
-        const calendarDayClass = `calendar-day ${isTvShow ? 'tv-show' : ''} has-movie`;
+        const isNewSeason = firstItem.is_new_season;
+        const calendarDayClass = `calendar-day ${isTvShow ? 'tv-show' : ''} ${isNewSeason ? 'new-season' : ''} has-movie`;
             
         daysHTML += `
             <div class="${calendarDayClass}" onclick="showMoreDetails('${dateString}')">
@@ -229,7 +304,7 @@ function displayCalendar(items, startDateStr, endDateStr) {
 
 // Show more details for a specific date
 function showMoreDetails(dateString) {
-    const itemsForDate = (itemsByDate[dateString] || []).filter(item => item.poster_path);
+    const itemsForDate = window.filteredItemsByDate[dateString] || [];
     if (itemsForDate.length === 0) return;
     
     const modalContent = itemsForDate.map(item => {
