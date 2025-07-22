@@ -97,17 +97,51 @@ function changeMonth(months) {
         currentYear++;
     }
 
-    document.getElementById('month-select').value = currentMonth;
-    document.getElementById('year-select').value = currentYear;
-
-    updateCalendar();
 }
 
-// Fetch movies within a specific date range
+// Fetch movies and TV shows within a specific date range
 async function fetchMoviesInDateRange(startDate, endDate) {
-    const response = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&region=US&release_date.gte=${startDate}&release_date.lte=${endDate}`);
-    const data = await response.json();
-    return data.results;
+    try {
+        // Fetch movies
+        const moviesResponse = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&region=US&release_date.gte=${startDate}&release_date.lte=${endDate}`);
+        const moviesData = await moviesResponse.json();
+        const movies = moviesData.results
+            .filter(movie => movie.poster_path) // Only include movies with poster images
+            .map(movie => ({
+                ...movie,
+                type: 'movie',
+                title: movie.title || 'Untitled Movie',
+                name: movie.title, // For consistency with TV shows
+                display_title: movie.title || 'Untitled Movie',
+                detail_url: `movie-details.html?id=${movie.id}`
+            }));
+
+        // Fetch TV shows
+        const tvResponse = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&language=en-US&first_air_date.gte=${startDate}&first_air_date.lte=${endDate}`);
+        const tvData = await tvResponse.json();
+        const tvShows = tvData.results
+            .filter(show => show.poster_path) // Only include shows with poster images
+            .map(show => ({
+                ...show,
+                type: 'tv',
+                title: show.name, // For consistency with movies
+                name: show.name || 'Untitled TV Show',
+                display_title: show.name || 'Untitled TV Show',
+                release_date: show.first_air_date,
+                detail_url: `tv-details.html?id=${show.id}`
+            }));
+
+        // Combine and sort by date
+        const allItems = [...movies, ...tvShows];
+        console.log('Fetched items with images:', allItems); // Debug log
+        
+        return allItems.sort((a, b) => 
+            new Date(a.release_date || '1970-01-01') - new Date(b.release_date || '1970-01-01')
+        );
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return [];
+    }
 }
 
 // Helper function to format date as 'YYYY-MM-DD'
@@ -118,22 +152,25 @@ function formatDate(date) {
     return `${year}-${month}-${day}`;
 }
 
-// Display movies in a calendar format
-function displayCalendar(movies, startDateStr, endDateStr) {
+// Display movies and TV shows in a calendar format
+function displayCalendar(items, startDateStr, endDateStr) {
     const calendarDiv = document.getElementById('calendar');
 
-    // Create a dictionary to map dates to their movies
-    const moviesByDate = {};
+    // Create a dictionary to map dates to their items
+    const itemsByDate = {};
 
-    // Populate the dictionary with movies grouped by release date
-    movies.forEach(movie => {
-        const releaseDate = movie.release_date;
-        if (releaseDate) { // Ensure release_date is not null or undefined
-            const formattedDate = releaseDate; // We now rely directly on the release_date from the API, which is in 'YYYY-MM-DD' format
-            if (!moviesByDate[formattedDate]) {
-                moviesByDate[formattedDate] = [];
+    // Populate the dictionary with items grouped by release date
+    // Only include items that have a poster image
+    items.forEach(item => {
+        if (!item.poster_path) return; // Skip items without poster images
+        
+        const releaseDate = item.release_date || item.first_air_date;
+        if (releaseDate) {
+            const formattedDate = releaseDate.split('T')[0]; // Ensure we only get YYYY-MM-DD
+            if (!itemsByDate[formattedDate]) {
+                itemsByDate[formattedDate] = [];
             }
-            moviesByDate[formattedDate].push(movie);
+            itemsByDate[formattedDate].push(item);
         }
     });
 
@@ -143,21 +180,42 @@ function displayCalendar(movies, startDateStr, endDateStr) {
     const endDate = new Date(endDateStr);
 
     for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-        const dateString = formatDate(date); // Use the formatted date
-        const moviesForDate = moviesByDate[dateString] || []; // Get movies for the date, or an empty array if none
-
+        const dateString = formatDate(date);
+        const itemsForDate = itemsByDate[dateString] || [];
+        const validItems = itemsForDate.filter(item => item.poster_path);
+        const hasValidItems = validItems.length > 0;
+        
+        if (!hasValidItems) continue; // Skip dates with no valid items
+        
+        const firstItem = validItems[0];
+        
+        // Add type indicator and appropriate styling
+        const typeBadge = `<span class="type-badge ${firstItem.type}">${firstItem.type.toUpperCase()}</span>`;
+            
+        // Get the first item's display title, defaulting to 'Untitled' if not available
+        const displayTitle = firstItem.display_title || firstItem.name || 'Untitled';
+        
+        // Determine if this is a TV show to apply specific styling
+        const isTvShow = firstItem.type === 'tv';
+        const calendarDayClass = `calendar-day ${isTvShow ? 'tv-show' : ''} has-movie`;
+            
         daysHTML += `
-            <div class="calendar-day" onclick="showMoreDetails('${dateString}')">
-                <div class="date-header">${date.getDate()}</div>
-                ${moviesForDate.length > 0 ? `
-                    <div class="movie-item">
-                        <a href="movie-details.html?id=${moviesForDate[0].id}">
-                            <div class="movie-title">${moviesForDate[0].title}</div>
-                            <img src="https://image.tmdb.org/t/p/w500${moviesForDate[0].poster_path}" alt="${moviesForDate[0].title}" class="movie-poster" />
-                        </a>
-                    </div>
-                    ${moviesForDate.length > 1 ? `<div class="more-movies">+${moviesForDate.length - 1} more</div>` : ''}
-                ` : '<div class="no-movie">No Releases</div>'}
+            <div class="${calendarDayClass}" onclick="showMoreDetails('${dateString}')">
+                <div class="date-header">
+                    ${date.getDate()}
+                    ${typeBadge}
+                </div>
+                <div class="item-card">
+                    <a href="${firstItem.detail_url}">
+                        <img src="https://image.tmdb.org/t/p/w500${firstItem.poster_path}" 
+                             alt="${displayTitle}" 
+                             class="item-poster" 
+                             onerror="this.onerror=null; this.style.display='none'" />
+                        <div class="item-title">${displayTitle}</div>
+                    </a>
+                </div>
+                ${validItems.length > 1 ? 
+                    `<div class="more-items">+${validItems.length - 1} more</div>` : ''}
             </div>
         `;
     }
@@ -171,27 +229,62 @@ function displayCalendar(movies, startDateStr, endDateStr) {
 
 // Show more details for a specific date
 function showMoreDetails(dateString) {
-    const moviesForDate = moviesByDate[dateString] || [];
-    if (moviesForDate.length > 1) {
-        const modalContent = moviesForDate.map(movie => `
-            <div class="movie-item">
-                <a href="movie-details.html?id=${movie.id}">
-                    <div class="movie-title">${movie.title}</div>
-                    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" class="movie-poster" />
+    const itemsForDate = (itemsByDate[dateString] || []).filter(item => item.poster_path);
+    if (itemsForDate.length === 0) return;
+    
+    const modalContent = itemsForDate.map(item => {
+        const title = item.display_title || item.title || item.name || 'Untitled';
+        const detailUrl = item.type === 'tv' 
+            ? `tv-details.html?id=${item.id}` 
+            : `movie-details.html?id=${item.id}`;
+            
+        // We know poster_path exists because we filtered for it
+        const imageHtml = `<img src="https://image.tmdb.org/t/p/w500${item.poster_path}" 
+                             alt="${title}" 
+                             class="item-poster"
+                             onerror="this.style.display='none'" />`;
+                
+        return `
+            <div class="item-card">
+                <span class="type-badge ${item.type}">${item.type.toUpperCase()}</span>
+                <a href="${detailUrl}">
+                    ${imageHtml}
+                    <div class="item-title">${title}</div>
                 </a>
             </div>
-        `).join('');
+        `;
+    }).join('');
 
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>Releases on ${new Date(dateString).toDateString()}</h3>
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div class="items-grid">
                 ${modalContent}
             </div>
-        `;
-        document.body.appendChild(modal);
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+// Change the month by a certain number of months (negative for back, positive for forward)
+function changeMonth(months) {
+    currentMonth += months;
+
+    if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    } else if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
     }
+
+    document.getElementById('month-select').value = currentMonth;
+    document.getElementById('year-select').value = currentYear;
+
+    updateCalendar();
 }
 
 // Close the modal

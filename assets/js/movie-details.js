@@ -870,7 +870,6 @@ document.addEventListener( 'DOMContentLoaded', () =>
         };
     
         // Main function to fetch torrent link
-        // Main function to fetch torrent link
         const torrentYTS = async () =>
         {
             try

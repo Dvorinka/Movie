@@ -116,6 +116,17 @@
             border-color: var(--primary);
         }
 
+        /* TV show specific styling */
+        .calendar-day.tv-show {
+            border-color: rgba(117, 28, 208, 0.3);
+        }
+
+        .calendar-day.tv-show:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(117, 28, 208, 0.2);
+            border-color: var(--accent);
+        }
+
         .calendar-day.no-movie {
             opacity: 0.5;
             cursor: default;
@@ -208,7 +219,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
         }
-
 
         .no-movie-text {
             display: flex;
@@ -548,45 +558,55 @@
             `;
         };
         
-        // Show movie details modal
+        // Show movie/TV show details modal
         function showMovieDetails(dateString) {
-            const moviesForDate = moviesByDate[dateString] || [];
-            if (moviesForDate.length === 0) return;
+            const itemsForDate = (moviesByDate[dateString] || []).filter(item => item.backdrop_path);
+            if (itemsForDate.length === 0) return;
             
-            let modalHTML = '';
+            let modalHTML = '<div class="movie-grid">';
             
-            // Create movie grid for all movies on this date
-            modalHTML = `<div class="movie-grid">`;
-            
-            moviesForDate.forEach(movie => {
-                const movieRating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
-                const movieRuntime = movie.runtime ? `${movie.runtime} min` : '';
+            itemsForDate.forEach(item => {
+                
+                const isTV = item.type === 'tv';
+                const title = isTV ? (item.name || 'Untitled TV Show') : (item.title || 'Untitled Movie');
+                const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+                const runtime = isTV 
+                    ? (item.episode_run_time?.[0] ? `${item.episode_run_time[0]} min/ep` : '')
+                    : (item.runtime ? `${item.runtime} min` : '');
+                const detailUrl = isTV 
+                    ? `tv-details.html?id=${item.id}` 
+                    : `movie-details.html?id=${item.id}`;
+                
+                // Create image HTML since we know backdrop_path exists
+                const imageHtml = `
+                    <img src="https://image.tmdb.org/t/p/w1280${item.backdrop_path}" 
+                         class="movie-detail-image" 
+                         alt="${title}"
+                         onerror="this.onerror=null; this.style.display='none';" />`;
                 
                 modalHTML += `
                     <div class="movie-detail">
-                        <img src="https://image.tmdb.org/t/p/w1280${movie.backdrop_path}" 
-                            class="movie-detail-image" 
-                            alt="${movie.title}"
-                            onerror="this.onerror=null; this.src='assets/images/no-poster.jpg';" />
+                        ${imageHtml}
                         <div class="movie-detail-info">
-                            <h3 class="movie-detail-title">${movie.title}</h3>
+                            <div class="type-badge ${isTV ? 'tv' : 'movie'}">${isTV ? 'TV SHOW' : 'MOVIE'}</div>
+                            <h3 class="movie-detail-title">${title}</h3>
                             <div class="movie-detail-meta">
-                                ${movieRuntime ? `<span>${movieRuntime}</span>` : ''}
-                                <span>⭐ ${movieRating}</span>
+                                ${runtime ? `<span>${runtime}</span>` : ''}
+                                <span>⭐ ${rating}</span>
                             </div>
-                            <p class="movie-detail-description">${movie.overview || 'No description available.'}</p>
-                            <a href="movie-details.html?id=${movie.id}" class="watch-now-btn">
+                            <p class="movie-detail-description">${item.overview || 'No description available.'}</p>
+                            <a href="${detailUrl}" class="watch-now-btn">
                                 <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
                                 </svg>
-                                WATCH NOW
+                                ${isTV ? 'VIEW DETAILS' : 'WATCH NOW'}
                             </a>
                         </div>
                     </div>
                 `;
             });
             
-            modalHTML += `</div>`;
+            modalHTML += '</div>';
             
             // Create modal
             const modal = document.createElement('div');
