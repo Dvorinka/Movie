@@ -1,3 +1,4 @@
+[![Active Badge](https://status.tdvorak.dev/api/badge/1/status)](https://status.tdvorak.dev)
 
 # About SparkScreen
 
