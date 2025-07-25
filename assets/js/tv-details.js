@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Supabase client
+    const supabase = window.supabase.createClient(
+        'https://cbnwekzbcxbmeevdjgoq.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU'
+    );
+
     const getShowIdFromUrl = () => {
         const params = new URLSearchParams(window.location.search);
         return params.get('id');
@@ -12,8 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
             displayShowDetails(data);
             generateMetaTags(data); // Generate meta tags based on show details
             displaySimilarShows(showId); // Fetch and display similar shows
+            return data; // Return show data for further processing
         } catch (error) {
             console.error('Error fetching show details:', error);
+            return null;
         }
     };
 
@@ -372,8 +380,329 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
+    // Function to mark a TV show as watched
+    const markAsWatchedFeature = async (show) => {
+        if (!supabase || !supabase.auth) {
+            console.error('Supabase client is not initialized.');
+            return;
+        }
+    
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error) {
+                console.error('Error getting session:', error);
+                return;
+            }
+    
+            // Select all watched icon containers
+            const watchedContainers = document.querySelectorAll('.watched-icon');
+            const showImage = document.querySelector('.show-detail-banner img');
+            
+            if (!showImage) {
+                console.error('Show image not found.');
+            }
+    
+            let isWatched = false; // Shared state variable
+    
+            if (session) {
+                // Check if show is watched
+                const { data: existing, error: fetchError } = await supabase
+                    .from('watched_tv')
+                    .select('id')
+                    .eq('user_id', session.user.id)
+                    .eq('tv_id', show.id);
+    
+                if (fetchError) {
+                    console.error('Error checking watched status:', fetchError);
+                    return;
+                }
+    
+                isWatched = existing.length > 0;
+    
+                // Helper function to update all containers
+                const updateAllIcons = () => {
+                    watchedContainers.forEach(container => {
+                        const link = container.querySelector('a');
+                        const icon = container.querySelector('ion-icon');
+    
+                        if (!link || !icon) return;
+    
+                        if (isWatched) {
+                            applyWatchedStyle(showImage);
+                            icon.setAttribute('name', 'eye-off-outline');
+                            link.title = 'Unmark as Watched';
+                        } else {
+                            removeWatchedStyle(showImage);
+                            icon.setAttribute('name', 'eye-outline');
+                            link.title = 'Mark as Watched';
+                        }
+                    });
+                };
+    
+                // Initialize all containers with current state
+                updateAllIcons();
+    
+                // Add event listeners
+                watchedContainers.forEach(container => {
+                    const link = container.querySelector('a');
+                    if (!link) return;
+    
+                    link.addEventListener('click', async (e) => {
+                        e.preventDefault();
+    
+                        try {
+                            if (isWatched) {
+                                // Remove from watched_tv
+                                const { error: deleteError } = await supabase
+                                    .from('watched_tv')
+                                    .delete()
+                                    .eq('user_id', session.user.id)
+                                    .eq('tv_id', show.id);
+    
+                                if (deleteError) {
+                                    throw deleteError;
+                                }
+    
+                                isWatched = false;
+                            } else {
+                                // Add to watched_tv
+                                const { error: insertError } = await supabase
+                                    .from('watched_tv')
+                                    .insert({ 
+                                        user_id: session.user.id, 
+                                        tv_id: show.id, 
+                                        tv_title: show.name,
+                                        poster_path: show.poster_path,
+                                        first_air_date: show.first_air_date
+                                    });
+    
+                                if (insertError) {
+                                    throw insertError;
+                                }
+    
+                                isWatched = true;
+                            }
+    
+                            // Update all icons and watcher count
+                            updateAllIcons();
+                            const updatedCount = await getWatcherCount(show.id);
+                            if (updatedCount !== null) {
+                                updateWatcherCountDisplay(updatedCount);
+                            }
+    
+                        } catch (err) {
+                            console.error('Error toggling watched status:', err);
+                            alert('Failed to update watched status.');
+                        }
+                    });
+                });
+            } else {
+                // Hide all watched icons if no session
+                watchedContainers.forEach(container => {
+                    const link = container.querySelector('a');
+                    if (link) link.style.display = 'none';
+                });
+            }
+    
+            // Initialize watcher count
+            const watcherCount = await getWatcherCount(show.id);
+            if (watcherCount !== null) updateWatcherCountDisplay(watcherCount);
+        } catch (err) {
+            console.error('Error in markAsWatchedFeature:', err);
+        }
+    };
+
+    // Function to add/remove TV show from watch later list
+    const addToWatchLaterFeature = async (show) => {
+        if (!supabase || !supabase.auth) {
+            console.error('Supabase client is not initialized.');
+            return;
+        }
+    
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error) {
+                console.error('Error getting session:', error);
+                return;
+            }
+    
+            // Select all watch-later containers
+            const watchLaterContainers = document.querySelectorAll('.watch-later-icon');
+            
+            let isInWatchList = false; // Shared state variable
+    
+            if (session) {
+                // Check if show is in watch later list
+                const { data: existing, error: fetchError } = await supabase
+                    .from('watch_later_tv')
+                    .select('id')
+                    .eq('user_id', session.user.id)
+                    .eq('tv_id', show.id);
+    
+                if (fetchError) {
+                    console.error('Error checking watch later status:', fetchError);
+                    return;
+                }
+    
+                isInWatchList = existing.length > 0;
+    
+                // Helper function to update all containers
+                const updateAllIcons = () => {
+                    watchLaterContainers.forEach(container => {
+                        const link = container.querySelector('a');
+                        const icon = container.querySelector('ion-icon');
+    
+                        if (!link || !icon) return;
+    
+                        icon.setAttribute('name', isInWatchList ? 'time' : 'time-outline');
+                        link.title = isInWatchList ? 'Remove from Watch Later' : 'Add to Watch Later';
+                    });
+                };
+    
+                // Initialize all containers with current state
+                updateAllIcons();
+    
+                // Add event listeners
+                watchLaterContainers.forEach(container => {
+                    const link = container.querySelector('a');
+                    if (!link) return;
+    
+                    link.addEventListener('click', async (e) => {
+                        e.preventDefault();
+    
+                        try {
+                            if (isInWatchList) {
+                                // Remove from watch_later_tv
+                                const { error: deleteError } = await supabase
+                                    .from('watch_later_tv')
+                                    .delete()
+                                    .eq('user_id', session.user.id)
+                                    .eq('tv_id', show.id);
+    
+                                if (deleteError) {
+                                    throw deleteError;
+                                }
+    
+                                isInWatchList = false;
+                            } else {
+                                // Add to watch_later_tv
+                                const { error: insertError } = await supabase
+                                    .from('watch_later_tv')
+                                    .insert({ 
+                                        user_id: session.user.id, 
+                                        tv_id: show.id, 
+                                        tv_title: show.name,
+                                        poster_path: show.poster_path,
+                                        first_air_date: show.first_air_date
+                                    });
+    
+                                if (insertError) {
+                                    throw insertError;
+                                }
+    
+                                isInWatchList = true;
+                            }
+    
+                            // Update all icons
+                            updateAllIcons();
+    
+                        } catch (err) {
+                            console.error('Error toggling watch later status:', err);
+                            alert('Failed to update watch later status.');
+                        }
+                    });
+                });
+            } else {
+                // Hide all watch-later icons if no session
+                watchLaterContainers.forEach(container => {
+                    const link = container.querySelector('a');
+                    if (link) link.style.display = 'none';
+                });
+            }
+        } catch (error) {
+            console.error('An unexpected error occurred:', error);
+        }
+    };
+
+    // Function to get watcher count for a TV show
+    const getWatcherCount = async (showId) => {
+        if (!supabase) {
+            console.error('Supabase client is not initialized.');
+            return null;
+        }
+    
+        try {
+            const { data, error } = await supabase
+                .from('watched_tv')
+                .select('user_id', { count: 'exact' })
+                .eq('tv_id', showId);
+    
+            if (error) {
+                console.error('Error fetching watcher count:', error);
+                return null;
+            }
+    
+            return data ? data.length : 0;
+        } catch (err) {
+            console.error('Error in getWatcherCount:', err);
+            return null;
+        }
+    };
+
+    // Function to update watcher count display
+    const updateWatcherCountDisplay = (count) => {
+        const watcherCountElement = document.querySelector('.watcher-count');
+        if (watcherCountElement) {
+            watcherCountElement.textContent = count;
+        }
+    };
+
+    // Function to apply watched style to show image
+    const applyWatchedStyle = (image) => {
+        if (!image) {
+            console.error('Show image not found.');
+            return;
+        }
+    
+        // Apply grayscale filter to the image
+        image.style.filter = 'grayscale(1)';
+    
+        // Create a "Watched" label
+        const watchedLabel = document.createElement('div');
+        watchedLabel.textContent = 'Watched';
+        watchedLabel.classList.add('watched-label');
+    
+        // Ensure the label is added only once
+        const parentElement = image.closest('.show-detail-banner');
+        if (parentElement && !parentElement.querySelector('.watched-label')) {
+            parentElement.appendChild(watchedLabel);
+        }
+    };
+
+    // Function to remove watched style from show image
+    const removeWatchedStyle = (image) => {
+        if (!image) {
+            console.error('Show image not found.');
+            return;
+        }
+    
+        // Remove grayscale filter from the image
+        image.style.filter = 'none';
+    
+        // Remove the "Watched" label if it exists
+        const parentElement = image.closest('.show-detail-banner');
+        const watchedLabel = parentElement.querySelector('.watched-label');
+        if (watchedLabel) {
+            watchedLabel.remove();
+        }
+    };
+
     const showId = getShowIdFromUrl();
     if (showId) {
-        fetchShowDetails(showId);
+        fetchShowDetails(showId).then(show => {
+            // Initialize the watch later and watched features after show details are loaded
+            markAsWatchedFeature(show);
+            addToWatchLaterFeature(show);
+        });
     }
 });

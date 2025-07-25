@@ -18,6 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="./assets/js/api.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./assets/js/tv-details.js"></script>
 </head>
 
@@ -161,6 +162,16 @@
                 <div>
                     <ion-icon name="film-outline"></ion-icon>
                     <time datetime="" id="episodes-count">Episodes: </time> <!-- Episodes -->
+                </div>
+                <div class="watched-icon">
+                    <a href="#" id="mark-as-watched-tv">
+                        <ion-icon name="eye-outline"></ion-icon>
+                    </a>
+                </div>
+                <div class="watch-later-icon">
+                    <a href="#" id="add-to-watch-later-tv">
+                        <ion-icon name="time-outline"></ion-icon>
+                    </a>
                 </div>
             </div>
             </div>

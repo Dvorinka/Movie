@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
      // Function to fetch watched movies for the current user
-     const fetchWatchedMovies = async () => {
+    const fetchWatchedMovies = async () => {
         console.log('Fetching watched movies...');
         try {
             const { data: { session }, error } = await supabase.auth.getSession();
@@ -73,7 +73,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Function to apply watched style to a movie card
+    // Function to fetch watched TV shows for the current user
+    const fetchWatchedTvShows = async () => {
+        console.log('Fetching watched TV shows...');
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) {
+                console.error('Error getting session:', error);
+                return [];
+            }
+
+            console.log('Session found, fetching watched TV shows for user:', session.user.id);
+
+            const { data: watchedShows, error: fetchError } = await supabase
+                .from('watched_tv')
+                .select('tv_id')
+                .eq('user_id', session.user.id);
+
+            if (fetchError) {
+                console.error('Error fetching watched TV shows:', fetchError);
+                return [];
+            }
+
+            console.log('Watched TV shows fetched:', watchedShows);
+            return watchedShows.map(show => show.tv_id);
+        } catch (err) {
+            console.error('Error in fetchWatchedTvShows:', err);
+            return [];
+        }
+    };
+
+    // Function to apply watched style to a media item (movie or TV show)
     const applyWatchedStyle = (mediaItem) => {
         console.log('Applying watched style to media item:', mediaItem.id);
         const image = mediaItem.querySelector('img');
@@ -86,9 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-     // Function to fetch watched movies for the current user
+     // Function to fetch watch later movies for the current user
      const fetchWatchLaterMovies = async () => {
-        console.log('Fetching watched movies...');
+        console.log('Fetching watch later movies...');
         try {
             const { data: { session }, error } = await supabase.auth.getSession();
             if (error || !session) {
@@ -96,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return [];
             }
 
-            console.log('Session found, fetching watched movies for user:', session.user.id);
+            console.log('Session found, fetching watch later movies for user:', session.user.id);
 
             const { data: watchLaterMovies, error: fetchError } = await supabase
                 .from('watch_later_movies')
@@ -125,6 +155,49 @@ document.addEventListener('DOMContentLoaded', () => {
             watchLaterMovies.textContent = 'Planned';
             watchLaterMovies.classList.add('watch-later-label');
             mediaItem.appendChild(watchLaterMovies);
+        }
+    };
+
+    // Function to apply watch later style to a media item (movie or TV show)
+    const applyWatchLaterStyle = (mediaItem) => {
+        console.log('Applying watch later style to media item:', mediaItem.id);
+        const watchLaterIcon = mediaItem.querySelector('.watch-later-icon');
+        if (watchLaterIcon) {
+            const icon = watchLaterIcon.querySelector('ion-icon');
+            if (icon) {
+                icon.name = 'time';
+                icon.style.color = '#00b7ff';
+            }
+        }
+    };
+
+    // Function to fetch watch later TV shows for the current user
+    const fetchWatchLaterTvShows = async () => {
+        console.log('Fetching watch later TV shows...');
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) {
+                console.error('Error getting session:', error);
+                return [];
+            }
+
+            console.log('Session found, fetching watch later TV shows for user:', session.user.id);
+
+            const { data: watchLaterShows, error: fetchError } = await supabase
+                .from('watch_later_tv')
+                .select('tv_id')
+                .eq('user_id', session.user.id);
+
+            if (fetchError) {
+                console.error('Error fetching watch later TV shows:', fetchError);
+                return [];
+            }
+
+            console.log('Watch later TV shows fetched:', watchLaterShows);
+            return watchLaterShows.map(show => show.tv_id);
+        } catch (err) {
+            console.error('Error in fetchWatchLaterTvShows:', err);
+            return [];
         }
     };
 
@@ -303,7 +376,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Function to display media with watched status
+    // Function to update watched and watch later status for media items
+    const updateMediaStatus = async (mediaItems, mediaType) => {
+        if (!mediaItems || mediaItems.length === 0) return;
+
+        try {
+            let watchedIds = [];
+            let watchLaterIds = [];
+
+            if (mediaType === 'movie') {
+                watchedIds = await fetchWatchedMovies();
+                watchLaterIds = await fetchWatchLaterMovies();
+            } else if (mediaType === 'tv') {
+                watchedIds = await fetchWatchedTvShows();
+                watchLaterIds = await fetchWatchLaterTvShows();
+            }
+
+            mediaItems.forEach(mediaItem => {
+                const mediaId = mediaItem.id.toString();
+                
+                // Apply watched style if media is watched
+                if (watchedIds.includes(mediaId)) {
+                    applyWatchedStyle(mediaItem);
+                }
+                
+                // Apply watch later style if media is in watch later list
+                if (watchLaterIds.includes(mediaId)) {
+                    applyWatchLaterMovie(mediaItem);
+                }
+            });
+        } catch (error) {
+            console.error('Error updating media status:', error);
+        }
+    };
+
     // Function to fetch detailed TV show information
     const fetchTvShowDetails = async (showId) => {
         try {
@@ -317,11 +423,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Function to display media with watched status
     const displayMedia = async (media, mediaType) => {
         console.log('Displaying media...');
-        const watchedMovies = await fetchWatchedMovies();
-        const watchLaterMovies = await fetchWatchLaterMovies();
-        console.log('Watched movies list:', watchedMovies);
         const mediaContainer = document.createElement('div');
         mediaContainer.classList.add('media-container');
         mediaContainer.innerHTML = '';
@@ -382,20 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p class="year">${yearDisplay}</p>
                 </div>
             `;
-            // Check if the movie is watched and apply the style
-            if (watchedMovies.includes(item.id.toString())) {
-                console.log('Movie is watched:', item.id);
-                applyWatchedStyle(mediaItem);
-            } else {
-                console.log('Movie is not watched:', item.id);
-            }
-            // Check if the movie is watched and apply the style
-            if (watchLaterMovies.includes(item.id.toString())) {
-                console.log('Movie is watched:', item.id);
-                applyWatchLaterMovie(mediaItem);
-            } else {
-                console.log('Movie is not watched:', item.id);
-            }
+
             mediaItem.addEventListener('click', (event) => {
                 const id = item.id;
                 const url = mediaType === 'movie' ? `movie-details.html?id=${id}` : `tv-details.html?id=${id}`;
@@ -418,24 +509,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     event.preventDefault();
                 }
             });
+            
             mediaContainer.appendChild(mediaItem);
         });
-        // Clear previous content and append new media items
-        fetchedSorted.innerHTML = '';
-        fetchedSorted.appendChild(mediaContainer);
-    };
 
-    const updateGenreVisibility = () => {
-        const selectedMediaType = mediaTypeSelect.value;
-        genreSpans.forEach(span => {
-            if (span.classList.contains('movie-only')) {
-                span.style.display = selectedMediaType === 'movie' ? 'inline-block' : 'none';
-            } else if (span.classList.contains('tv-only')) {
-                span.style.display = selectedMediaType === 'tv' ? 'inline-block' : 'none';
-            } else {
-                span.style.display = 'inline-block';
-            }
-        });
+        // Clear previous content and append new media
+        const existingContainer = document.querySelector('.fetched-sorted .media-container');
+        if (existingContainer) {
+            existingContainer.remove();
+        }
+        document.querySelector('.fetched-sorted').appendChild(mediaContainer);
+        
+        // Update media status (watched and watch later) for all items
+        await updateMediaStatus(mediaContainer.querySelectorAll('.media-item'), mediaType);
     };
 
     const updateMediaFilterOptions = () => {
@@ -520,9 +606,24 @@ const loadMoreMovies = async () => {
 
 const displayMoreMedia = async (media, mediaType) => {
     console.log('Displaying more media...');
-    const watchedMovies = await fetchWatchedMovies(); // Fetch watched movies
-    const watchLaterMovies = await fetchWatchLaterMovies(); // Fetch watched movies
-    console.log('Watched movies list:', watchedMovies);
+    
+    // Fetch appropriate lists based on media type
+    let watchedItems = [];
+    let watchLaterItems = [];
+    
+    try {
+        if (mediaType === 'movie') {
+            watchedItems = await fetchWatchedMovies();
+            watchLaterItems = await fetchWatchLaterMovies();
+        } else if (mediaType === 'tv') {
+            watchedItems = await fetchWatchedTvShows();
+            watchLaterItems = await fetchWatchLaterTvShows();
+        }
+        console.log('Watched items list:', watchedItems);
+        console.log('Watch later items list:', watchLaterItems);
+    } catch (error) {
+        console.error('Error fetching status data:', error);
+    }
 
     const mediaContainer = document.querySelector('.media-container');
     media.forEach(item => {
@@ -543,20 +644,20 @@ const displayMoreMedia = async (media, mediaType) => {
             </div>
         `;
 
-        // Check if the movie is watched and apply the style
-        if (watchedMovies.includes(item.id.toString())) {
-            console.log('Movie is watched:', item.id);
+        // Check if the item is watched and apply the style
+        if (watchedItems.includes(item.id.toString())) {
+            console.log('Item is watched:', item.id);
             applyWatchedStyle(mediaItem);
         } else {
-            console.log('Movie is not watched:', item.id);
+            console.log('Item is not watched:', item.id);
         }
 
-        // Check if the movie is watched and apply the style
-        if (watchLaterMovies.includes(item.id.toString())) {
-            console.log('Movie is watched:', item.id);
+        // Check if the item is in watch later and apply the style
+        if (watchLaterItems.includes(item.id.toString())) {
+            console.log('Item is in watch later:', item.id);
             applyWatchLaterMovie(mediaItem);
         } else {
-            console.log('Movie is not watched:', item.id);
+            console.log('Item is not in watch later:', item.id);
         }
 
         mediaItem.addEventListener('click', (event) => {
@@ -588,6 +689,20 @@ const displayMoreMedia = async (media, mediaType) => {
 
 loadMoreButton.addEventListener('click', loadMoreMovies);
 
+
+    // Function to update genre visibility based on selected media type
+    const updateGenreVisibility = () => {
+        const selectedMediaType = mediaTypeSelect.value;
+        genreSpans.forEach(span => {
+            if (span.classList.contains('movie-only')) {
+                span.style.display = selectedMediaType === 'movie' ? 'inline-block' : 'none';
+            } else if (span.classList.contains('tv-only')) {
+                span.style.display = selectedMediaType === 'tv' ? 'inline-block' : 'none';
+            } else {
+                span.style.display = 'inline-block';
+            }
+        });
+    };
 
     // Fetch and display popular movies by default
     fetchTrendingMovies();
