@@ -1,33 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Movie Finder</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SparkScreen</title>
+  <meta name="keywords" content="Movies, TV Shows, Streaming, Reviews, Actors, Actresses, Photos, User Ratings, Synopsis, Trailers, Teasers, Credits, Cast">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="msapplication-TileImage" content="favicon.png">
+  <script data-goatcounter="https://tdvorak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon_180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
+  <meta name="msapplication-TileColor" content="#00b7ff">
+  <meta name="theme-color" content="#00b7ff">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
 
-    <style>
-        html {
-            color: white;
-        }
-        .char-counter {
-            font-size: 0.9rem;
-            color: var(--gray-x);
-            text-align: right;
-            margin-top: 5px;
-        }
+  <!-- 
+    - favicon
+  -->
+  <link rel="shortcut icon" href="./favicon.png" type="image/svg+xml">
 
-    </style>
+  <!-- 
+    - custom css link
+  -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/search.css">
+  <script src="assets/js/mobile-search.js"></script>
+  <script src="assets/js/language.js"></script>
+
+
+  <!-- 
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/handling.js"></script>
+  <script src="./assets/js/user-acc.js"></script>
+  
+
 </head>
+
 <body>
-    <main class="ai-finder">
+
+  <!-- 
+    - #HEADER
+  -->
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <div class="overlay" data-overlay></div>
+
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/heading_purple.png" class="sparkscreen">
+      </a>
+
+      <div class="header-actions">
+        <div class="search-btn-container">
+          <button class="search-btn" onclick="toggleSearchInput()">
+            <ion-icon name="search-outline"></ion-icon>
+          </button>
+        </div>
+        <div class="lang-wrapper">
+          <label for="language">
+            <ion-icon name="globe-outline" role="img" class="md hydrated" aria-label="globe outline"></ion-icon>
+          </label>
+
+          <select name="language" id="language">
+            <option value="en">EN</option>
+            <option value="cs">CS</option>
+          </select>
+        </div>
+        <div id="auth-section" class="auth-container">
+          <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+          <div id="userAccount" class="dropdown" style="display: none;">
+            <button class="btn dropdown-toggle" id="userDropdown">
+              <ion-icon name="person-circle-outline"></ion-icon>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+            </ul>
+          </div>
+        </div>       
+      </div>
+
+      
+      
+      
+      <button class="menu-open-btn" data-menu-open-btn>
+        <ion-icon name="reorder-two"></ion-icon>
+      </button>
+
+      <nav class="navbar" data-navbar>
+
+        <div class="navbar-top">
+
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/heading_blue.png" style="height: 5rem;" alt="FilFuse logo">
+          </a>
+
+          <button class="menu-close-btn" data-menu-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+
+        </div>
+
+        <ul class="navbar-list">
+
+          <li>
+            <a href="./index.html" class="navbar-link">Home</a>
+          </li>
+
+          <li>
+            <a href="./discover.html" class="navbar-link">Discover</a>
+            <ul>
+              <li>
+                <a href="./top-100.html" class="navbar-link">Top 100</a>
+              </li>
+              <li>
+                <a href="./best-movies-2024.html" class="navbar-link">Best Movies of 2024</a>
+              </li>
+            </ul>
+
+          </li>
+
+          <li>
+            <a href="./suggestions.html" class="navbar-link">Suggestions</a>
+            <ul>
+              <li>
+                <a href="./date-night.html" class="navbar-link">Date Night</a>
+              </li>
+            </ul>
+          </li>
+
+          <li>
+            <!-- <div class="ai-wrapper">
+                <svg height="24" width="24" fill="#FFFFFF" viewBox="0 0 24 24" data-name="Layer 1" id="Layer_1" class="sparkle">
+                  <path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+                </svg>
+              <p class="ai-stamp">AI</p>
+            </div> -->
+
+            <a href="./ai-finder.html" class="navbar-link" style="display: inline-block;">Find lost movies</a>
+          </li>
+
+          <li>
+            <a href="./about.html" class="navbar-link">About</a>
+          </li>
+
+          <div id="auth-section" class="auth-container">
+            <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+            <div id="userAccount" class="dropdown" style="display: none;">
+              <button class="btn dropdown-toggle" id="userDropdown">
+                <ion-icon name="person-circle-outline"></ion-icon>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+              </ul>
+            </div>
+          </div>
+            
+        </ul>
+
+        <ul class="navbar-social-list">
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-github"></ion-icon>
+            </a>
+          </li>
+          
+
+        </ul>
+
+      </nav>
+    </div>
+</header>
+
+  <div class="search-el">
+    <div class="input-main-div">
+    <input name="query" type="text" tabindex="1" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false" id="search-input" placeholder="Search for a movie, tv show, person..." class="input-main">
+    </div>
+    <div id="default-results" class="results-container"></div>
+  </div>
+<body>
+    <main class="ai-finder" style="padding-top: 125px;" >
         <section>
-            <h1 class="ai-finder-heading">AI Movie Finder</h1>
+            <h1 class="ai-finder-heading" style="color: white">AI Movie Finder</h1>
             <form id="movie-finder-form" class="ai-finder-form">
-                <label for="description">Describe the movie:</label>
+                <label for="description" style="color: white">Describe the movie:</label>
                 <textarea id="description" name="description" rows="4" cols="50" required minlength="50" class="ai-user-input"></textarea>
                 <div class="char-counter" id="char-counter">0/50</div>
-                <label for="movie-age">Is the movie:</label>
+                <label for="movie-age" style="color: white">Is the movie:</label>
                 <select id="movie-age" name="movie-age" required class="ai-age-select">
                     <option value="newer" style="color: black;">Newer</option>
                     <option value="older" style="color: black;">Older</option>
@@ -42,5 +229,59 @@
         </section>
     </main>
     <script src="assets/js/ai-finder.js"></script>
+    <footer class="footer">
+        <div class="footer-bottom">
+          <img class="container">
+    
+            <p class="copyright">
+              &copy; 2025 <a href="https://tdvorak.dev" target="_blank">TDvorak</a>. All Rights Reserved
+            </p>
+            <p class="powered-by">Powered by <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>,
+            <a href="https://api.tdvorak.dev/" target="_blank">SparkApi</a>,
+            <a href="https://yts.mx/" target="_blank">YTS</a>,
+            <a href="https://www.rottentomatoes.com/" target="_blank">RottenTomatoes</a>,
+            <a href="https://www.metacritic.com/" target="_blank">Metacritic</a>,
+            <a href="https://www.csfd.cz/" target="_blank">CSFD</a>,
+            <a href="https://www.justwatch.com/" target="_blank">JustWatch</a>,
+            <a href="https://www.opensubtitles.com/en/home" target="_blank">OpenSubtitles</a>,<br>
+            <a href="https://webtor.io/" target="_blank">WebTor</a>,
+            <a href="https://supabase.com/" target="_blank">Supabase</a>,
+            <a href="https://railway.com/" target="_blank">Railway</a>,
+            <a href="https://huggingface.co/" target="_blank">Hugging Face</a>,
+            <a href="https://www.llama.com/" target="_blank">Llama</a>,
+            <a href="https://chat.qwenlm.ai/" target="_blank">Qwen</a>,
+            & <a href="https://1337x.to/" target="_blank">1337x</a>.<br><br>
+            <p class="powered-by">Contribute on <a href="" target="_blank" class="github">GitHub</a> and be part of our growing community!</p>
+            </p>
+            <!-- && Google Gemini -->
+            
+    
+    
+          </div>
+        </div>
+    
+      </footer>
+    
+      <a href="#top" class="go-top" data-go-top>
+        <ion-icon name="chevron-up"></ion-icon>
+      </a>
+    
+    
+    
+    
+    
+      <!-- 
+        - custom js link
+      -->
+      <script src="./assets/js/script.js"></script>
+    
+      <!-- 
+        - ionicon link
+      -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@latest/dist/ionicons/ionicons.esm.js"></script>
+    
+    </body>
+    
+    </html>
 </body>
 </html>

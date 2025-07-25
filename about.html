@@ -5,26 +5,35 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FilmFuse</title>
+  <title>SparkScreen</title>
   <meta name="keywords" content="Movies, TV Shows, Streaming, Reviews, Actors, Actresses, Photos, User Ratings, Synopsis, Trailers, Teasers, Credits, Cast">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="msapplication-TileImage" content="favicon.svg">
-  <link rel="apple-touch-icon" sizes="180x180" href="favicon.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.svg">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon.svg">
+  <meta name="msapplication-TileImage" content="favicon.png">
+  <script data-goatcounter="https://tdvorak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon_180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
   <meta name="msapplication-TileColor" content="#00b7ff">
-  <link rel="canonical" href="https://www.filmfuse.org">
   <meta name="theme-color" content="#00b7ff">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+
   <!-- 
     - favicon
   -->
-  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="shortcut icon" href="./favicon.png" type="image/svg+xml">
 
   <!-- 
     - custom css link
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/search.css">
+  <link rel="stylesheet" href="./assets/css/about.css">
+  <script src="assets/js/mobile-search.js"></script>
+  <script src="assets/js/language.js"></script>
+
 
   <!-- 
     - google font link
@@ -33,224 +42,329 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/handling.js"></script>
+  <script src="./assets/js/user-acc.js"></script>
+  
+
 </head>
 
 <body>
 
-    <!-- 
-      - #HEADER
-    -->
-  
-    <header class="header" data-header>
-      <div class="container">
-  
-        <div class="overlay" data-overlay></div>
-  
-        <a href="./index.html" class="logo">
-          <img src="./assets/images/heading_purple.png" class="sparkscreen">
-        </a>
-  
-        <div class="header-actions">
-  
-          <button class="search-btn">
+  <!-- 
+    - #HEADER
+  -->
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <div class="overlay" data-overlay></div>
+
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/heading_purple.png" class="sparkscreen">
+      </a>
+
+      <div class="header-actions">
+        <div class="search-btn-container">
+          <button class="search-btn" onclick="toggleSearchInput()">
             <ion-icon name="search-outline"></ion-icon>
           </button>
-  
-          <div class="lang-wrapper">
-            <label for="language">
-              <ion-icon name="globe-outline"></ion-icon>
-            </label>
-  
-            <select name="language" id="language">
-              <option value="en">EN</option>
-              <option value="au">AU</option>
-              <option value="ar">AR</option>
-              <option value="tu">TU</option>
-            </select>
-          </div>
-  
         </div>
-  
-        <button class="menu-open-btn" data-menu-open-btn>
-          <ion-icon name="reorder-two"></ion-icon>
-        </button>
-  
-        <nav class="navbar" data-navbar>
-  
-          <div class="navbar-top">
-  
-            <a href="./index.html" class="logo">
-              <img src="./assets/images/logo.svg" alt="FilFuse logo">
-            </a>
-  
-            <button class="menu-close-btn" data-menu-close-btn>
-              <ion-icon name="close-outline"></ion-icon>
+        <div class="lang-wrapper">
+          <label for="language">
+            <ion-icon name="globe-outline" role="img" class="md hydrated" aria-label="globe outline"></ion-icon>
+          </label>
+
+          <select name="language" id="language">
+            <option value="en">EN</option>
+            <option value="cs">CS</option>
+          </select>
+        </div>
+        <div id="auth-section" class="auth-container">
+          <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+          <div id="userAccount" class="dropdown" style="display: none;">
+            <button class="btn dropdown-toggle" id="userDropdown">
+              <ion-icon name="person-circle-outline"></ion-icon>
             </button>
-  
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+            </ul>
           </div>
-  
-          <ul class="navbar-list">
-  
-            <li>
-              <a href="./index.html" class="navbar-link">Home</a>
-            </li>
-  
-            <li>
-              <a href="./discover.html" class="navbar-link">Discover</a>
-            </li>
-  
-            <li>
-              <a href="./suggestions.html" class="navbar-link">Suggestions</a>
-            </li>
-  
-            <li>
-              <a href="./date-night.html" class="navbar-link">Date Night</a>
-            </li>
-  
-            <li>
-              <a href="./about.html" class="navbar-link">About</a>
-            </li>
-  
-          </ul>
-  
-          <ul class="navbar-social-list">
-  
-            <li>
-              <a href="#" class="navbar-social-link">
-                <ion-icon name="logo-instagram"></ion-icon>
-              </a>
-            </li>
-  
-            <li>
-              <a href="#" class="navbar-social-link">
-                <ion-icon name="logo-github"></ion-icon>
-              </a>
-            </li>
-  
-          </ul>
-  
-        </nav>
-  
+        </div>       
       </div>
-    </header>
 
-    <footer class="footer">
+      
+      
+      
+      <button class="menu-open-btn" data-menu-open-btn>
+        <ion-icon name="reorder-two"></ion-icon>
+      </button>
 
-        <div class="footer-top">
-          <div class="container">
-    
-            <div class="footer-brand-wrapper">
-    
-              <a href="./index.html" class="logo">
-                <img src="./assets/images/logo.svg" alt="FilmFuse logo">
-              </a>
-    
-              <ul class="footer-list">
-    
-                <li>
-                  <a href="./index.html" class="footer-link">Home</a>
-                </li>
-    
-                <li>
-                  <a href="./discover.html" class="footer-link">Discover</a>
-                </li>
-    
-                <li>
-                  <a href="./suggestions.html" class="footer-link">Suggestions</a>
-                </li>
-    
-                <li>
-                  <a href="./date-night.html" class="footer-link">Date Night</a>
-                </li>
-    
-                <li>
-                  <a href="./about.html" class="footer-link">About</a>
-                </li>
-    
-                <li>
-                  <a href="./about.html" class="footer-link">Source Code</a>
-                </li>
-    
-    
-              </ul>
-    
-            </div>
-    
-            <div class="divider"></div>
-    
-            <div class="quicklink-wrapper">
-    
-              <ul class="quicklink-list">
-    
-                <!-- <li>
-                  <a href="#" class="quicklink-link">Faq</a>
-                </li>
-    
-                <li>
-                  <a href="#" class="quicklink-link">Help center</a>
-                </li>
-    
-                <li>
-                  <a href="#" class="quicklink-link">Terms of use</a>
-                </li>
-    
-                <li>
-                  <a href="#" class="quicklink-link">Privacy</a>
-                </li> -->
-    
-              </ul>
-    
-              <ul class="social-list">
-    
-                <li>
-                  <a href="#" class="social-link">
-                    <ion-icon name="logo-instagram"></ion-icon>
-                  </a>
-                </li>
-    
-                <li>
-                  <a href="#" class="social-link">
-                    <ion-icon name="logo-github"></ion-icon>
-                  </a>
-                </li>
-    
-              </ul>
-    
-            </div>
-    
-          </div>
+      <nav class="navbar" data-navbar>
+
+        <div class="navbar-top">
+
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/heading_blue.png" style="height: 5rem;" alt="FilFuse logo">
+          </a>
+
+          <button class="menu-close-btn" data-menu-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+
         </div>
-    
-        <div class="footer-bottom">
-          <div class="container">
-    
-            <p class="copyright">
-              &copy; 2024 <a href="https://tdvorak.dev" target="_blank">TDvorak</a>. All Rights Reserved
+
+        <ul class="navbar-list">
+
+          <li>
+            <a href="./index.html" class="navbar-link">Home</a>
+          </li>
+
+          <li>
+            <a href="./discover.html" class="navbar-link">Discover</a>
+            <ul>
+              <li>
+                <a href="./top-100.html" class="navbar-link">Top 100</a>
+              </li>
+              <li>
+                <a href="./best-movies-2024.html" class="navbar-link">Best Movies of 2024</a>
+              </li>
+            </ul>
+
+          </li>
+
+          <li>
+            <a href="./suggestions.html" class="navbar-link">Suggestions</a>
+            <ul>
+              <li>
+                <a href="./date-night.html" class="navbar-link">Date Night</a>
+              </li>
+            </ul>
+          </li>
+
+          <li>
+            <!-- <div class="ai-wrapper">
+                <svg height="24" width="24" fill="#FFFFFF" viewBox="0 0 24 24" data-name="Layer 1" id="Layer_1" class="sparkle">
+                  <path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+                </svg>
+              <p class="ai-stamp">AI</p>
+            </div> -->
+
+            <a href="./ai-finder.html" class="navbar-link" style="display: inline-block;">Find lost movies</a>
+          </li>
+
+          <li>
+            <a href="./about.html" class="navbar-link">About</a>
+          </li>
+
+          <div id="auth-section" class="auth-container">
+            <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+            <div id="userAccount" class="dropdown" style="display: none;">
+              <button class="btn dropdown-toggle" id="userDropdown">
+                <ion-icon name="person-circle-outline"></ion-icon>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+              </ul>
+            </div>
+          </div>
+            
+        </ul>
+
+        <ul class="navbar-social-list">
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="navbar-social-link">
+              <ion-icon name="logo-github"></ion-icon>
+            </a>
+          </li>
+          
+
+        </ul>
+
+      </nav>
+    </div>
+  </header>
+  <div class="search-el">
+    <div class="input-main-div">
+    <input name="query" type="text" tabindex="1" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false" id="search-input" placeholder="Search for a movie, tv show, person..." class="input-main">
+    </div>
+    <div id="default-results" class="results-container"></div>
+  </div>
+  <main>
+    <section class="about section" id="about">
+      <div class="container">
+        <div class="about-content">
+          <div class="about-detail">
+            <h2 class="h2 section-title">About SparkScreen</h2>
+            
+            <p class="about-text">
+              Welcome to SparkScreen, your ultimate destination for discovering, exploring, and enjoying movies and TV shows. 
+              We're passionate about bringing the magic of cinema to your fingertips, making it easier than ever to find your next favorite film.
             </p>
-    
-    
+
+            <h3 class="h3 about-subtitle">Our Mission</h3>
+            <p class="about-text">
+              At SparkScreen, we believe that great stories have the power to inspire, entertain, and connect us. 
+              Our mission is to help you discover these stories through our comprehensive database, personalized recommendations, 
+              and vibrant community of film enthusiasts.
+            </p>
+
+            <h3 class="h3 about-subtitle">What We Offer</h3>
+            <ul class="about-features">
+              <li class="about-feature">
+                <ion-icon name="film-outline"></ion-icon>
+                <div>
+                  <h4>Extensive Database</h4>
+                  <p>Access information about thousands of movies and TV shows, complete with ratings, reviews, and recommendations.</p>
+                </div>
+              </li>
+              <li class="about-feature">
+                <ion-icon name="sparkles-outline"></ion-icon>
+                <div>
+                  <h4>AI-Powered Discovery</h4>
+                  <p>Our advanced AI helps you find movies you'll love based on your unique tastes and viewing history.</p>
+                </div>
+              </li>
+              <li class="about-feature">
+                <ion-icon name="people-outline"></ion-icon>
+                <div>
+                  <h4>Community Driven</h4>
+                  <p>Join a community of movie lovers, share your thoughts, and get recommendations from like-minded fans.</p>
+                </div>
+              </li>
+            </ul>
+
+            <h3 class="h3 about-subtitle">Our Team</h3>
+            <p class="about-text">
+              SparkScreen was created by a team of passionate film enthusiasts and technology experts who wanted to build a better way to discover and enjoy movies and TV shows. 
+              We're dedicated to continuously improving our platform to serve the global community of film lovers.
+            </p>
+
+            <div class="about-cta">
+              <a href="/discover.html" class="btn btn-primary">Start Exploring</a>
+              <a href="/contact.html" class="btn btn-secondary">Contact Us</a>
+            </div>
           </div>
         </div>
-    
-      </footer>
-    
-      <a href="#top" class="go-top" data-go-top>
-        <ion-icon name="chevron-up"></ion-icon>
-      </a>
-    
-    
-    
-    
-    
-      <!-- 
-        - custom js link
-      -->
-      <script src="./assets/js/script.js"></script>
-    
-      <!-- 
-        - ionicon link
-      -->
-      <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@latest/dist/ionicons/ionicons.esm.js"></script>
-    </body>
-    
-    </html>
+      </div>
+    </section>
+  </main>
+
+  <div class="search-el">
+    <div class="input-main-div">
+    <input name="query" type="text" tabindex="1" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false" id="search-input" placeholder="Search for a movie, tv show, person..." class="input-main">
+    </div>
+    <div id="default-results" class="results-container"></div>
+  </div>
+
+
+    <div class="footer-bottom">
+      <img class="container">
+
+        <p class="copyright">
+          &copy; 2024 <a href="https://tdvorak.dev" target="_blank">TDvorak</a>. All Rights Reserved
+        </p>
+        <p class="powered-by">Powered by <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>,
+        <a href="https://api.tdvorak.dev/" target="_blank">SparkApi</a>,
+        <a href="https://yts.mx/" target="_blank">YTS</a>,
+        <a href="https://www.rottentomatoes.com/" target="_blank">RottenTomatoes</a>,
+        <a href="https://www.metacritic.com/" target="_blank">Metacritic</a>,
+        <a href="https://www.csfd.cz/" target="_blank">CSFD</a>,
+        <a href="https://www.justwatch.com/" target="_blank">JustWatch</a>,
+        <a href="https://www.opensubtitles.com/en/home" target="_blank">OpenSubtitles</a>,<br>
+        <a href="https://webtor.io/" target="_blank">WebTor</a>,
+        <a href="https://supabase.com/" target="_blank">Supabase</a>,
+        <a href="https://railway.com/" target="_blank">Railway</a>,
+        <a href="https://huggingface.co/" target="_blank">Hugging Face</a>,
+        <a href="https://www.llama.com/" target="_blank">Llama</a>,
+        <a href="https://chat.qwenlm.ai/" target="_blank">Qwen</a>,
+        & <a href="https://1337x.to/" target="_blank">1337x</a>.<br><br>
+        <p class="powered-by">Contribute on <a href="" target="_blank" class="github">GitHub</a> and be part of our growing community!</p>
+        </p>
+        <!-- && Google Gemini -->
+        
+
+
+      </div>
+    </div>
+
+  </footer>
+
+  <a href="#top" class="go-top" data-go-top>
+    <ion-icon name="chevron-up"></ion-icon>
+  </a>
+
+
+
+
+
+  <!-- 
+    - custom js link
+  -->
+  <script src="./assets/js/script.js"></script>
+
+  <!-- 
+    - ionicon link
+  -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@latest/dist/ionicons/ionicons.esm.js"></script>
+  <script>
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+        async function fetchMostPopularMovie() {
+            try {
+                const response = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`);
+                const data = await response.json();
+                const movie = data.results[0]; // Assuming the first result is the most popular movie
+
+                const hero = document.querySelector('.hero');
+
+                if (window.innerWidth >= 768) { // Adjust this value based on your breakpoint for phones
+                    hero.style.backgroundImage = `url(hero-bg.png), url(https://image.tmdb.org/t/p/original/${movie.backdrop_path})`;
+                } else {
+                    // Handle case for phones
+                    hero.style.backgroundImage = `url(hero-bg-mobile.png), url(https://image.tmdb.org/t/p/w1280/${movie.backdrop_path})`; // Only the default background
+                }
+
+                const movieName = document.querySelector('h2');
+                movieName.textContent = movie.title;
+
+                const movieLengthResponse = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}&language=en-US`);
+                const movieLengthData = await movieLengthResponse.json();
+                const movieLength = document.querySelectorAll('time')[0];
+                movieLength.textContent = `${movieLengthData.runtime} min`;
+
+                const rating = document.querySelector('.rating data');
+                rating.textContent = movie.vote_average.toFixed(1);
+
+                const watchNowButton = document.querySelector('.btn-primary');
+                watchNowButton.href = `./movie-details.html?id=${movie.id}`;
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        fetchMostPopularMovie();
+    });
+</script>
+
+</body>
+
+</html>

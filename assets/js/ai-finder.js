@@ -1,4 +1,4 @@
-const API_KEY = "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"; // OpenRouter API Key
+const API_KEY = "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"; // OpenRouter API Key
 const TMDB_API_KEY = "054582e9ee66adcbe911e0008aa482a8"; // TMDB API Key
 const ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 const TMDB_ENDPOINT = "https://api.themoviedb.org/3/search/movie";
@@ -13,7 +13,7 @@ async function getAIResponse(userInput, agePreference) {
 
     const ageSuffix = agePreference === "newer" ? "The movie is newer." : "The movie is older.";
     const data = {
-        model: "meta-llama/llama-3.1-8b-instruct:free",
+        model: "google/gemma-2-9b-it:free",
         messages: [
             {
                 role: "user",
