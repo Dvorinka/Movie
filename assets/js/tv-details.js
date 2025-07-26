@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const redirectToDownload = () => {
             const showId = getShowIdFromUrl();
-            window.location.href = `https://spark.tdvorak.dev/download?ns=&show=${showId}`;
+            window.location.href = `https://spark.tdvorak.dev/download.html?ns=&show=${showId}`;
         };
         
         const downloadButton = document.querySelector('.download-btn');
