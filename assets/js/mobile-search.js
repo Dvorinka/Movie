@@ -54,7 +54,11 @@ function displayMobileSuggestions(suggestions) {
         let mediaType = suggestion.media_type;
         let id = suggestion.id;
         let posterPath = suggestion.poster_path || suggestion.profile_path;
-        let imageUrl = posterPath ? `https://image.tmdb.org/t/p/w92${posterPath}` : 'assets/images/default-poster.jpg';
+        // Use different placeholder based on media type
+        const placeholderImage = suggestion.media_type === 'person' ? 
+            '../assets/images/placeholder_person.png' : 
+            '../assets/images/placeholder_media.png';
+        let imageUrl = posterPath ? `https://image.tmdb.org/t/p/w92${posterPath}` : placeholderImage;
         
         // Format year from release date
         let year = '';

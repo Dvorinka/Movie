@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function createKnownForCard(item) {
     const title = item.title || item.name || '';
-    const poster = item.poster_path ? imgBase + item.poster_path : 'assets/images/person.svg';
+    const poster = item.poster_path ? imgBase + item.poster_path : '../assets/images/placeholder_person.png';
     const link = item.media_type === 'movie' ? `movie-details.html?id=${item.id}` : (item.media_type === 'tv' ? `tv-details.html?id=${item.id}` : '#');
     const year = (item.release_date || item.first_air_date || '').slice(0, 4);
     const rating = item.vote_average ? item.vote_average.toFixed(1) : 'NR';
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function createFeaturedCard(item) {
     const title = item.title || item.name || '';
-    const poster = item.poster_path ? imgBase + item.poster_path : 'assets/images/person.svg';
+    const poster = item.poster_path ? imgBase + item.poster_path : '../assets/images/placeholder_person.png';
     const link = item.media_type === 'movie' ? `movie-details.html?id=${item.id}` : (item.media_type === 'tv' ? `tv-details.html?id=${item.id}` : '#');
     const year = (item.release_date || item.first_air_date || '').slice(0, 4);
     const rating = item.vote_average ? item.vote_average.toFixed(1) : 'NR';
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function createLatestCard(item) {
     const title = item.title || item.name || '';
-    const poster = item.poster_path ? imgBase + item.poster_path : 'assets/images/person.svg';
+    const poster = item.poster_path ? imgBase + item.poster_path : '../assets/images/placeholder_person.png';
     const link = item.media_type === 'movie' ? `movie-details.html?id=${item.id}` : (item.media_type === 'tv' ? `tv-details.html?id=${item.id}` : '#');
     const year = (item.release_date || item.first_air_date || '').slice(0, 4);
     const rating = item.vote_average ? item.vote_average.toFixed(1) : 'NR';
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function createImageCard(file, idx, allImages) {
-    const url = file.file_path ? imgBase + file.file_path : 'assets/images/person.svg';
+    const url = file.file_path ? imgBase + file.file_path : '../assets/images/placeholder_person.png';
     // Use data-index for gallery
     return `<a href="javascript:void(0)" class="person-image-thumb-link" data-gallery-index="${idx}">
         <img src="${url}" class="person-image-thumb" alt="Person image" />
@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Profile image
-    const profileImg = person.profile_path ? imgBase + person.profile_path : 'assets/images/person.svg';
+    const profileImg = person.profile_path ? imgBase + person.profile_path : '../assets/images/placeholder_person.png';
     const profileEl = document.getElementById('person-profile');
     if (profileEl) {
       profileEl.src = profileImg;
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Images
     if (images && images.profiles && images.profiles.length > 0) {
       // Prepare array of URLs for gallery
-      const imgUrls = images.profiles.slice(0, 12).map(file => file.file_path ? imgBase + file.file_path : 'assets/images/person.svg');
+      const imgUrls = images.profiles.slice(0, 12).map(file => file.file_path ? imgBase + file.file_path : '../assets/images/placeholder_person.png');
       setHTML('person-images-list', images.profiles.slice(0, 12).map((file, idx) => createImageCard(file, idx, imgUrls)).join(''));
       // Add gallery modal logic
       setTimeout(() => {

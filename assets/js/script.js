@@ -115,7 +115,7 @@ function displaySuggestions(suggestions) {
             let name = suggestion.name || suggestion.title;
             let mediaType = suggestion.media_type;
             let posterPath = suggestion.poster_path || suggestion.profile_path;
-            let defaultImageUrl = mediaType === 'person' ? 'assets/images/person.svg' : 'assets/images/movie-tv.svg';
+            let defaultImageUrl = mediaType === 'person' ? '../assets/images/placeholder_person.png' : '../assets/images/placeholder_media.png';
             let posterUrl = posterPath ? `https://image.tmdb.org/t/p/w92${posterPath}` : defaultImageUrl;
             let details = '';
             let actors = '';

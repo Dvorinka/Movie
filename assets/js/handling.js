@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Use the US release date if available, otherwise fall back to the general release date
       const releaseDate = item.usReleaseDate ? formatDate(item.usReleaseDate) : formatDate(item.release_date);
       const title = item.title;
-      const posterPath = item.poster_path ? `${imageBannerUrl}${item.poster_path}` : 'placeholder-image-url';
+      const posterPath = item.poster_path ? `${imageBannerUrl}${item.poster_path}` : '../assets/images/placeholder_media.png';
       const runtime = formatRuntime(item.runtime);
       const rating = item.vote_average ? item.vote_average.toFixed(1) : 'NR';
       const certification = item.certification.rating;

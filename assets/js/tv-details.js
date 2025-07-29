@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
         const showDetailStoryline = document.querySelector('.storyline');
         const showDetailCertification = document.querySelector('.badge-outline');
-        const showDetailPosterPath = show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : 'placeholder-image-url';
+        const showDetailPosterPath = show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : '../assets/images/placeholder_media.png';
         const showDetailYear = new Date(show.first_air_date).getFullYear();
         const showDetailTrailer = show.videos.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
     
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Create comma-separated list of actor names with links
             const actorElements = actors.map(actor => {
                 // Assuming actor has a profile_path or image_url property
-                const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
+                const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : '../assets/images/placeholder_person.png'; // Adjust the image URL as per your data structure
                 
                 // Get only the first name of the character
                 const characterFirstName = actor.character.split(' ')[0];

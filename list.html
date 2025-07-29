@@ -2,14 +2,159 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shared List</title>
+  <title>SparkScreen - Shared List</title>
+  <meta name="keywords" content="Movies, TV Shows, Streaming, Reviews, Actors, Actresses, Photos, User Ratings, Synopsis, Trailers, Teasers, Credits, Cast">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="msapplication-TileImage" content="favicon.png">
+  <script data-goatcounter="https://tdvorak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon_180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
+  <meta name="msapplication-TileColor" content="#00b7ff">
+  <meta name="theme-color" content="#00b7ff">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./assets/js/list.js"></script>
+  <link rel="shortcut icon" href="./favicon.png" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/search.css">
+  <script src="assets/js/mobile-search.js"></script>
+  <script src="assets/js/language.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="./assets/js/api.js"></script>
-</head>
+  <script src="./assets/js/handling.js"></script>
+  <script src="./assets/js/user-acc.js"></script>
+  <script src="./assets/js/list.js"></script>
+  </head>
+<body>
+  <header class="header" data-header>
+    <div class="container">
+      <div class="overlay" data-overlay></div>
+      <a href="./index.html" class="logo">
+        <img src="./assets/images/heading_purple.png" class="sparkscreen">
+      </a>
+      <div class="header-actions">
+        <div class="search-btn-container">
+          <button class="search-btn" onclick="toggleSearchInput()">
+            <ion-icon name="search-outline"></ion-icon>
+          </button>
+        </div>
+        <div class="lang-wrapper">
+          <label for="language">
+            <ion-icon name="globe-outline" role="img" class="md hydrated" aria-label="globe outline"></ion-icon>
+          </label>
+          <select name="language" id="language">
+            <option value="en">EN</option>
+            <option value="cs">CS</option>
+          </select>
+        </div>
+        <div id="auth-section" class="auth-container">
+          <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+          <div id="userAccount" class="dropdown" style="display: none;">
+            <button class="btn dropdown-toggle" id="userDropdown">
+              <ion-icon name="person-circle-outline"></ion-icon>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+            </ul>
+          </div>
+        </div>       
+      </div>
+      <button class="menu-open-btn" data-menu-open-btn>
+        <ion-icon name="reorder-two"></ion-icon>
+      </button>
+      <nav class="navbar" data-navbar>
+        <div class="navbar-top">
+          <a href="./index.html" class="logo">
+            <img src="./assets/images/heading_blue.png" style="height: 5rem;" alt="FilFuse logo">
+          </a>
+          <button class="menu-close-btn" data-menu-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+        <ul class="navbar-list">
+          <li>
+            <a href="./index.html" class="navbar-link">Home</a>
+          </li>
+          <li>
+            <a href="./discover.html" class="navbar-link">Discover</a>
+            <ul>
+              <li>
+                <a href="./top-100.html" class="navbar-link">Top 100</a>
+              </li>
+              <li>
+                <a href="./release-calendar.html" class="navbar-link">Release Calendar</a>
+              </li>
+              <li>
+                <a href="./best-movies-2024.html" class="navbar-link">Best Movies of 2024</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a href="./suggestions.html" class="navbar-link">Suggestions</a>
+            <ul>
+              <li>
+                <a href="./date-night.html" class="navbar-link">Date Night</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a href="./ai-finder.html" class="navbar-link" style="display: inline-block;">Find lost movies</a>
+          </li>
+          <li>
+            <a href="./about.html" class="navbar-link">About</a>
+          </li>
+          <div id="auth-section" class="auth-container">
+            <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+            <div id="userAccount" class="dropdown" style="display: none;">
+              <button class="btn dropdown-toggle" id="userDropdown">
+                <ion-icon name="person-circle-outline"></ion-icon>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+              </ul>
+            </div>
+          </div>
+        </ul>
+        <ul class="navbar-social-list">
+          <li>
+            <a href="https://www.instagram.com/sparkscreen" target="_blank" class="navbar-social-link">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/Dvorinka/Movie" target="_blank" class="navbar-social-link">
+              <ion-icon name="logo-github"></ion-icon>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+</header>
+
+  <div class="search-el">
+    <div class="input-main-div">
+    <input name="query" type="text" tabindex="1" autocorrect="off" autofill="off" autocomplete="off" spellcheck="false" id="search-input" placeholder="Search for a movie, tv show, person..." class="input-main">
+    </div>
+    <div id="default-results" class="results-container"></div>
+  </div>
 <body>
   <h1>Your Shared Movie List</h1>
   <div id="listContainer"></div>
+  
 </body>
 </html>

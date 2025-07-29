@@ -109,7 +109,7 @@ function clearSearchResults() {
 
 function updateMovieBox(index, movie) {
     const movieBox = document.querySelector(`#input-wrapper .input-container:nth-child(${index}) .movie-box`);
-    const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
+    const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '../assets/images/placeholder_media.png';
 
     // Define the overlay images
     const overlayImages = [
@@ -176,7 +176,7 @@ async function fetchRecommendations() {
     recommendationsList.innerHTML = '';
     sortedRecommendations.forEach(movie => {
         const listItem = document.createElement('li');
-        const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
+        const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` : '../assets/images/placeholder_media.png';
         listItem.innerHTML = `
             <img src="${posterUrl}" alt="${movie.title}" width="100">
             <div>

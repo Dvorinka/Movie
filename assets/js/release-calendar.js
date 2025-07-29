@@ -77,11 +77,21 @@ function updateCalendar() {
 
 // Fetch movies for the given date range and display them on the calendar
 async function fetchMoviesForMonth(startDateStr, endDateStr) {
+    showPreloader(true); // Show preloader when starting to fetch
     try {
         const movies = await fetchMoviesInDateRange(startDateStr, endDateStr);
-        displayCalendar(movies, startDateStr, endDateStr);
+        if (!movies || movies.length === 0) {
+            console.log('No movies found for the selected period');
+            document.getElementById('calendar').innerHTML = '<p style="text-align: center; padding: 20px;">No releases found for this period</p>';
+        } else {
+            displayCalendar(movies, startDateStr, endDateStr);
+        }
     } catch (error) {
         console.error('Error fetching movies:', error);
+        document.getElementById('calendar').innerHTML = '<p style="text-align: center; padding: 20px; color: #ff6b6b;">Error loading calendar. Please try again later.</p>';
+    } finally {
+        // Always hide the preloader when done, whether successful or not
+        showPreloader(false);
     }
 }
 
@@ -205,8 +215,17 @@ function formatDate(date) {
     return `${year}-${month}-${day}`;
 }
 
+// Function to show/hide preloader
+function showPreloader(show = true) {
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        preloader.style.display = show ? 'flex' : 'none';
+    }
+}
+
 // Display movies and TV shows in a calendar format
 function displayCalendar(items, startDateStr, endDateStr) {
+    showPreloader(true); // Show preloader when starting to load
     const calendarDiv = document.getElementById('calendar');
 
     // Create a dictionary to map dates to their items
@@ -282,10 +301,10 @@ function displayCalendar(items, startDateStr, endDateStr) {
                 </div>
                 <div class="item-card">
                     <a href="${firstItem.detail_url}">
-                        <img src="https://image.tmdb.org/t/p/w500${firstItem.poster_path}" 
+                        <img src="${firstItem.poster_path ? 'https://image.tmdb.org/t/p/w500' + firstItem.poster_path : '../assets/images/placeholder_media.png'}" 
                              alt="${displayTitle}" 
                              class="item-poster" 
-                             onerror="this.onerror=null; this.style.display='none'" />
+                             onerror="this.onerror=null; this.src='../assets/images/placeholder_media.png'" />
                         <div class="item-title">${displayTitle}</div>
                     </a>
                 </div>
@@ -295,11 +314,14 @@ function displayCalendar(items, startDateStr, endDateStr) {
         `;
     }
 
+    // Update the calendar content
     calendarDiv.innerHTML = `
         <div class="calendar-grid">
             ${daysHTML}
         </div>
     `;
+    
+    // Preloader is now hidden in the finally block of fetchMoviesForMonth
 }
 
 // Show more details for a specific date

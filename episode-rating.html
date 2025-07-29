@@ -1,453 +1,485 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="HandheldFriendly" content="true">
-    <title>Show Ratings</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <script src="./assets/js/api.js"></script>
-    <script src="./assets/js/search.js"></script>
-    <style>
-        /* General styling */
-      body {
-          margin: 0;
-          background-color: #111111;
-          color: white;
-      }
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SparkScreen</title>
+  <meta name="keywords" content="Movies, TV Shows, Streaming, Reviews, Actors, Actresses, Photos, User Ratings, Synopsis, Trailers, Teasers, Credits, Cast">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="msapplication-TileImage" content="favicon.png">
+  <script data-goatcounter="https://tdvorak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon_180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
+  <meta name="msapplication-TileColor" content="#00b7ff">
+  <meta name="theme-color" content="#00b7ff">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="shortcut icon" href="./favicon.png" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/search.css">
+  <script src="assets/js/mobile-search.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@latest/dist/ionicons/ionicons.esm.js"></script>
+  <script src="assets/js/language.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/handling.js"></script>
+  <script src="./assets/js/user-acc.js"></script>
+  <style>
+    /* General styling */
+  body {
+      margin: 0;
+      background-color: #111111;
+      color: white;
+  }
 
-      .header{
-        position: relative;
-      }
+  .header{
+    position: relative;
+  }
 
+  .container-ra {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 20px;
+  }
+
+  @media (min-width: 768px) {
       .container-ra {
-          display: flex;
-          flex-direction: column;
-          gap: 32px;
-          max-width: 1200px;
-          margin: 20px auto;
-          padding: 0 20px;
+          flex-direction: row;
+          margin: 55px auto;
+          padding-left: 140px;
       }
+  }
 
-      @media (min-width: 768px) {
-          .container-ra {
-              flex-direction: row;
-              margin: 55px auto;
-              padding-left: 140px;
-          }
-      }
+  .show-info {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 20px;
+  }
 
+  @media (min-width: 768px) {
       .show-info {
-          width: 100%;
-          text-align: center;
-          margin-bottom: 20px;
+          flex: 0 0 200px;
+          text-align: left;
+          margin-bottom: 0;
       }
+  }
 
-      @media (min-width: 768px) {
-          .show-info {
-              flex: 0 0 200px;
-              text-align: left;
-              margin-bottom: 0;
-          }
-      }
+  .poster {
+      width: 200px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+  }
 
-      .poster {
-          width: 200px;
-          border-radius: 8px;
-          margin-bottom: 16px;
-      }
+  .show-title {
+      font-size: 24px;
+      margin: 0 0 8px 0;
+      font-weight: bold;
+  }
 
-      .show-title {
-          font-size: 24px;
-          margin: 0 0 8px 0;
-          font-weight: bold;
-      }
+  .rating {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+  }
 
-      .rating {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 8px;
-      }
+  .star {
+      color: orange;
+      font-size: 18px;
+  }
+  
+  #votes{
+      display: inline-block;
+  }
 
-      .star {
-          color: orange;
-          font-size: 18px;
-      }
-      
-      #votes{
-          display: inline-block;
-      }
+  .rating-value {
+      font-size: 16px;
+      font-weight: bold;
+  }
 
-      .rating-value {
-          font-size: 16px;
-          font-weight: bold;
-      }
+  .votes {
+      color: #a1a1aa;
+      font-size: 13px;
+  }
 
-      .votes {
-          color: #a1a1aa;
-          font-size: 13px;
-      }
+  .years {
+      color: #a1a1aa;
+      margin-bottom: 16px;
+      font-size: 12px;
+  }
 
-      .years {
-          color: #a1a1aa;
-          margin-bottom: 16px;
-          font-size: 12px;
-      }
+  .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+  }
 
-      .legend {
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-          margin-bottom: 15px;
-      }
+  .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+  }
 
-      .legend-item {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 0.9rem;
-      }
+  .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+  }
 
-      .legend-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-      }
+  .ratings-grid {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+  }
 
+  @media (min-width: 768px) {
       .ratings-grid {
-          width: 100%;
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
+          flex: 1;
       }
+  }
 
-      @media (min-width: 768px) {
-          .ratings-grid {
-              flex: 1;
-          }
-      }
+  .season-headers {
+      display: grid;
+      grid-template-columns: 40px repeat(auto-fill, 30px);
+      gap: 8px;
+      margin-bottom: 4px;
+      color: #a1a1aa;
+      font-size: 0.8rem;
+      min-width: 300px;
+  }
 
+  @media (min-width: 768px) {
       .season-headers {
-          display: grid;
-          grid-template-columns: 40px repeat(auto-fill, 30px);
-          gap: 8px;
-          margin-bottom: 4px;
-          color: #a1a1aa;
-          font-size: 0.8rem;
-          min-width: 300px;
-      }
-
-      @media (min-width: 768px) {
-          .season-headers {
-              grid-template-columns: 57px repeat(auto-fill, 40px);
-              gap: 14px;
-              font-size: 0.9rem;
-          }
-      }
-
-      .episodes-container {
-          display: grid;
-          gap: 6px;
-      }
-
-      .episode-row {
-          display: grid;
-          grid-template-columns: 30px repeat(auto-fill, 30px);
-          gap: 8px;
-          min-width: 300px;
-      }
-
-      @media (min-width: 768px) {
-          .episode-row {
-              grid-template-columns: 40px repeat(auto-fill, 40px);
-              gap: 14px;
-          }
-      }
-
-      .episode-number {
-          display: flex;
-          align-items: center;
+          grid-template-columns: 57px repeat(auto-fill, 40px);
+          gap: 14px;
           font-size: 0.9rem;
-          color: #a1a1aa;
       }
+  }
 
+  .episodes-container {
+      display: grid;
+      gap: 6px;
+  }
+
+  .episode-row {
+      display: grid;
+      grid-template-columns: 30px repeat(auto-fill, 30px);
+      gap: 8px;
+      min-width: 300px;
+  }
+
+  @media (min-width: 768px) {
+      .episode-row {
+          grid-template-columns: 40px repeat(auto-fill, 40px);
+          gap: 14px;
+      }
+  }
+
+  .episode-number {
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+      color: #a1a1aa;
+  }
+
+  .episode {
+      width: 30px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s;
+      font-size: 12px;
+      gap: 2px;
+  }
+
+  @media (min-width: 768px) {
       .episode {
-          width: 30px;
-          height: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 4px;
-          font-weight: 500;
-          cursor: pointer;
-          position: relative;
-          transition: transform 0.2s;
-          font-size: 12px;
-          gap: 2px;
+          width: 40px;
+          height: 30px;
+          font-size: 16px;
+          gap: 4px;
       }
+  }
 
-      @media (min-width: 768px) {
-          .episode {
-              width: 40px;
-              height: 30px;
-              font-size: 16px;
-              gap: 4px;
-          }
-      }
+  .episode:hover {
+      transform: scale(1.1);
+      z-index: 2;
+  }
 
-      .episode:hover {
-          transform: scale(1.1);
-          z-index: 2;
-      }
+  .tooltip {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.95);
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: normal;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 3;
+      width: 150px;
+      text-align: center;
+      line-height: 1.3;
+  }
 
+  @media (min-width: 768px) {
       .tooltip {
-          position: absolute;
-          left: 50%;
-          bottom: calc(100% + 8px);
-          transform: translateX(-50%);
-          background-color: rgba(0, 0, 0, 0.95);
-          padding: 6px 8px;
-          border-radius: 4px;
-          font-size: 11px;
-          white-space: normal;
-          visibility: hidden;
-          opacity: 0;
-          transition: opacity 0.15s;
-          z-index: 3;
-          width: 150px;
-          text-align: center;
-          line-height: 1.3;
+          padding: 8px;
+          font-size: 13px;
+          white-space: nowrap;
+          width: max-content;
       }
+  }
 
-      @media (min-width: 768px) {
-          .tooltip {
-              padding: 8px;
-              font-size: 13px;
-              white-space: nowrap;
-              width: max-content;
-          }
-      }
+  .tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid rgba(0, 0, 0, 0.95);
+  }
 
-      .tooltip::after {
-          content: '';
-          position: absolute;
-          bottom: -4px;
-          left: 50%;
-          transform: translateX(-50%);
-          border-left: 4px solid transparent;
-          border-right: 4px solid transparent;
-          border-top: 4px solid rgba(0, 0, 0, 0.95);
-      }
+  .episode:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+  }
 
-      .episode:hover .tooltip {
-          visibility: visible;
-          opacity: 1;
-      }
+  .episode-title {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: normal;
+      color: white;
+  }
 
-      .episode-title {
-          display: block;
-          margin-bottom: 4px;
-          font-weight: normal;
-          color: white;
-      }
+  .episode-info {
+      display: block;
+      font-size: 11px;
+      color: #999;
+  }
 
-      .episode-info {
-          display: block;
-          font-size: 11px;
-          color: #999;
-      }
+  /* Rating colors */
+  .awesome { background-color: #186a3b; }
+  .great { background-color: #28b463; }
+  .good { background-color: #f4d03f; color: black; }
+  .regular { background-color: #fb923c; color: black; }
+  .bad { background-color: #e74c3c; }
+  .garbage { background-color: #633974; }
 
-      /* Rating colors */
-      .awesome { background-color: #186a3b; }
-      .great { background-color: #28b463; }
-      .good { background-color: #f4d03f; color: black; }
-      .regular { background-color: #fb923c; color: black; }
-      .bad { background-color: #e74c3c; }
-      .garbage { background-color: #633974; }
+  .legend-awesome { background-color: #186a3b; }
+  .legend-great { background-color: #28b463; }
+  .legend-good { background-color: #f4d03f; }
+  .legend-regular { background-color: #fb923c; }
+  .legend-bad { background-color: #e74c3c; }
+  .legend-garbage { background-color: #633974; }
 
-      .legend-awesome { background-color: #186a3b; }
-      .legend-great { background-color: #28b463; }
-      .legend-good { background-color: #f4d03f; }
-      .legend-regular { background-color: #fb923c; }
-      .legend-bad { background-color: #e74c3c; }
-      .legend-garbage { background-color: #633974; }
+  .unknown {
+      background-color: #bdbdbd;
+      color: black;
+  }
 
-      .unknown {
-          background-color: #bdbdbd;
-          color: black;
-      }
+  .ratings-grid {
+        flex: 1;
+        overflow: hidden; /* Hide overflow on the main container */
+    }
 
-      .ratings-grid {
-            flex: 1;
-            overflow: hidden; /* Hide overflow on the main container */
-        }
+    .scroll-container {
+        position: relative;
+        margin-bottom: 16px;
+    }
 
-        .scroll-container {
-            position: relative;
-            margin-bottom: 16px;
-        }
+    .scroll-wrapper {
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        padding-bottom: 12px; /* Add padding for scroll bar */
+        /* Improve smooth scrolling */
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
 
-        .scroll-wrapper {
-            overflow-x: auto;
-            overflow-y: hidden;
-            white-space: nowrap;
-            padding-bottom: 12px; /* Add padding for scroll bar */
-            /* Improve smooth scrolling */
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-        }
+    /* Hide scrollbar but keep functionality */
+    .scroll-wrapper::-webkit-scrollbar {
+        height: 8px;
+    }
 
-        /* Hide scrollbar but keep functionality */
-        .scroll-wrapper::-webkit-scrollbar {
-            height: 8px;
-        }
+    .scroll-wrapper::-webkit-scrollbar-track {
+        background: #2a2a2a;
+        border-radius: 4px;
+    }
 
-        .scroll-wrapper::-webkit-scrollbar-track {
-            background: #2a2a2a;
-            border-radius: 4px;
-        }
+    .scroll-wrapper::-webkit-scrollbar-thumb {
+        background: #666;
+        border-radius: 4px;
+    }
 
-        .scroll-wrapper::-webkit-scrollbar-thumb {
-            background: #666;
-            border-radius: 4px;
-        }
+    .scroll-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #888;
+    }
 
-        .scroll-wrapper::-webkit-scrollbar-thumb:hover {
-            background: #888;
-        }
+    .season-headers {
+        display: flex; /* Change from grid to flex */
+        gap: 6px;
+        margin-bottom: 4px;
+        color: #a1a1aa;
+        font-size: 0.9rem;
+        min-width: max-content; /* Prevent wrapping */
+    }
 
-        .season-headers {
-            display: flex; /* Change from grid to flex */
-            gap: 6px;
-            margin-bottom: 4px;
-            color: #a1a1aa;
-            font-size: 0.9rem;
-            min-width: max-content; /* Prevent wrapping */
-        }
+    .season-headers > div {
+        width: 40px; /* Fixed width for season headers */
+        text-align: center;
+    }
 
-        .season-headers > div {
-            width: 40px; /* Fixed width for season headers */
-            text-align: center;
-        }
+    .season-headers > div:first-child {
+        width: 57px; /* Width for episode number column */
+    }
 
-        .season-headers > div:first-child {
-            width: 57px; /* Width for episode number column */
-        }
+    .episodes-container {
+        display: block; /* Change from grid to block */
+    }
 
-        .episodes-container {
-            display: block; /* Change from grid to block */
-        }
+    .episode-row {
+        display: flex; /* Change from grid to flex */
+        gap: 6px;
+        margin-bottom: 6px;
+        min-width: max-content; /* Prevent wrapping */
+    }
 
-        .episode-row {
-            display: flex; /* Change from grid to flex */
-            gap: 6px;
-            margin-bottom: 6px;
-            min-width: max-content; /* Prevent wrapping */
-        }
+    .episode-number {
+        width: 57px; /* Fixed width for episode numbers */
+        flex-shrink: 0; /* Prevent shrinking */
+    }
 
-        .episode-number {
-            width: 57px; /* Fixed width for episode numbers */
-            flex-shrink: 0; /* Prevent shrinking */
-        }
+    .episode {
+        width: 40px; /* Fixed width for episodes */
+        flex-shrink: 0; /* Prevent shrinking */
+    }
 
-        .episode {
-            width: 40px; /* Fixed width for episodes */
-            flex-shrink: 0; /* Prevent shrinking */
-        }
-
-        /* Target the first two episode rows */
+    /* Target the first two episode rows */
 #episodes .episode-row:nth-child(-n+2) .episode .tooltip {
-    bottom: auto; /* Remove original bottom positioning */
-    /* Use the user's specific calculation if needed */
-    bottom: calc(-239% + 8px);
+bottom: auto; /* Remove original bottom positioning */
+/* Use the user's specific calculation if needed */
+bottom: calc(-239% + 8px);
 }
 
 /* Create the downward-pointing arrow with ::before */
 #episodes .episode-row:nth-child(-n+2) .episode .tooltip::before {
-    content: '';
-    position: absolute;
-    bottom: 56px; /* Adjust based on your layout */
-    left: 50%;
-    transform: translateX(-50%);
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-bottom: 4px solid rgba(0, 0, 0, 0.95);
+content: '';
+position: absolute;
+bottom: 56px; /* Adjust based on your layout */
+left: 50%;
+transform: translateX(-50%);
+border-left: 4px solid transparent;
+border-right: 4px solid transparent;
+border-bottom: 4px solid rgba(0, 0, 0, 0.95);
 }
 
 /* Hide the original ::after arrow for these tooltips */
 #episodes .episode-row:nth-child(-n+2) .episode .tooltip::after {
-    display: none;
+display: none;
 }
-          /* Rating bar styling */
-      .show-rating {
-          margin-top: 15px;
-          margin-bottom: 20px;
-      }
-      
-      .rating-bar {
-          height: 6px;
-          background-color: rgba(255, 255, 255, 0.1);
-          border-radius: 3px;
-          overflow: hidden;
-          margin-bottom: 5px;
-      }
-      
-      .rating-fill {
-          height: 100%;
-          background-color: #e50914;
-          border-radius: 3px;
-      }
-      
-      .rating-text {
-          font-size: 0.9rem;
-          color: #a1a1aa;
-      }
-    </style>
-<script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@latest/dist/ionicons/ionicons.esm.js"></script>
-</head>
+      /* Rating bar styling */
+  .show-rating {
+      margin-top: 15px;
+      margin-bottom: 20px;
+  }
+  
+  .rating-bar {
+      height: 6px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 5px;
+  }
+  
+  .rating-fill {
+      height: 100%;
+      background-color: #e50914;
+      border-radius: 3px;
+  }
+  
+  .rating-text {
+      font-size: 0.9rem;
+      color: #a1a1aa;
+  }
+</style>
+  </head>
 <body>
-
   <header class="header" data-header>
     <div class="container">
-
       <div class="overlay" data-overlay></div>
-
       <a href="./index.html" class="logo">
         <img src="./assets/images/heading_purple.png" class="sparkscreen">
       </a>
-
       <div class="header-actions">
         <div class="search-btn-container">
           <button class="search-btn" onclick="toggleSearchInput()">
             <ion-icon name="search-outline"></ion-icon>
           </button>
         </div>
+        <div class="lang-wrapper">
+          <label for="language">
+            <ion-icon name="globe-outline" role="img" class="md hydrated" aria-label="globe outline"></ion-icon>
+          </label>
+          <select name="language" id="language">
+            <option value="en">EN</option>
+            <option value="cs">CS</option>
+          </select>
+        </div>
+        <div id="auth-section" class="auth-container">
+          <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+          <div id="userAccount" class="dropdown" style="display: none;">
+            <button class="btn dropdown-toggle" id="userDropdown">
+              <ion-icon name="person-circle-outline"></ion-icon>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+              <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+            </ul>
+          </div>
+        </div>       
       </div>
-      
       <button class="menu-open-btn" data-menu-open-btn>
         <ion-icon name="reorder-two"></ion-icon>
       </button>
-
       <nav class="navbar" data-navbar>
-
         <div class="navbar-top">
-
           <a href="./index.html" class="logo">
-            <img src="./assets/images/logo.svg" alt="FilFuse logo">
+            <img src="./assets/images/heading_blue.png" style="height: 5rem;" alt="FilFuse logo">
           </a>
-
           <button class="menu-close-btn" data-menu-close-btn>
             <ion-icon name="close-outline"></ion-icon>
           </button>
-
         </div>
-
         <ul class="navbar-list">
-
           <li>
             <a href="./index.html" class="navbar-link">Home</a>
           </li>
-
           <li>
             <a href="./discover.html" class="navbar-link">Discover</a>
             <ul>
@@ -455,12 +487,13 @@
                 <a href="./top-100.html" class="navbar-link">Top 100</a>
               </li>
               <li>
+                <a href="./release-calendar.html" class="navbar-link">Release Calendar</a>
+              </li>
+              <li>
                 <a href="./best-movies-2024.html" class="navbar-link">Best Movies of 2024</a>
               </li>
             </ul>
-
           </li>
-
           <li>
             <a href="./suggestions.html" class="navbar-link">Suggestions</a>
             <ul>
@@ -469,33 +502,41 @@
               </li>
             </ul>
           </li>
-
           <li>
-            <a href="./ai-finder.html" class="navbar-link">Find lost movies</a>
+            <a href="./ai-finder.html" class="navbar-link" style="display: inline-block;">Find lost movies</a>
           </li>
-
           <li>
             <a href="./about.html" class="navbar-link">About</a>
           </li>
-
+          <div id="auth-section" class="auth-container">
+            <a href="login.html" id="loginButton" class="btn btn-secondary" style="display: none;">Sign in</a>
+            <div id="userAccount" class="dropdown" style="display: none;">
+              <button class="btn dropdown-toggle" id="userDropdown">
+                <ion-icon name="person-circle-outline"></ion-icon>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/profile.html">Profile <ion-icon name="person-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watched.html">Watched <ion-icon name="eye-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/watch-later.html">Watch later <ion-icon name="time-outline"></ion-icon></a></li>
+                <li><a class="dropdown-item" href="/lists.html">Lists <ion-icon name="list-outline"></ion-icon></a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" id="logoutButton" href="#">Logout <ion-icon name="log-out-outline"></ion-icon></a></li>
+              </ul>
+            </div>
+          </div>
         </ul>
-
         <ul class="navbar-social-list">
-
           <li>
-            <a href="#" class="navbar-social-link">
+            <a href="https://www.instagram.com/sparkscreen" target="_blank" class="navbar-social-link">
               <ion-icon name="logo-instagram"></ion-icon>
             </a>
           </li>
-
           <li>
-            <a href="#" class="navbar-social-link">
+            <a href="https://github.com/Dvorinka/Movie" target="_blank" class="navbar-social-link">
               <ion-icon name="logo-github"></ion-icon>
             </a>
           </li>
-
         </ul>
-
       </nav>
     </div>
 </header>
@@ -508,7 +549,7 @@
   </div>
   <div class="container-ra">
       <div class="show-info">
-        <img id="poster" src="https://placehold.co/300x450" alt="Show poster" class="poster">
+        <img id="poster" src="assets/images/placeholder_media.png" alt="Show poster" class="poster">
           <div class="rating">
               <span class="star">★</span>
               <span id="rating" class="rating-value">0.0</span>

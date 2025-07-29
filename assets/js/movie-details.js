@@ -488,7 +488,7 @@ document.addEventListener( 'DOMContentLoaded', () =>
             const movieDetailRuntime = document.querySelector( '.date-time time[datetime="PT115M"]' );
             const movieDetailStoryline = document.querySelector( '.storyline' );
             const movieDetailCertification = document.querySelector( '.badge-outline' );
-            const movieDetailPosterPath = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'assets/images/person.svg';
+            const movieDetailPosterPath = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '../assets/images/placeholder_media.png';
             const movieDetailYear = new Date( movie.release_date ).getFullYear();
             const movieDetailTrailer = movie.videos.results.find( video => video.type === 'Trailer' && video.site === 'YouTube' );
             const genresContainer = document.querySelector('.genres-down');
@@ -650,7 +650,7 @@ document.addEventListener( 'DOMContentLoaded', () =>
                 const actorElements = actors.map( actor =>
                 {
                     // Assuming actor has a profile_path or image_url property
-                    const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'placeholder.jpg'; // Adjust the image URL as per your data structure
+                    const imageUrl = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : '../assets/images/placeholder_person.png'; // Adjust the image URL as per your data structure
                     return `
                 <div class="actors-stars">
                     <a href="./people-details.html?id=${actor.id}" target="_blank">
@@ -1519,7 +1519,7 @@ document.addEventListener( 'DOMContentLoaded', () =>
                     <div class="movie-card">
                         <a href="./movie-details.html?id=${movie.id}">
                             <figure class="card-banner">
-                                <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title} Poster">
+                                <img src="${movie.poster_path ? 'https://image.tmdb.org/t/p/w500' + movie.poster_path : '../assets/images/placeholder_media.png'}" alt="${movie.title} Poster">
                             </figure>
                         </a>
                         <div class="title-wrapper">
@@ -2172,7 +2172,7 @@ document.addEventListener( 'DOMContentLoaded', () =>
                         actorElement.classList.add('actor-singular');
                         actorElement.innerHTML = `
                             <a href="./people-details.html?id=${actor.id}" target="_blank">
-                                <img src="${actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'placeholder.jpg'}" alt="${actor.name}">
+                                <img src="${actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : '../assets/images/placeholder_person.png'}" alt="${actor.name}">
                                 <p class="actor-name">${actor.name}</p>
                                 <p class="actor-character">${actor.character}</p>
                             </a>
