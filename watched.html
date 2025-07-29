@@ -229,7 +229,35 @@
     );
 
     const moviesContainer = document.getElementById('movies-container');
-    let allMovies = []; // Store all movies for runtime calculations
+    let allItems = []; // Store all movies and tv shows for runtime calculations
+
+
+    // Helper for TV show certification (from tv-details.js)
+    const getShowCertification = (show) => {
+      const userLanguage = navigator.language.split('-')[0];
+      if (show.content_ratings && show.content_ratings.results) {
+        let ratingObj = show.content_ratings.results.find(r => r.iso_3166_1 === 'US') ||
+          (userLanguage === 'cs' && show.content_ratings.results.find(r => r.iso_3166_1 === 'CZ'));
+        if (ratingObj && ratingObj.rating) {
+          const ratings = {
+            'NR': 'Not Rated',
+            'TV-G': 'General Audiences',
+            'TV-PG': 'Parental Guidance Suggested',
+            'TV-14': 'Parents Strongly Cautioned',
+            'TV-MA': 'Mature Audiences',
+            'TV-Y': 'All Children',
+            'TV-Y7': 'Older Children',
+            'R': 'Restricted',
+            'PG': 'Parental Guidance',
+            'G': 'General Audiences',
+            'PG-13': 'Parents Strongly Cautioned',
+            'NC-17': 'No One 17 and Under Admitted.'
+          };
+          return { rating: ratingObj.rating, hint: ratings[ratingObj.rating] || 'Rating Description Unavailable' };
+        }
+      }
+      return { rating: 'NR', hint: 'Not Rated' };
+    };
 
     const getCertification = (movie) => {
       if (!movie.release_dates?.results) return { rating: 'NR', hint: 'Not Rated' };
@@ -254,29 +282,39 @@
       return { rating: 'NR', hint: 'Not Rated' };
     };
 
-    const displayMovie = async (movieDetails, movieTitle, watchedAt) => {
-      if (!movieDetails.poster_path) return;
 
-      const movieElement = document.createElement('div');
-      movieElement.classList.add('movie-card');
-      movieElement.dataset.genre = movieDetails.genres.map(genre => genre.id).join(',');
-      movieElement.dataset.format = 'movie';
-      movieElement.dataset.rating = movieDetails.vote_average || 'N/A';
+    const displayItem = async (itemDetails, itemTitle, watchedAt, format) => {
+      if (!itemDetails.poster_path) return;
 
-      const certification = getCertification(movieDetails);
-      const duration = movieDetails.runtime ? 
-        `${Math.floor(movieDetails.runtime / 60)}h ${movieDetails.runtime % 60}m` : 'N/A';
-      const tmdbRating = movieDetails.vote_average?.toFixed(1) || 'N/A';
+      const itemElement = document.createElement('div');
+      itemElement.classList.add('movie-card');
+      itemElement.dataset.genre = itemDetails.genres ? itemDetails.genres.map(genre => genre.id).join(',') : '';
+      itemElement.dataset.format = format;
+      itemElement.dataset.rating = itemDetails.vote_average || 'N/A';
+
+      let certification = { rating: 'NR', hint: 'Not Rated' };
+      let duration = 'N/A';
+      let tmdbRating = itemDetails.vote_average?.toFixed(1) || 'N/A';
+      if (format === 'movie') {
+        certification = getCertification(itemDetails);
+        duration = itemDetails.runtime ? `${Math.floor(itemDetails.runtime / 60)}h ${itemDetails.runtime % 60}m` : 'N/A';
+      } else if (format === 'tv') {
+        certification = getShowCertification(itemDetails);
+        if (itemDetails.episode_run_time && itemDetails.episode_run_time.length > 0 && itemDetails.number_of_episodes) {
+          const avgEp = itemDetails.episode_run_time.reduce((a, b) => a + b, 0) / itemDetails.episode_run_time.length;
+          duration = `${Math.round(avgEp * itemDetails.number_of_episodes / 60)}h ${(Math.round(avgEp * itemDetails.number_of_episodes) % 60)}m`;
+        }
+      }
       const formattedDate = new Date(watchedAt).toLocaleDateString('en-US', {
         year: 'numeric', month: 'short', day: 'numeric'
       });
 
-      movieElement.innerHTML = `
+      itemElement.innerHTML = `
         <div class="card-banner">
-          <img src="https://image.tmdb.org/t/p/w500${movieDetails.poster_path}" alt="${movieDetails.title}" loading="lazy">
+          <img src="https://image.tmdb.org/t/p/w500${itemDetails.poster_path}" alt="${itemDetails.title || itemDetails.name}" loading="lazy">
         </div>
         <div class="title-wrapper">
-          <h2 class="card-title">${movieTitle}</h2>
+          <h2 class="card-title">${itemTitle}</h2>
           <time datetime="${watchedAt}">${formattedDate}</time>
         </div>
         <div class="card-meta">
@@ -292,142 +330,160 @@
         </div>
       `;
 
-      movieElement.addEventListener('click', () => {
-        window.location.href = `movie-details.html?id=${movieDetails.id}`;
+      itemElement.addEventListener('click', () => {
+        if (format === 'movie') {
+          window.location.href = `movie-details.html?id=${itemDetails.id}`;
+        } else {
+          window.location.href = `tv-details.html?id=${itemDetails.id}`;
+        }
       });
 
-      moviesContainer.appendChild(movieElement);
+      moviesContainer.appendChild(itemElement);
     };
 
-    const calculateRuntime = (movies, genreFilter) => {
+    const calculateRuntime = (items, genreFilter, formatFilter) => {
       let totalRuntime = 0;
       const genreCounts = {};
       let mostWatchedGenre = { name: '', count: 0 };
 
-      movies.forEach(movie => {
-        const matchesGenre = genreFilter === 'all' || 
-          movie.genres.some(genre => genre.id.toString() === genreFilter);
-        if (matchesGenre) {
-          totalRuntime += movie.runtime || 0;
-          
-          // Count genres for statistics
-          movie.genres.forEach(genre => {
-            genreCounts[genre.id] = (genreCounts[genre.id] || 0) + 1;
-            if (genreCounts[genre.id] > mostWatchedGenre.count) {
-              mostWatchedGenre = { name: genre.name, count: genreCounts[genre.id] };
-            }
-          });
+      items.forEach(item => {
+        const matchesGenre = genreFilter === 'all' || (item.genres && item.genres.some(genre => genre.id.toString() === genreFilter));
+        const matchesFormat = formatFilter === 'all' || item.format === formatFilter;
+        if (matchesGenre && matchesFormat) {
+          totalRuntime += item.runtime || 0;
+          if (item.genres) {
+            item.genres.forEach(genre => {
+              genreCounts[genre.id] = (genreCounts[genre.id] || 0) + 1;
+              if (genreCounts[genre.id] > mostWatchedGenre.count) {
+                mostWatchedGenre = { name: genre.name, count: genreCounts[genre.id] };
+              }
+            });
+          }
         }
       });
 
       return {
         hours: (totalRuntime / 60).toFixed(1),
         mostWatchedGenre,
-        totalMovies: movies.filter(movie => 
-          genreFilter === 'all' || 
-          movie.genres.some(genre => genre.id.toString() === genreFilter)
-        ).length
+        totalItems: items.filter(item => {
+          const matchesGenre = genreFilter === 'all' || (item.genres && item.genres.some(genre => genre.id.toString() === genreFilter));
+          const matchesFormat = formatFilter === 'all' || item.format === formatFilter;
+          return matchesGenre && matchesFormat;
+        }).length
       };
     };
 
-    const updateRuntimeStats = (genreFilter) => {
-      const stats = calculateRuntime(allMovies, genreFilter);
-      const genreName = genreFilter === 'all' ? 'All Genres' : 
-        document.getElementById('genre-filter').querySelector(`option[value="${genreFilter}"]`).textContent;
-      
+    const updateRuntimeStats = (genreFilter, formatFilter) => {
+      const stats = calculateRuntime(allItems, genreFilter, formatFilter);
+      const genreName = genreFilter === 'all' ? 'All Genres' : document.getElementById('genre-filter').querySelector(`option[value="${genreFilter}"]`).textContent;
+      const formatName = formatFilter === 'all' ? 'All Formats' : (formatFilter === 'movie' ? 'Movies' : 'TV Shows');
+      const avgRuntime = stats.totalItems > 0 ? (stats.hours * 60 / stats.totalItems).toFixed(1) : 0;
       const statsHTML = `
         <h2>Runtime Statistics</h2>
-        <p>Total Runtime (${genreName}): <strong>${stats.hours} hours</strong></p>
-        <p>Movies Watched: <strong>${stats.totalMovies}</strong></p>
-        ${genreFilter === 'all' ? 
-          `<p>Most Watched Genre: <strong>${stats.mostWatchedGenre.name}</strong> (${stats.mostWatchedGenre.count} movies)</p>` : ''}
-        <p>Average Runtime: <strong>${(stats.hours * 60 / stats.totalMovies).toFixed(1)} minutes</strong></p>
+        <p>Total Runtime (${genreName}, ${formatName}): <strong>${stats.hours} hours</strong></p>
+        <p>Items Watched: <strong>${stats.totalItems}</strong></p>
+        ${genreFilter === 'all' ? `<p>Most Watched Genre: <strong>${stats.mostWatchedGenre.name}</strong> (${stats.mostWatchedGenre.count} items)</p>` : ''}
+        <p>Average Runtime: <strong>${avgRuntime} minutes</strong></p>
       `;
-      
       document.querySelector('.runtime-stats').innerHTML = statsHTML;
     };
 
     const attachFiltering = () => {
       const genreFilter = document.getElementById('genre-filter');
       const formatFilter = document.getElementById('format-filter');
-      const movies = Array.from(document.getElementsByClassName('movie-card'));
-
-      const filterMovies = () => {
+      const filterItems = () => {
         const selectedGenre = genreFilter.value;
         const selectedFormat = formatFilter.value;
-
-        movies.forEach(movie => {
-          const matchesGenre = selectedGenre === 'all' || 
-            movie.dataset.genre.split(',').includes(selectedGenre);
-          const matchesFormat = selectedFormat === 'all' || 
-            movie.dataset.format === selectedFormat;
-          movie.classList.toggle('hidden', !(matchesGenre && matchesFormat));
+        const items = Array.from(document.getElementsByClassName('movie-card'));
+        items.forEach(item => {
+          const matchesGenre = selectedGenre === 'all' || (item.dataset.genre && item.dataset.genre.split(',').includes(selectedGenre));
+          const matchesFormat = selectedFormat === 'all' || item.dataset.format === selectedFormat;
+          item.classList.toggle('hidden', !(matchesGenre && matchesFormat));
         });
-
-        // Update runtime stats based on the selected genre
-        updateRuntimeStats(selectedGenre);
+        updateRuntimeStats(selectedGenre, selectedFormat);
       };
-
-      genreFilter.addEventListener('change', filterMovies);
-      formatFilter.addEventListener('change', filterMovies);
+      genreFilter.addEventListener('change', filterItems);
+      formatFilter.addEventListener('change', filterItems);
     };
 
-    const fetchWatchedMovies = async () => {
+
+    const fetchWatchedItems = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-          moviesContainer.innerHTML = '<p class="error">Please login to view your watched movies</p>';
+          moviesContainer.innerHTML = '<p class="error">Please login to view your watched items</p>';
           return;
         }
 
-        const { data: watchedMovies, error } = await supabase
-          .from('watched_movies')
-          .select('movie_id, movie_title, watched_at')
-          .eq('user_id', session.user.id);
+        // Fetch both movies and tv shows
+        const [movieRes, tvRes] = await Promise.all([
+          supabase.from('watched_movies').select('movie_id, movie_title, watched_at').eq('user_id', session.user.id),
+          supabase.from('watched_tv').select('tv_id, tv_title, created_at').eq('user_id', session.user.id)
+        ]);
 
-        if (error) throw error;
+        if (movieRes.error) throw movieRes.error;
+        if (tvRes.error) throw tvRes.error;
 
-        if (watchedMovies?.length > 0) {
-          // Get loading elements once at start
+        const movies = movieRes.data || [];
+        const tvshows = tvRes.data || [];
+        const totalCount = movies.length + tvshows.length;
+
+        if (totalCount > 0) {
           const loadingProgress = document.getElementById('loading-progress');
           const loadingCount = document.getElementById('loading-count');
-          
           moviesContainer.innerHTML = '';
-          watchedMovies.sort((a, b) => new Date(b.watched_at) - new Date(a.watched_at));
+          // Sort by watched/created date descending
+          const all = [
+            ...movies.map(m => ({...m, format: 'movie', watched_date: m.watched_at })),
+            ...tvshows.map(t => ({...t, format: 'tv', watched_date: t.created_at }))
+          ]; 
+          all.sort((a, b) => new Date(b.watched_date) - new Date(a.watched_date));
           let loadedCount = 0;
 
-          // Only update loading if elements exist
           if (loadingProgress && loadingCount) {
-            loadingProgress.textContent = 'Loading movies...';
-            loadingCount.textContent = `0/${watchedMovies.length} movies loaded`;
+            loadingProgress.textContent = 'Loading items...';
+            loadingCount.textContent = `0/${totalCount} items loaded`;
           }
 
-          for (const movie of watchedMovies) {
-            const movieDetails = await fetchMovieDetails(movie.movie_id);
-            if (movieDetails) {
-              allMovies.push(movieDetails);
-              await displayMovie(movieDetails, movie.movie_title, movie.watched_at);
+          for (const item of all) {
+            let details = null;
+            if (item.format === 'movie') {
+              details = await fetchMovieDetails(item.movie_id);
+            } else {
+              details = await fetchTVDetails(item.tv_id);
+            }
+            if (details) {
+              // For runtime stats, add a .format property
+              details.format = item.format;
+              // For TV, estimate runtime as avg episode * num episodes
+              if (item.format === 'tv' && details.episode_run_time && details.episode_run_time.length > 0 && details.number_of_episodes) {
+                const avgEp = details.episode_run_time.reduce((a, b) => a + b, 0) / details.episode_run_time.length;
+                details.runtime = Math.round(avgEp * details.number_of_episodes);
+              }
+              allItems.push(details);
+              await displayItem(
+                details,
+                item.format === 'movie' ? item.movie_title : item.tv_title,
+                item.watched_date,
+                item.format
+              );
               loadedCount++;
-              
-              // Only update loading if elements exist
               if (loadingProgress && loadingCount) {
-                loadingCount.textContent = `${loadedCount}/${watchedMovies.length} movies loaded`;
+                loadingCount.textContent = `${loadedCount}/${totalCount} items loaded`;
               }
             }
           }
 
-          // Only update loading if elements exist
           if (loadingProgress) {
             loadingProgress.textContent = 'Loading complete!';
           }
-          // Initialize runtime stats
-          updateRuntimeStats('all');
+          updateRuntimeStats('all', 'all');
           attachFiltering();
         } else {
-          moviesContainer.innerHTML = '<p>No movies found in your watched list.</p>';
+          moviesContainer.innerHTML = '<p>No movies or TV shows found in your watched list.</p>';
         }
       } catch (error) {
-        moviesContainer.innerHTML = `<p class="error">Error loading movies: ${error.message}</p>`;
+        moviesContainer.innerHTML = `<p class="error">Error loading items: ${error.message}</p>`;
         console.error('Error:', error);
       }
     };
@@ -444,7 +500,19 @@
       }
     };
 
-    fetchWatchedMovies();
+    const fetchTVDetails = async (tvId) => {
+      try {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/tv/${tvId}?api_key=054582e9ee66adcbe911e0008aa482a8&append_to_response=content_ratings`
+        );
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching TV show details:', error);
+        return null;
+      }
+    };
+
+    fetchWatchedItems();
   </script>
   
 </body>
