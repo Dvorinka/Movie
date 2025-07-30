@@ -10,7 +10,6 @@
     <script src="./assets/js/user-acc.js"></script>
     <script src="./assets/js/handling.js"></script>
     <script src="./assets/js/language.js"></script>
-    <script src="./assets/js/api.js"></script>
     <link rel="stylesheet" href="./assets/css/header.css">
     <style>
         /* Preloader Styles */
@@ -597,18 +596,27 @@
                 if (hasMovies || daysShown < daysToShow) {
                     const moreMoviesClass = moreMoviesCount % 2 === 0 ? 'more-movies2' : 'more-movies';
 
+                    const item = hasMovies ? moviesForDate[0] : null;
+                    const itemType = item ? (item.type === 'tv' ? 'tv' : 'movie') : '';
+                    const itemId = item ? item.id : '';
+                    
                     daysHTML += `
-                        <div class="calendar-day ${hasMovies ? 'has-movie' : 'no-movie'}" ${hasMovies ? `onclick="showMovieDetails('${dateString}')"` : ''}>
+                        <div class="calendar-day ${hasMovies ? 'has-movie' : 'no-movie'}" 
+                             ${hasMovies ? `onclick="showMovieDetails('${dateString}')"` : ''} 
+                             data-item-id="${itemId}" 
+                             data-item-type="${itemType}">
                             <div class="date-header">${date.getDate()}</div>
                             ${hasMovies ? `
-                                <div class="movie-item">
-                                    <img src="https://image.tmdb.org/t/p/w780${moviesForDate[0].poster_path}" 
-                                        alt="${moviesForDate[0].title}" 
+                                <div class="movie-item" data-item-id="${itemId}" data-item-type="${itemType}">
+                                    <img src="https://image.tmdb.org/t/p/w780${item.poster_path}" 
+                                        alt="${item.title || item.name}" 
                                         class="movie-poster"
+                                        data-item-id="${itemId}"
+                                        data-item-type="${itemType}"
                                         onerror="this.onerror=null; this.src='assets/images/no-poster.jpg';" />
-                                    <div class="movie-title">${moviesForDate[0].title}</div>
+                                    <div class="movie-title" data-item-id="${itemId}" data-item-type="${itemType}">${item.title || item.name}</div>
                                 </div>
-                                ${moviesForDate.length > 1 ? `<div class="${moreMoviesClass}">+${moviesForDate.length - 1} more</div>` : ''}
+                                ${moviesForDate.length > 1 ? `<div class="${moreMoviesClass}" data-item-id="${itemId}" data-item-type="${itemType}">+${moviesForDate.length - 1} more</div>` : ''}
                             ` : ''}
                         </div>
                     `;
@@ -655,20 +663,21 @@
                          alt="${title}"
                          onerror="this.onerror=null; this.style.display='none';" />`;
                 
+                const itemType = isTV ? 'tv' : 'movie';
                 modalHTML += `
-                    <div class="movie-detail">
-                        ${imageHtml}
-                        <div class="movie-detail-info">
-                            <div class="type-badge ${isTV ? 'tv' : 'movie'}">${isTV ? 'TV SHOW' : 'MOVIE'}</div>
-                            <h3 class="movie-detail-title">${title}</h3>
-                            <div class="movie-detail-meta">
-                                ${runtime ? `<span>${runtime}</span>` : ''}
-                                <span>⭐ ${rating}</span>
+                    <div class="movie-detail" data-item-id="${item.id}" data-item-type="${itemType}">
+                        ${imageHtml.replace('<img ', `<img data-item-id="${item.id}" data-item-type="${itemType}" `)}
+                        <div class="movie-detail-info" data-item-id="${item.id}" data-item-type="${itemType}">
+                            <div class="type-badge ${itemType}" data-item-id="${item.id}" data-item-type="${itemType}">${isTV ? 'TV SHOW' : 'MOVIE'}</div>
+                            <h3 class="movie-detail-title" data-item-id="${item.id}" data-item-type="${itemType}">${title}</h3>
+                            <div class="movie-detail-meta" data-item-id="${item.id}" data-item-type="${itemType}">
+                                ${runtime ? `<span data-item-id="${item.id}" data-item-type="${itemType}">${runtime}</span>` : ''}
+                                <span data-item-id="${item.id}" data-item-type="${itemType}">⭐ ${rating}</span>
                             </div>
-                            <p class="movie-detail-description">${item.overview || 'No description available.'}</p>
-                            <a href="${detailUrl}" class="watch-now-btn">
-                                <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            <p class="movie-detail-description" data-item-id="${item.id}" data-item-type="${itemType}">${item.overview || 'No description available.'}</p>
+                            <a href="${detailUrl}" class="watch-now-btn" data-item-id="${item.id}" data-item-type="${itemType}">
+                                <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-item-id="${item.id}" data-item-type="${itemType}">
+                                    <polygon points="5 3 19 12 5 21 5 3" data-item-id="${item.id}" data-item-type="${itemType}"></polygon>
                                 </svg>
                                 ${isTV ? 'VIEW DETAILS' : 'WATCH NOW'}
                             </a>

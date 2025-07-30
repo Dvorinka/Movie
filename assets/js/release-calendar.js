@@ -293,25 +293,30 @@ function displayCalendar(items, startDateStr, endDateStr) {
         const isNewSeason = firstItem.is_new_season;
         const calendarDayClass = `calendar-day ${isTvShow ? 'tv-show' : ''} ${isNewSeason ? 'new-season' : ''} has-movie`;
             
+        const itemType = firstItem.type === 'tv' ? 'tv' : 'movie';
         daysHTML += `
-            <div class="${calendarDayClass}" onclick="showMoreDetails('${dateString}')">
+            <div class="${calendarDayClass}" 
+                 onclick="showMoreDetails('${dateString}')" 
+                 data-item-id="${firstItem.id}" 
+                 data-item-type="${itemType}">
                 <div class="date-header">
                     ${date.getDate()}
                     ${typeBadge}
                 </div>
                 <div class="item-card">
-                    <a href="${firstItem.detail_url}">
+                    <a href="${firstItem.detail_url}" data-item-id="${firstItem.id}" data-item-type="${itemType}">
                         <img src="${firstItem.poster_path ? 'https://image.tmdb.org/t/p/w500' + firstItem.poster_path : '../assets/images/placeholder_media.png'}" 
                              alt="${displayTitle}" 
                              class="item-poster" 
+                             data-item-id="${firstItem.id}"
+                             data-item-type="${itemType}"
                              onerror="this.onerror=null; this.src='../assets/images/placeholder_media.png'" />
-                        <div class="item-title">${displayTitle}</div>
+                        <div class="item-title" data-item-id="${firstItem.id}" data-item-type="${itemType}">${displayTitle}</div>
                     </a>
                 </div>
                 ${validItems.length > 1 ? 
-                    `<div class="more-items">+${validItems.length - 1} more</div>` : ''}
-            </div>
-        `;
+                    `<div class="more-items" data-item-id="${firstItem.id}" data-item-type="${itemType}">+${validItems.length - 1} more</div>` : ''}
+            </div>`;
     }
 
     // Update the calendar content
@@ -341,12 +346,13 @@ function showMoreDetails(dateString) {
                              class="item-poster"
                              onerror="this.style.display='none'" />`;
                 
+        const itemType = item.type === 'tv' ? 'tv' : 'movie';
         return `
-            <div class="item-card">
-                <span class="type-badge ${item.type}">${item.type.toUpperCase()}</span>
-                <a href="${detailUrl}">
-                    ${imageHtml}
-                    <div class="item-title">${title}</div>
+            <div class="item-card" data-item-id="${item.id}" data-item-type="${itemType}">
+                <span class="type-badge ${itemType}" data-item-id="${item.id}" data-item-type="${itemType}">${itemType.toUpperCase()}</span>
+                <a href="${detailUrl}" data-item-id="${item.id}" data-item-type="${itemType}">
+                    ${imageHtml.replace('<img ', `<img data-item-id="${item.id}" data-item-type="${itemType}" `)}
+                    <div class="item-title" data-item-id="${item.id}" data-item-type="${itemType}">${title}</div>
                 </a>
             </div>
         `;

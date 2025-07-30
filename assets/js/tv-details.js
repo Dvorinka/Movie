@@ -528,6 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
             // Select all watch-later containers
             const watchLaterContainers = document.querySelectorAll('.watch-later-icon');
+            const showImage = document.querySelector('.show-detail-banner img');
             
             let isInWatchList = false; // Shared state variable
     
@@ -545,6 +546,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
     
                 isInWatchList = existing.length > 0;
+                
+                // Apply or remove watch later label based on current status
+                if (isInWatchList && showImage) {
+                    applyWatchLaterLabel(showImage);
+                } else if (showImage) {
+                    removeWatchLaterLabel(showImage);
+                }
     
                 // Helper function to update all containers
                 const updateAllIcons = () => {
@@ -584,6 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 }
     
                                 isInWatchList = false;
+                                if (showImage) removeWatchLaterLabel(showImage);
                             } else {
                                 // Add to watch_later_tv
                                 const { error: insertError } = await supabase
@@ -601,6 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 }
     
                                 isInWatchList = true;
+                                if (showImage) applyWatchLaterLabel(showImage);
                             }
     
                             // Update all icons
@@ -663,15 +673,15 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Show image not found.');
             return;
         }
-    
+
         // Apply grayscale filter to the image
         image.style.filter = 'grayscale(1)';
-    
+
         // Create a "Watched" label
         const watchedLabel = document.createElement('div');
         watchedLabel.textContent = 'Watched';
         watchedLabel.classList.add('watched-label');
-    
+
         // Ensure the label is added only once
         const parentElement = image.closest('.show-detail-banner');
         if (parentElement && !parentElement.querySelector('.watched-label')) {
@@ -685,15 +695,49 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Show image not found.');
             return;
         }
-    
+
         // Remove grayscale filter from the image
         image.style.filter = 'none';
-    
+
         // Remove the "Watched" label if it exists
         const parentElement = image.closest('.show-detail-banner');
         const watchedLabel = parentElement.querySelector('.watched-label');
         if (watchedLabel) {
             watchedLabel.remove();
+        }
+    };
+    
+    // Function to apply watch later label to show image
+    const applyWatchLaterLabel = (image) => {
+        if (!image) {
+            console.error('Show image not found.');
+            return;
+        }
+        
+        // Create a "Planned" label
+        const watchLaterLabel = document.createElement('div');
+        watchLaterLabel.textContent = 'Planned';
+        watchLaterLabel.classList.add('watch-later-label');
+        
+        // Ensure the label is added only once
+        const parentElement = image.closest('.show-detail-banner');
+        if (parentElement && !parentElement.querySelector('.watch-later-label')) {
+            parentElement.appendChild(watchLaterLabel);
+        }
+    };
+    
+    // Function to remove watch later label from show image
+    const removeWatchLaterLabel = (image) => {
+        if (!image) {
+            console.error('Show image not found.');
+            return;
+        }
+        
+        // Remove the "Planned" label if it exists
+        const parentElement = image.closest('.show-detail-banner');
+        const watchLaterLabel = parentElement.querySelector('.watch-later-label');
+        if (watchLaterLabel) {
+            watchLaterLabel.remove();
         }
     };
 

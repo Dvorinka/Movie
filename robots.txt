@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sparkscreen.xyz/sitemap.xml
+
+# Disallow admin and private directories
+Disallow: /admin/
+Disallow: /private/
+Disallow: /includes/
+Disallow: /config/
+
+# Allow all image and CSS/JS files
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.webp$
+
+# Crawl-delay: 1
+
+# Block specific files
+Disallow: /*.php$
+Disallow: /*.log$
+Disallow: /*.sql$

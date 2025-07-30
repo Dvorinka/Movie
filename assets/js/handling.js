@@ -1,5 +1,108 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Supabase client
+  const supabase = window.supabase.createClient(
+    'https://cbnwekzbcxbmeevdjgoq.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibndla3piY3hibWVldmRqZ29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI0NDMwNTEsImV4cCI6MjA0ODAxOTA1MX0.R1KoGInR7ZlAiAAWHxaOicNY-0EA-wK07JvEwdz6xdU'
+  );
+
   const moviesList = document.querySelector('.movies-list');
+  
+  // Function to fetch watched movies for the current user
+  const fetchWatchedMovies = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) return [];
+
+      const { data: watchedMovies, error: fetchError } = await supabase
+        .from('watched_movies')
+        .select('movie_id')
+        .eq('user_id', session.user.id);
+
+      if (fetchError) {
+        console.error('Error fetching watched movies:', fetchError);
+        return [];
+      }
+
+      return watchedMovies.map(movie => movie.movie_id.toString());
+    } catch (err) {
+      console.error('Error in fetchWatchedMovies:', err);
+      return [];
+    }
+  };
+
+  // Function to fetch watch later movies for the current user
+  const fetchWatchLaterMovies = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) return [];
+
+      const { data: watchLaterMovies, error: fetchError } = await supabase
+        .from('watch_later_movies')
+        .select('movie_id')
+        .eq('user_id', session.user.id);
+
+      if (fetchError) {
+        console.error('Error fetching watch later movies:', fetchError);
+        return [];
+      }
+
+      return watchLaterMovies.map(movie => movie.movie_id.toString());
+    } catch (err) {
+      console.error('Error in fetchWatchLaterMovies:', err);
+      return [];
+    }
+  };
+
+  // Function to apply watched style to a media item
+  const applyWatchedStyle = (mediaItem) => {
+    const image = mediaItem.querySelector('img');
+    if (image) {
+      image.style.filter = 'grayscale(1)';
+      let watchedLabel = mediaItem.querySelector('.watched-label');
+      if (!watchedLabel) {
+        watchedLabel = document.createElement('div');
+        watchedLabel.textContent = 'Watched';
+        watchedLabel.classList.add('watched-label');
+        mediaItem.appendChild(watchedLabel);
+      }
+    }
+  };
+
+  // Function to apply watch later style to a media item
+  const applyWatchLaterStyle = (mediaItem) => {
+    let watchLaterLabel = mediaItem.querySelector('.watch-later-label');
+    if (!watchLaterLabel) {
+      watchLaterLabel = document.createElement('div');
+      watchLaterLabel.textContent = 'Planned';
+      watchLaterLabel.classList.add('watch-later-label');
+      mediaItem.appendChild(watchLaterLabel);
+    }
+  };
+
+  // Function to update media status for all items
+  const updateMediaStatus = async () => {
+    const movieCards = document.querySelectorAll('.movie-card');
+    if (movieCards.length === 0) return;
+
+    try {
+      const [watchedIds, watchLaterIds] = await Promise.all([
+        fetchWatchedMovies(),
+        fetchWatchLaterMovies()
+      ]);
+
+      movieCards.forEach(card => {
+        const movieId = card.getAttribute('data-id');
+        if (watchedIds.includes(movieId)) {
+          applyWatchedStyle(card);
+        }
+        if (watchLaterIds.includes(movieId)) {
+          applyWatchLaterStyle(card);
+        }
+      });
+    } catch (err) {
+      console.error('Error updating media status:', err);
+    }
+  };
 
   const fetchUpcoming = async (url) => {
     try {
@@ -144,11 +247,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add event listeners to movie cards
     const movieCards = document.querySelectorAll('.movie-card');
     movieCards.forEach(card => {
-      card.addEventListener('click', () => {
+      card.addEventListener('click', (e) => {
+        // Don't navigate if clicking on a status label
+        if (e.target.classList.contains('watched-label') || e.target.classList.contains('watch-later-label')) {
+          e.stopPropagation();
+          return;
+        }
         const movieId = card.getAttribute('data-id');
         window.location.href = `./movie-details.html?id=${movieId}`;
       });
     });
+    
+    // Update media status after loading movies
+    updateMediaStatus();
   };
 
   const formatDate = (dateString) => {

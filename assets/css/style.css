@@ -306,6 +306,59 @@ body.active { overflow: hidden; }
   transition: var(--transition-1);
 }
 
+/* Media Status Labels - More Specific Selectors */
+.movie-card .watched-status,
+.movie-card .planned-status,
+.trending-card .watched-status,
+.trending-card .planned-status {
+  position: absolute;
+  right: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: var(--fs-11);
+  font-weight: var(--fw-700);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 2;
+  pointer-events: none;
+  font-family: var(--ff-poppins);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.movie-card .watched-status,
+.trending-card .watched-status {
+  background-color: rgba(0, 183, 255, 0.95);
+  color: var(--rich-black-fogra-29);
+  top: 10px;
+}
+
+.movie-card .planned-status,
+.trending-card .planned-status {
+  background-color: rgba(255, 193, 7, 0.95);
+  color: var(--rich-black-fogra-29);
+  top: 10px;
+  right: 120px; /* Position the planned status to the left of watched status */
+}
+
+/* For cards that have both statuses */
+.movie-card.has-both-status .watched-status {
+  right: 10px;
+}
+
+.movie-card.has-both-status .planned-status {
+  right: 120px;
+}
+
+.movie-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.trending-card {
+  position: relative;
+  overflow: visible;
+}
+
 .movie-card .card-banner::after {
   content: "";
   position: absolute;

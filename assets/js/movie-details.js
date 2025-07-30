@@ -1940,7 +1940,39 @@ document.addEventListener( 'DOMContentLoaded', () =>
                 parentElement.appendChild( watchedLabel );
             }
         };
-    
+        
+        const applyWatchLaterLabel = ( image ) => {
+            if ( !image ) {
+                console.error( 'Movie image not found.' );
+                return;
+            }
+            
+            // Create a "Planned" label
+            const watchLaterLabel = document.createElement('div');
+            watchLaterLabel.textContent = 'Planned';
+            watchLaterLabel.classList.add('watch-later-label');
+            
+            // Ensure the label is added only once
+            const parentElement = image.closest( '.movie-detail-banner' );
+            if (parentElement && !parentElement.querySelector('.watch-later-label')) {
+                parentElement.appendChild(watchLaterLabel);
+            }
+        };
+        
+        const removeWatchLaterLabel = ( image ) => {
+            if (!image) {
+                console.error('Movie image not found.');
+                return;
+            }
+            
+            // Remove the "Planned" label if it exists
+            const parentElement = image.closest( '.movie-detail-banner' );
+            const watchLaterLabel = parentElement.querySelector( '.watch-later-label' );
+            if ( watchLaterLabel )
+            {
+                watchLaterLabel.remove();
+            }
+        };
     
         const removeWatchedStyle = ( image ) =>
         {
@@ -1962,8 +1994,6 @@ document.addEventListener( 'DOMContentLoaded', () =>
             }
         };
     
-    
-    
         const addToWatchLaterFeature = async (movie) => {
             if (!supabase || !supabase.auth) {
                 console.error('Supabase client is not initialized.');
@@ -1979,6 +2009,7 @@ document.addEventListener( 'DOMContentLoaded', () =>
         
                 // Select all watch-later containers (both original and new elements)
                 const watchLaterContainers = document.querySelectorAll('.watch-later-icon, .later-function');
+                const movieImage = document.querySelector('.movie-detail-banner img');
                 
                 let isInWatchList = false; // Shared state variable
         
@@ -1996,6 +2027,13 @@ document.addEventListener( 'DOMContentLoaded', () =>
                     }
         
                     isInWatchList = existing.length > 0;
+                    
+                    // Apply or remove watch later label based on current status
+                    if (isInWatchList && movieImage) {
+                        applyWatchLaterLabel(movieImage);
+                    } else if (movieImage) {
+                        removeWatchLaterLabel(movieImage);
+                    }
         
                     // Helper function to update all containers
                     const updateAllIcons = () => {
@@ -2035,6 +2073,7 @@ document.addEventListener( 'DOMContentLoaded', () =>
                                     }
         
                                     isInWatchList = false;
+                                    if (movieImage) removeWatchLaterLabel(movieImage);
                                 } else {
                                     // Add to watch_later_movies
                                     const { error: insertError } = await supabase
@@ -2046,6 +2085,7 @@ document.addEventListener( 'DOMContentLoaded', () =>
                                     }
         
                                     isInWatchList = true;
+                                    if (movieImage) applyWatchLaterLabel(movieImage);
                                 }
         
                                 // Update all icons
@@ -2068,7 +2108,6 @@ document.addEventListener( 'DOMContentLoaded', () =>
                 console.error('An unexpected error occurred:', error);
             }
         };
-    
     
         // Call this function when movie details are fetched
         document.addEventListener( 'movieDetailsFetched', ( event ) =>

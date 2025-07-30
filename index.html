@@ -1,49 +1,205 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" itemscope itemtype="http://schema.org/WebSite">
 
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SparkScreen</title>
-  <meta name="keywords" content="Movies, TV Shows, Streaming, Reviews, Actors, Actresses, Photos, User Ratings, Synopsis, Trailers, Teasers, Credits, Cast">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="msapplication-TileImage" content="favicon.png">
-  <script data-goatcounter="https://tdvorak.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+  <title>SparkScreen - Discover Movies & TV Shows | Latest Reviews & Ratings</title>
+  
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="SparkScreen - Discover Movies & TV Shows | Latest Reviews & Ratings">
+  <meta name="description" content="Discover the latest movies and TV shows with SparkScreen. Read reviews, watch trailers, and find your next favorite show or film.">
+  <meta name="keywords" content="movies, TV shows, streaming, reviews, ratings, watch online, new releases, trending, what to watch, movie database, TV series">
+  <meta name="author" content="SparkScreen">
+  <link rel="canonical" href="https://sparkscreen.xyz/" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sparkscreen.xyz/">
+  <meta property="og:title" content="SparkScreen - Discover Movies & TV Shows">
+  <meta property="og:description" content="Discover the latest movies and TV shows with SparkScreen. Read reviews, watch trailers, and find your next favorite show or film.">
+  <meta property="og:image" content="https://sparkscreen.xyz/assets/images/banner-seo.png">
+  <meta property="og:site_name" content="SparkScreen">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://sparkscreen.xyz/">
+  <meta name="twitter:site" content="@SparkScreen">
+  <meta name="twitter:creator" content="@SparkScreen">
+  <meta name="twitter:title" content="SparkScreen - Discover Movies & TV Shows">
+  <meta name="twitter:description" content="Discover the latest movies and TV shows with SparkScreen. Read reviews, watch trailers, and find your next favorite show or film.">
+  <meta name="twitter:image" content="https://sparkscreen.xyz/assets/images/banner-seo.png">
+  
+  <!-- Favicons -->
   <link rel="apple-touch-icon" sizes="180x180" href="favicon_180.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
+  <link rel="shortcut icon" href="./favicon.png" type="image/svg+xml">
+  <meta name="msapplication-TileImage" content="favicon.png">
   <meta name="msapplication-TileColor" content="#00b7ff">
   <meta name="theme-color" content="#00b7ff">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-
-  <!-- 
-    - favicon
-  -->
-  <link rel="shortcut icon" href="./favicon.png" type="image/svg+xml">
-
-  <!-- 
-    - custom css link
-  -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SparkScreen">
+  
+  <!-- Preload Critical Resources -->
+  <link rel="preload" href="./assets/css/style.css" as="style">
+  <link rel="preload" href="./assets/css/search.css" as="style">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+  <!-- CSS -->
   <link rel="stylesheet" href="./assets/css/style.css">
   <link rel="stylesheet" href="./assets/css/search.css">
-  <script src="assets/js/mobile-search.js"></script>
-  <script src="assets/js/language.js"></script>
-
-
-  <!-- 
-    - google font link
-  -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="./assets/js/api.js"></script>
-  <script src="./assets/js/handling.js"></script>
-  <script src="./assets/js/user-acc.js"></script>
+  
+  <!-- JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/mobile-search.js" defer></script>
+  <script src="assets/js/language.js" defer></script>
+  <script src="./assets/js/api.js" defer></script>
+  <script src="./assets/js/handling.js" defer></script>
+  <script src="./assets/js/user-acc.js" defer></script>
+  
+  <!-- Schema.org markup for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SparkScreen",
+    "url": "https://sparkscreen.xyz/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://sparkscreen.xyz/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
+    "description": "Discover the latest movies and TV shows with SparkScreen. Read reviews, watch trailers, and find your next favorite show or film.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "SparkScreen",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://sparkscreen.xyz/assets/images/logo.png"
+      }
+    }
+  }
+  </script>
   <script>
+
+    // Function to fetch watched movies for the current user
+    const fetchWatchedMedia = async (mediaType) => {
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) return [];
+
+            const tableName = mediaType === 'movie' ? 'watched_movies' : 'watched_tv';
+            const idField = mediaType === 'movie' ? 'movie_id' : 'tv_id';
+
+            const { data: watchedItems, error: fetchError } = await supabase
+                .from(tableName)
+                .select(idField)
+                .eq('user_id', session.user.id);
+
+            if (fetchError) {
+                console.error(`Error fetching watched ${mediaType}s:`, fetchError);
+                return [];
+            }
+
+            return watchedItems.map(item => item[idField].toString());
+        } catch (err) {
+            console.error(`Error in fetchWatched${mediaType === 'movie' ? 'Movies' : 'TvShows'}:`, err);
+            return [];
+        }
+    };
+
+    // Function to fetch watch later items for the current user
+    const fetchWatchLaterMedia = async (mediaType) => {
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) return [];
+
+            const tableName = mediaType === 'movie' ? 'watch_later_movies' : 'watch_later_tv';
+            const idField = mediaType === 'movie' ? 'movie_id' : 'tv_id';
+
+            const { data: watchLaterItems, error: fetchError } = await supabase
+                .from(tableName)
+                .select(idField)
+                .eq('user_id', session.user.id);
+
+            if (fetchError) {
+                console.error(`Error fetching watch later ${mediaType}s:`, fetchError);
+                return [];
+            }
+
+            return watchLaterItems.map(item => item[idField].toString());
+        } catch (err) {
+            console.error(`Error in fetchWatchLater${mediaType === 'movie' ? 'Movies' : 'TvShows'}:`, err);
+            return [];
+        }
+    };
+
+    // Function to update media status for trending items
+    const updateTrendingItemsStatus = async () => {
+        const trendingItems = document.querySelectorAll('.trending-card');
+        if (trendingItems.length === 0) return;
+
+        try {
+            const [watchedMovies, watchLaterMovies, watchedTv, watchLaterTv] = await Promise.all([
+                fetchWatchedMedia('movie'),
+                fetchWatchLaterMedia('movie'),
+                fetchWatchedMedia('tv'),
+                fetchWatchLaterMedia('tv')
+            ]);
+
+            trendingItems.forEach(item => {
+                const mediaId = item.getAttribute('data-id');
+                const mediaType = item.getAttribute('data-type');
+                
+                if (mediaType === 'movie') {
+                    if (watchedMovies.includes(mediaId)) {
+                        applyWatchedStyle(item);
+                    }
+                    if (watchLaterMovies.includes(mediaId)) {
+                        applyWatchLaterStyle(item);
+                    }
+                } else if (mediaType === 'tv') {
+                    if (watchedTv.includes(mediaId)) {
+                        applyWatchedStyle(item);
+                    }
+                    if (watchLaterTv.includes(mediaId)) {
+                        applyWatchLaterStyle(item);
+                    }
+                }
+            });
+        } catch (err) {
+            console.error('Error updating trending items status:', err);
+        }
+    };
+
+    // Function to apply watched style to a media item
+    const applyWatchedStyle = (mediaItem) => {
+        const image = mediaItem.querySelector('img');
+        if (image) {
+            image.style.filter = 'grayscale(1)';
+            let watchedLabel = mediaItem.querySelector('.watched-label');
+            if (!watchedLabel) {
+                watchedLabel = document.createElement('div');
+                watchedLabel.textContent = 'Watched';
+                watchedLabel.classList.add('watched-label');
+                mediaItem.appendChild(watchedLabel);
+            }
+        }
+    };
+
+    // Function to apply watch later style to a media item
+    const applyWatchLaterStyle = (mediaItem) => {
+        let watchLaterLabel = mediaItem.querySelector('.watch-later-label');
+        if (!watchLaterLabel) {
+            watchLaterLabel = document.createElement('div');
+            watchLaterLabel.textContent = 'Planned';
+            watchLaterLabel.classList.add('watch-later-label');
+            mediaItem.appendChild(watchLaterLabel);
+        }
+    };
     document.addEventListener('DOMContentLoaded', () => {
         const trendingList = document.querySelector('.trending-list'); // Select the trending list UL element
     
@@ -97,7 +253,7 @@
                 }
     
                 const cardHTML = `
-                    <li>
+                    <li class="trending-card" data-id="${item.id}" data-type="${item.media_type}">
                         <div class="movie-card" data-id="${item.id}" data-media-type="${item.media_type}">
                             <figure class="card-banner">
                                 <img src="${posterPath}" alt="${title}">
@@ -133,15 +289,17 @@
             });
         };
     
-        // Load trending items for today
-        fetchTrendingToday();
+        // Load trending items for today and update their status
+        fetchTrendingToday().then(() => {
+            updateTrendingItemsStatus();
+        });
     });
     </script>
   
 
 </head>
 
-<body>
+<body itemscope itemtype="http://schema.org/WebPage">
 
   <!-- 
     - #HEADER
@@ -150,8 +308,8 @@
   <header class="header" data-header>
     <div class="container">
       <div class="overlay" data-overlay></div>
-      <a href="./index.html" class="logo">
-        <img src="./assets/images/heading_purple.png" class="sparkscreen">
+      <a href="./index.html" class="logo" aria-label="SparkScreen Home">
+        <img src="./assets/images/heading_purple.png" class="sparkscreen" alt="SparkScreen Logo" width="200" height="40" itemprop="logo">
       </a>
       <div class="header-actions">
         <div class="search-btn-container">
@@ -212,6 +370,12 @@
               </li>
               <li>
                 <a href="./best-movies-2024.html" class="navbar-link">Best Movies of 2024</a>
+              </li>
+              <li>
+                <a href="./episode-rating.html" class="navbar-link">Episode Rating</a>
+              </li>
+              <li>
+                <a href="./download.html" class="navbar-link">Download</a>
               </li>
             </ul>
           </li>
@@ -381,7 +545,7 @@
 
             <h2 class="h2 service-title">SparkScreen</h2>
 
-            <p class="service-text">
+            <p class="service-text" itemprop="description">
               Welcome to SparkScreen, your free and open-source platform for movies and TV shows! Stream and download your favorite content with torrent links, all in 4K and Full HD quality, at no cost. Discover the perfect movie for any occasion on a transparent, open-source platform built for movie lovers like you.
             </p>
 
@@ -397,9 +561,10 @@
                   <div class="card-content">
                     <h3 class="h3 card-title">Free Streaming & Downloads</h3>
 
-                    <p class="card-text">
-                      Enjoy streaming or downloading movies and TV shows in 4K or Full HD quality, with instant magnet links—completely free!
+                    <p class="hero-text" itemprop="description" style="color: white;">
+                      The best place to find the latest movies and TV shows. Discover, explore, and enjoy your favorite content in one place.
                     </p>
+                    <p style="color: white;">Full HD & 4K quality, with instant magnet links—completely free!</p>
                   </div>
 
                 </div>
@@ -588,7 +753,7 @@
           </a>
           
           <!-- Email -->
-          <a href="mailto:spark@tdvorak.dev" title="Email Us" style="color: #bdbdbd; font-size: 20px; transition: color 0.3s;">
+          <a href="mailto:info@sparkscreen.xyz" title="Email Us" style="color: #bdbdbd; font-size: 20px; transition: color 0.3s;">
             <ion-icon name="mail-outline"></ion-icon>
           </a>
           
