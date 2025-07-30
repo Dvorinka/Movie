@@ -1,72 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-    <!-- Homepage -->
-    <url>
-        <loc>https://sparkscreen.xyz/</loc>
-        <lastmod>2025-07-30</lastmod>
-        <changefreq>daily</changefreq>
-        <priority>1.0</priority>
-    </url>
-    
-    <!-- Main Pages -->
-    <url>
-        <loc>https://sparkscreen.xyz/discover.html</loc>
-        <lastmod>2025-07-30</lastmod>
-        <changefreq>daily</changefreq>
-        <priority>0.9</priority>
-    </url>
-    
-    <url>
-        <loc>https://sparkscreen.xyz/episode-rating.html</loc>
-        <lastmod>2025-07-30</lastmod>
-        <changefreq>daily</changefreq>
-        <priority>0.8</priority>
-    </url>
-    
-    <url>
-        <loc>https://sparkscreen.xyz/download.html</loc>
-        <lastmod>2025-07-30</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    
-    <!-- Discover Subpages -->
-    <url>
-        <loc>https://sparkscreen.xyz/top-100.html</loc>
-        <lastmod>2025-07-30</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    
-    <url>
-        <loc>https://sparkscreen.xyz/release-calendar.html</loc>
-        <lastmod>2025-07-30</lastmod>
-        <changefreq>daily</changefreq>
-        <priority>0.7</priority>
-    </url>
-    
-    <url>
-        <loc>https://sparkscreen.xyz/best-movies-2024.html</loc>
-        <lastmod>2025-07-30</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    
-    <!-- Suggestions -->
-    <url>
-        <loc>https://sparkscreen.xyz/suggestions.html</loc>
-        <lastmod>2025-07-30</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-    </url>
-    
-    <url>
-        <loc>https://sparkscreen.xyz/date-night.html</loc>
-        <lastmod>2025-07-30</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-    </url>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+
+<url>
+  <loc>https://www.sparkscreen.xyz/</loc>
+  <lastmod>2025-07-30T11:42:07+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/index.html</loc>
+  <lastmod>2025-07-30T11:42:08+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/login.html</loc>
+  <lastmod>2025-07-30T11:42:08+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/profile.html</loc>
+  <lastmod>2025-07-30T11:42:08+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/watched.html</loc>
+  <lastmod>2025-07-30T11:42:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/watch-later.html</loc>
+  <lastmod>2025-07-30T11:42:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/discover.html</loc>
+  <lastmod>2025-07-30T11:42:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/top-100.html</loc>
+  <lastmod>2025-07-30T11:42:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/release-calendar.html</loc>
+  <lastmod>2025-07-30T11:42:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/best-movies-2024.html</loc>
+  <lastmod>2025-07-30T11:42:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/episode-rating.html</loc>
+  <lastmod>2025-07-30T11:42:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/download.html</loc>
+  <lastmod>2025-07-30T11:42:10+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/suggestions.html</loc>
+  <lastmod>2025-07-30T11:42:10+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/date-night.html</loc>
+  <lastmod>2025-07-30T11:42:10+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/ai-finder.html</loc>
+  <lastmod>2025-07-30T11:42:10+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/about.html</loc>
+  <lastmod>2025-07-30T11:42:10+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.sparkscreen.xyz/movie-details.html</loc>
+  <lastmod>2025-07-30T11:42:10+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+
+
 </urlset>

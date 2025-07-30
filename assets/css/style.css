@@ -1296,6 +1296,78 @@ body.active { overflow: hidden; }
 
 
 /*-----------------------------------*\
+ * #MOVIE LISTS LAYOUT
+\*-----------------------------------*/
+
+/* Two columns on mobile */
+.movies-list,
+.trending-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  padding: 0 10px;
+  margin: 0;
+  list-style: none;
+}
+
+/* Adjust movie card width for two columns */
+.movie-card,
+.trending-card {
+  width: 100%;
+  margin: 0;
+}
+
+/* Tablet and up - switch to single column */
+@media (min-width: 768px) {
+  .movies-list,
+  .trending-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    padding: 0;
+  }
+  
+  .movie-card,
+  .trending-card {
+    width: calc(20% - 20px); /* Adjust based on your desired number of columns */
+    margin: 0;
+  }
+}
+
+/* Desktop - adjust for more columns if needed */
+@media (min-width: 1024px) {
+  .movie-card,
+  .trending-card {
+    width: calc(16.666% - 20px); /* 6 items per row */
+  }
+}
+
+/* Ensure images are responsive */
+.movie-card .card-banner img,
+.trending-card .card-banner img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+}
+
+/* Adjust card content for better mobile display */
+.movie-card .title,
+.trending-card .title {
+  font-size: 0.9rem;
+  margin: 8px 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.movie-card .meta-list,
+.trending-card .meta-list {
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+}
+
+/*-----------------------------------*\
  * #MEDIA QUERIES
 \*-----------------------------------*/
 
