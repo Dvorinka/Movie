@@ -1291,11 +1291,243 @@ body.active { overflow: hidden; }
   text-align: center; /* Center the text inside the buttons */
 }
 
+/*-----------------------------------*
+ * #DOWNLOAD & STREAM BUTTONS - MOBILE
+\*-----------------------------------*/
 
+/* Base styles for download container */
+.download-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 15px 0;
+  align-items: center;
+}
 
+/* Base styles for stream buttons */
+.stream-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 15px 0;
+}
 
+/* Language display styling */
+.language-display {
+  display: inline-block;
+  margin: 10px 0;
+  padding: 5px 10px;
+  background: var(--gunmetal-2);
+  border-radius: 4px;
+  color: var(--white);
+  font-size: var(--fs-10);
+}
 
-/*-----------------------------------*\
+/* Mobile styles */
+@media (max-width: 768px) {
+  /* Fix language display positioning on mobile */
+  .language-display {
+    position: static !important;
+    margin: 10px 0 !important;
+    width: 100%;
+    justify-content: center;
+    display: flex !important;
+    height: auto;
+    padding: 8px 12px !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    order: 1; /* Move below download buttons */
+  }
+
+  .download-container {
+    flex-direction: column;
+    align-items: stretch;
+    position: relative; /* Reset any absolute positioning context */
+  }
+  
+  .download-btn,
+  .goto-download-btn,
+  .dir-download-btn,
+  .file-size {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    padding: 15px 10px !important;
+    margin: 5px 0;
+    position: relative;
+    transform: none !important;
+  }
+  
+  .stream-buttons {
+    flex-direction: column;
+  }
+  
+  .stream-btn,
+  .hd-stream-btn,
+  .sd-stream-btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    margin: 5px 0;
+  }
+  
+  .language-display {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin: 10px 0;
+  }
+  
+  /* Adjust popup for mobile */
+  #quality-popup .popup-content {
+    width: 90%;
+    max-width: 320px;
+    padding: 15px;
+  }
+  
+  #quality-popup button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}
+
+/* Smaller phones */
+@media (max-width: 480px) {
+  .download-btn span,
+  .goto-download-btn span,
+  .stream-btn span,
+  .hd-stream-btn span {
+    font-size: 12px;
+  }
+  
+  .download-btn ion-icon,
+  .goto-download-btn ion-icon,
+  .stream-btn ion-icon,
+  .hd-stream-btn ion-icon,
+  .sd-stream-btn ion-icon {
+    font-size: 14px;
+  }
+  
+  .language-display {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}
+
+/*-----------------------------------*
+ * #ADDITIONAL INFO SECTION - MOBILE
+\*-----------------------------------*/
+
+/* Base styles for additional info section */
+.additional-info {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.left-column {
+  flex: 2;
+}
+
+.right-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+.quick-functions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.quick-functions > div {
+  text-align: center;
+  flex: 1;
+  min-width: 80px;
+}
+
+.quick-functions a {
+  color: var(--white);
+  font-size: 24px;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+
+.quick-functions p {
+  font-size: 12px;
+  color: var(--gray-x);
+  margin: 0;
+}
+
+.scraper-rating {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .additional-info {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .left-column, 
+  .right-column {
+    width: 100%;
+    min-width: 100%;
+  }
+  
+  .quick-functions {
+    justify-content: space-around;
+  }
+  
+  .quick-functions > div {
+    min-width: 60px;
+  }
+  
+  .ai-rating-wrapper {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .scraper-rating {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  /* Adjust spacing for mobile */
+  .section-subtitle {
+    margin-top: 40px !important;
+  }
+}
+
+/* Smaller phones */
+@media (max-width: 480px) {
+  .quick-functions {
+    gap: 5px;
+  }
+  
+  .quick-functions > div {
+    min-width: 45px;
+  }
+  
+  .quick-functions a {
+    font-size: 20px;
+  }
+  
+  .quick-functions p {
+    font-size: 10px;
+  }
+  
+  .scraper-rating {
+    grid-template-columns: 1fr;
+  }
+}
+
+/*-----------------------------------*
  * #MEDIA QUERIES
 \*-----------------------------------*/
 

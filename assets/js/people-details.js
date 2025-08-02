@@ -2,7 +2,6 @@
 // Fetch and display person details from TMDB
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const apiKey = '054582e9ee66adcbe911e0008aa482a8'; // Use your real TMDB API key
   const tmdbBase = 'https://api.themoviedb.org/3';
   const imgBase = 'https://image.tmdb.org/t/p/w500';
 
@@ -150,11 +149,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
 }
 
-  async function renderPersonPage(personId) {
+  // Pagination state
+  let currentFeaturedPage = 1;
+  let currentLatestPage = 1;
+  const ITEMS_PER_PAGE = 12;
+  let allFeaturedItems = [];
+  let allLatestItems = [];
+
+  async function renderPersonPage(personId, featuredPage = 1, latestPage = 1) {
+    currentFeaturedPage = featuredPage;
+    currentLatestPage = latestPage;
+    
     setText('person-name', 'Loading...');
     setText('person-biography', 'Loading...');
     setText('person-born', '');
-    setHTML('person-featured-list', '');
+    
+    // Only clear these on initial load, not on pagination
+    if (featuredPage === 1) {
+      setHTML('person-featured-list', '');
+      allFeaturedItems = [];
+    }
+    if (latestPage === 1) {
+      setHTML('person-latest-list', '');
+      allLatestItems = [];
+    }
+    
     setHTML('person-images-list', '');
     setHTML('person-videos-list', '');
 
@@ -180,7 +199,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Name
-    setText('person-name', person.name || 'Unknown');
+    const personName = person.name || 'Unknown';
+    setText('person-name', personName);
+    
+    // Update page title with name and birth year
+    const birthYear = person.birthday ? ` (${person.birthday.split('-')[0]})` : '';
+    document.title = `${personName} ${birthYear} - Person Details`;
 
     // Biography
     setText('person-biography', person.biography || 'No biography available.');
@@ -196,8 +220,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     setHTML('person-born', born);
 
-    // Featured (top 12 credits by vote count)
+    // Process all credits
     if (credits && credits.cast && credits.cast.length > 0) {
+      // Sort all credits by popularity (or another metric) and store them
+      const sortedCredits = [...credits.cast].sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+      
+      // Split into featured and latest (or use different criteria if needed)
+      allFeaturedItems = [...sortedCredits];
+      allLatestItems = [...sortedCredits].sort((a, b) => {
+        const dateA = a.release_date || a.first_air_date || '';
+        const dateB = b.release_date || b.first_air_date || '';
+        return new Date(dateB) - new Date(dateA);
+      });
+      
+      // Render the current page of items
+      renderFeaturedItems();
+      renderLatestItems();
       const sorted = credits.cast.sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0));
       const featured = sorted.slice(0, 12);
       setHTML('person-featured-list', featured.map(createFeaturedCard).join(''));
@@ -205,23 +243,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       setHTML('person-featured-list', '<div>No featured works found.</div>');
     }
 
-    // Latest Appearances (by release date, top 6)
-    if (credits && credits.cast && credits.cast.length > 0) {
-      const sorted = credits.cast
-        .filter(item => item.release_date || item.first_air_date)
-        .sort((a, b) => {
-          const dateA = new Date(a.release_date || a.first_air_date || 0);
-          const dateB = new Date(b.release_date || b.first_air_date || 0);
-          return dateB - dateA;
-        });
-      const latest = sorted.slice(0, 6);
-      // Insert after featured-list
-      let latestHtml = `<div class="person-latest"><h2>Latest Appearances</h2><div class="latest-list">${latest.map(createLatestCard).join('')}</div></div>`;
-      const featuredList = document.getElementById('person-featured-list');
-      if (featuredList && featuredList.parentElement) {
-        featuredList.parentElement.insertAdjacentHTML('afterend', latestHtml);
-      }
-    }
+    // Latest Appearances are now handled by the renderLatestItems function
 
     // Images
     if (images && images.profiles && images.profiles.length > 0) {
@@ -293,6 +315,80 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     setHTML('person-videos-list', videoHtml || '<div>No videos found.</div>');
   }
+
+  function renderFeaturedItems() {
+    const startIdx = (currentFeaturedPage - 1) * ITEMS_PER_PAGE;
+    const endIdx = startIdx + ITEMS_PER_PAGE;
+    const itemsToShow = allFeaturedItems.slice(0, endIdx);
+    
+    // Create featured items HTML
+    const featuredHTML = itemsToShow.map(createFeaturedCard).join('');
+    
+    // Create load more button HTML if there are more items to show
+    let loadMoreHTML = '';
+    if (endIdx < allFeaturedItems.length) {
+      loadMoreHTML = `
+        <div class="featured-card load-more-container">
+          <button id="load-more-featured" class="load-more-btn">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span class="btn-text">Load More</span>
+          </button>
+        </div>
+      `;
+    }
+    
+    // Combine featured items with load more button
+    setHTML('person-featured-list', featuredHTML + loadMoreHTML);
+  }
+  
+  function renderLatestItems() {
+    const startIdx = (currentLatestPage - 1) * ITEMS_PER_PAGE;
+    const endIdx = startIdx + ITEMS_PER_PAGE;
+    const itemsToShow = allLatestItems.slice(0, endIdx);
+    
+    // Create latest items HTML
+    const latestHTML = itemsToShow.map(createLatestCard).join('');
+    
+    // Create load more button HTML if there are more items to show
+    let loadMoreHTML = '';
+    if (endIdx < allLatestItems.length) {
+      loadMoreHTML = `
+        <div class="featured-card load-more-container">
+          <button id="load-more-latest" class="load-more-btn">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span class="btn-text">Load More</span>
+          </button>
+        </div>
+      `;
+    }
+    
+    // Combine latest items with load more button
+    setHTML('person-latest-list', latestHTML + loadMoreHTML);
+  }
+  
+  // Handle load more clicks using event delegation
+  document.addEventListener('click', function(e) {
+    const loadMoreFeaturedBtn = e.target.closest('#load-more-featured');
+    const loadMoreLatestBtn = e.target.closest('#load-more-latest');
+    
+    if (loadMoreFeaturedBtn) {
+      e.preventDefault();
+      currentFeaturedPage++;
+      renderFeaturedItems();
+      // Scroll to show the newly loaded items
+      setTimeout(() => {
+        loadMoreFeaturedBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    } else if (loadMoreLatestBtn) {
+      e.preventDefault();
+      currentLatestPage++;
+      renderLatestItems();
+      // Scroll to show the newly loaded items
+      setTimeout(() => {
+        loadMoreLatestBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+  });
 
   // Main
   const personId = getPersonIdFromUrl();
