@@ -1,6 +1,4 @@
 // API Configuration
-const apiKey = '054582e9ee66adcbe911e0008aa482a8';
-const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
 const imageW500Url = 'https://image.tmdb.org/t/p/w500';
 const imageW342Url = 'https://image.tmdb.org/t/p/w342'; // Better quality poster
 
