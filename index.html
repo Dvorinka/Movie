@@ -267,25 +267,28 @@
                 trendingList.insertAdjacentHTML('beforeend', cardHTML);
             });
     
-            // Add event listeners to movie cards in trending list
-            const trendingCards = trendingList.querySelectorAll('.movie-card');
-            trendingCards.forEach(card => {
-                card.addEventListener('click', () => {
-                    const movieId = card.getAttribute('data-id');
-                    const mediaType = card.getAttribute('data-media-type');
+            // Add event delegation to trending list for better performance
+            trendingList.addEventListener('click', (e) => {
+                // Find the closest parent with class 'trending-card'
+                const trendingCard = e.target.closest('.trending-card');
+                if (!trendingCard) return;
+                
+                const movieId = trendingCard.getAttribute('data-id');
+                const mediaType = trendingCard.getAttribute('data-type');
     
-                    // Debugging: Log click details
-                    console.log(`Clicked card - Movie ID: ${movieId}, Media Type: ${mediaType}`);
+                // Debugging: Log click details
+                console.log(`Clicked card - Movie ID: ${movieId}, Media Type: ${mediaType}`);
     
-                    // Redirect based on media_type
-                    if (mediaType === 'movie') {
-                        window.location.href = `./movie-details.html?id=${movieId}`;
-                    } else if (mediaType === 'tv') {
-                        window.location.href = `./tv-details.html?id=${movieId}`;
-                    } else {
-                        console.error(`Unknown media type: ${mediaType}`);
-                    }
-                });
+                // Redirect based on media_type
+                if (mediaType === 'movie') {
+                    window.location.href = `./movie-details.html?id=${movieId}`;
+                } else if (mediaType === 'tv') {
+                    window.location.href = `./tv-details.html?id=${movieId}`;
+                } else if (mediaType === 'person') {
+                    window.location.href = `./people-details.html?id=${movieId}`;
+                } else {
+                    console.error(`Unknown media type: ${mediaType}`);
+                }
             });
         };
     
