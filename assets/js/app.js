@@ -108,7 +108,7 @@ async function registerWithEmail() {
       .insert({
         user_id: data.user.id, // Make sure user_id is the logged-in user's ID
         nickname: username, // Storing the username as nickname in user_profiles
-        favourite_media_type: 'none', // Default value, can be updated later
+        favourite_media_type: 'movie' // Default value, can be updated later
       });
 
     if (profileError) {

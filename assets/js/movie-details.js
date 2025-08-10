@@ -1435,7 +1435,7 @@ document.addEventListener( 'DOMContentLoaded', () =>
             {
                 event.preventDefault(); // Prevents the default link behavior
         
-                const streamUrl = `https://rivestream.org/watch?type=movie&id=${movieId}`;
+                const streamUrl = `https://rivestream.org/embed?type=movie&id=${movieId}`;
         
                 // Create an iframe element
                 const iframe = document.createElement( 'iframe' );
