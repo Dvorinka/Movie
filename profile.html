@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - SparkScreen</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/profile.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@latest/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@latest/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+  <header class="header" data-header>
+    <div class="container">
+      <a href="/index.html" class="logo">
+        <img src="assets/images/heading_purple.png" alt="SparkScreen" width="200">
+      </a>
+      <nav class="navbar" data-navbar>
+        <ul class="navbar-list">
+          <li><a href="/index.html" class="navbar-link">Home</a></li>
+          <li><a href="#" class="navbar-link">Movies</a></li>
+          <li><a href="#" class="navbar-link">TV Shows</a></li>
+        </ul>
+      </nav>
+      <div class="profile-menu">
+        <button class="profile-btn" id="profileMenuBtn">
+          <img id="profilePicture" src="https://api.dicebear.com/7.x/identicon/svg?seed=default" alt="Profile" width="40" height="40">
+        </button>
+        <div class="dropdown-menu" id="profileDropdown">
+          <a href="#" class="dropdown-item" id="profileLink">My Profile</a>
+          <a href="#" class="dropdown-item" id="settingsLink">Settings</a>
+          <a href="#" class="dropdown-item" id="logoutBtn">Logout</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="profile-container">
+    <div class="container">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <img id="userProfilePicture" src="https://api.dicebear.com/7.x/identicon/svg?seed=default" alt="Profile Picture">
+          <button class="edit-avatar-btn" id="changeAvatarBtn">
+            <ion-icon name="camera"></ion-icon>
+          </button>
+        </div>
+        <div class="profile-info">
+          <h1 id="userDisplayName">Loading...</h1>
+          <p id="userEmail">user@example.com</p>
+          <p class="member-since">Member since <span id="memberSince">2025</span></p>
+        </div>
+      </div>
+
+      <div class="profile-content">
+        <div class="profile-section">
+          <h2>Profile Settings</h2>
+          <form id="profileForm" class="profile-form">
+            <div class="form-group">
+              <label for="nickname">Nickname</label>
+              <input type="text" id="nickname" name="nickname" placeholder="Enter your nickname">
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="favoriteGenre">Favorite Genre</label>
+                <select id="favoriteGenre" name="favoriteGenre">
+                  <option value="">Select a genre</option>
+                  <option value="action">Action</option>
+                  <option value="comedy">Comedy</option>
+                  <option value="drama">Drama</option>
+                  <option value="horror">Horror</option>
+                  <option value="sci-fi">Sci-Fi</option>
+                  <option value="thriller">Thriller</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="favoriteMediaType">Favorite Media Type</label>
+                <select id="favoriteMediaType" name="favoriteMediaType">
+                  <option value="movie">Movies</option>
+                  <option value="tvshow">TV Shows</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="language">Language</label>
+                <select id="language" name="language">
+                  <option value="en">English</option>
+                  <option value="cs">Čeština</option>
+                  <option value="es">Español</option>
+                  <option value="fr">Français</option>
+                  <option value="de">Deutsch</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country" name="country">
+                  <option value="US">United States</option>
+                  <option value="CZ">Czech Republic</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="CA">Canada</option>
+                  <option value="AU">Australia</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+              <button type="button" class="btn btn-secondary" id="cancelChanges">Cancel</button>
+            </div>
+          </form>
+        </div>
+        
+        <div class="profile-section">
+          <h2>Account Security</h2>
+          <div class="security-options">
+            <button class="security-option" id="changePasswordBtn">
+              <ion-icon name="key"></ion-icon>
+              <div class="security-option-text">
+                <span class="security-option-title">Change Password</span>
+                <span class="security-option-description">Update your account password</span>
+              </div>
+              <ion-icon name="chevron-forward"></ion-icon>
+            </button>
+            <button class="security-option" id="twoFactorBtn">
+              <ion-icon name="shield-checkmark"></ion-icon>
+              <div class="security-option-text">
+                <span class="security-option-title">Two-Factor Authentication</span>
+                <span class="security-option-description" id="2faStatus">Disabled</span>
+              </div>
+              <ion-icon name="chevron-forward"></ion-icon>
+            </button>
+          </div>
+          
+          <!-- Change Password Modal -->
+          <div id="changePasswordModal" class="modal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3>Change Password</h3>
+                <button class="close-modal" id="closePasswordModal">&times;</button>
+              </div>
+              <form id="changePasswordForm">
+                <div class="form-group">
+                  <label for="currentPassword">Current Password</label>
+                  <input type="password" id="currentPassword" required>
+                </div>
+                <div class="form-group">
+                  <label for="newPassword">New Password</label>
+                  <input type="password" id="newPassword" minlength="6" required>
+                  <small>Password must be at least 6 characters long</small>
+                </div>
+                <div class="form-group">
+                  <label for="confirmPassword">Confirm New Password</label>
+                  <input type="password" id="confirmPassword" required>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Update Password</button>
+                  <button type="button" class="btn btn-secondary" id="cancelPasswordChange">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <!-- 2FA Setup Modal -->
+          <div id="twoFactorModal" class="modal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3>Two-Factor Authentication</h3>
+                <button class="close-modal" id="close2FAModal">&times;</button>
+              </div>
+              <div id="2faSetup">
+                <p>Secure your account by enabling two-factor authentication. You'll need to enter a verification code from your authenticator app when signing in.</p>
+                <div id="2faStatusMessage" class="alert"></div>
+                <div class="form-actions" style="margin-top: 1rem;">
+                  <button type="button" class="btn btn-primary" id="enable2FABtn">Enable 2FA</button>
+                  <button type="button" class="btn btn-secondary" id="disable2FABtn" style="display: none;">Disable 2FA</button>
+                </div>
+              </div>
+              
+              <!-- 2FA Verification Step -->
+              <div id="2faVerification" style="display: none;">
+                <p>Enter the 6-digit code from your authenticator app:</p>
+                <div class="two-factor-code-inputs">
+                  <input type="text" maxlength="1" class="two-factor-input" data-index="1">
+                  <input type="text" maxlength="1" class="two-factor-input" data-index="2">
+                  <input type="text" maxlength="1" class="two-factor-input" data-index="3">
+                  <span>-</span>
+                  <input type="text" maxlength="1" class="two-factor-input" data-index="4">
+                  <input type="text" maxlength="1" class="two-factor-input" data-index="5">
+                  <input type="text" maxlength="1" class="two-factor-input" data-index="6">
+                </div>
+                <div class="form-actions" style="margin-top: 1rem;">
+                  <button type="button" class="btn btn-primary" id="verify2FABtn">Verify & Enable</button>
+                  <button type="button" class="btn btn-secondary" id="cancel2FAVerification">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="profile-section">
+          <h2>My Statistics</h2>
+          <div class="statistics-grid">
+            <div class="stat-card">
+              <div class="stat-icon">🎬</div>
+              <div class="stat-value" id="watchedMoviesCount">0</div>
+              <div class="stat-label">Movies Watched</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📺</div>
+              <div class="stat-value" id="watchedTvCount">0</div>
+              <div class="stat-label">TV Shows Watched</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">⏭️</div>
+              <div class="stat-value" id="watchLaterCount">0</div>
+              <div class="stat-label">Watch Later</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📋</div>
+              <div class="stat-value" id="listCount">0</div>
+              <div class="stat-label">Custom Lists</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h2>Preferences</h2>
+          <div class="preferences">
+            <div class="preference-item">
+              <div class="preference-info">
+                <h3>Email Notifications</h3>
+                <p>Receive updates about your account and recommendations</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="emailNotifications" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+            
+            <div class="preference-item">
+              <div class="preference-info">
+                <h3>Dark Mode</h3>
+                <p>Switch between light and dark theme</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="darkMode">
+                <span class="slider round"></span>
+              </label>
+            </div>
+            
+            <div class="preference-item">
+              <div class="preference-info">
+                <h3>Auto-play Trailers</h3>
+                <p>Automatically play trailers on hover</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="autoPlayTrailers" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/js/profile.js" type="module"></script>
+</body>
+</html>
