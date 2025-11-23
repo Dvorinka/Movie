@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const apiKey = '054582e9ee66adcbe911e0008aa482a8';
     const omdbApiKey = '20e349a6'; // Replace with your OMDB API key
     const baseApiUrl = 'https://api.themoviedb.org/3';
-    const ytsApiUrl = 'https://yts.mx/api/v2/list_movies.json';
+    const getYtsListMoviesUrl = () => `${(window.getYtsBaseUrlSync ? window.getYtsBaseUrlSync() : 'https://yts.lt/api/v2')}/list_movies.json`;
     const omdbApiUrl = 'https://www.omdbapi.com/';
     const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
     const mediaTypeSelect = document.getElementById('media-type');
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchRedactionPicks = async (genre) => {
-        let url = `${ytsApiUrl}?limit=20&sort_by=like_count&order_by=desc&language=english`;
+        let url = `${getYtsListMoviesUrl()}?limit=20&sort_by=like_count&order_by=desc&language=english`;
         if (genre) {
             url += `&genre=${genre}`;
         }
@@ -558,7 +558,7 @@ const loadMoreMovies = async () => {
     const selectedMediaType = mediaTypeSelect.value;
 
     if (selectedFilter === 'redaction-picks' && selectedMediaType === 'movie') {
-        url = `${ytsApiUrl}?limit=20&page=${currentPage}&sort_by=like_count&order_by=desc&language=english`;
+        url = `${getYtsListMoviesUrl()}?limit=20&page=${currentPage}&sort_by=like_count&order_by=desc&language=english`;
         if (selectedGenre) {
             url += `&genre=${genreMap[selectedGenre]}`;
         }
@@ -831,3 +831,4 @@ loadMoreButton.addEventListener('click', loadMoreMovies);
         }
     });
 });
+

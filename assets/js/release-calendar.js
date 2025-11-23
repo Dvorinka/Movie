@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
 let currentMonth = new Date().getMonth(); // Current month (0-11)
 let currentYear = new Date().getFullYear(); // Current year
 const trackedTvShowIds = [];
+const TV_LANG = 'en';
+const TV_VOTE_COUNT_MIN = 2000;
+const TV_VOTE_AVG_MIN = 5;
 
 // Initialize the calendar
 function initializeCalendar() {
@@ -144,10 +147,10 @@ async function fetchMoviesInDateRange(startDate, endDate) {
             }));
 
         // Fetch TV shows (new series)
-        const tvResponse = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&language=en-US&first_air_date.gte=${startDate}&first_air_date.lte=${endDate}`);
+        const tvResponse = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&language=en-US&first_air_date.gte=${startDate}&first_air_date.lte=${endDate}&with_original_language=${TV_LANG}&vote_count.gte=${TV_VOTE_COUNT_MIN}&vote_average.gte=${TV_VOTE_AVG_MIN}`);
         const tvData = await tvResponse.json();
         let tvShows = tvData.results
-            .filter(show => show.poster_path) // Only include shows with poster images
+            .filter(show => show.poster_path && show.original_language === TV_LANG && (show.vote_count || 0) >= TV_VOTE_COUNT_MIN && (show.vote_average || 0) >= TV_VOTE_AVG_MIN) // Only include shows with poster images and quality filters
             .map(show => ({
                 ...show,
                 type: 'tv',
@@ -166,11 +169,14 @@ async function fetchMoviesInDateRange(startDate, endDate) {
         // Fetch popular TV shows (for broader episode coverage)
         const popularResponse = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${apiKey}&language=en-US&page=1`);
         const popularData = await popularResponse.json();
-        const popularShows = Array.isArray(popularData.results) ? popularData.results.filter(show => show.poster_path) : [];
+        const popularShows = Array.isArray(popularData.results)
+            ? popularData.results.filter(show => show.poster_path && show.original_language === TV_LANG && (show.vote_count || 0) >= TV_VOTE_COUNT_MIN && (show.vote_average || 0) >= TV_VOTE_AVG_MIN)
+            : [];
         
         // Filter to only include shows with new seasons in our date range
         const upcomingSeasons = [];
-        for (const show of upcomingSeasonsData.results) {
+        const onTheAirFiltered = (upcomingSeasonsData.results || []).filter(show => show.poster_path && show.original_language === TV_LANG && (show.vote_count || 0) >= TV_VOTE_COUNT_MIN && (show.vote_average || 0) >= TV_VOTE_AVG_MIN);
+        for (const show of onTheAirFiltered) {
             try {
                 // Get the show details to check the next episode to air
                 const showDetailsResponse = await fetch(`https://api.themoviedb.org/3/tv/${show.id}?api_key=${apiKey}&language=en-US&append_to_response=next_episode_to_air`);
@@ -204,45 +210,61 @@ async function fetchMoviesInDateRange(startDate, endDate) {
         const episodeItems = [];
         try {
             const candidateIds = new Set();
-            (upcomingSeasonsData.results || []).forEach(s => candidateIds.add(s.id));
+            (onTheAirFiltered || []).forEach(s => candidateIds.add(s.id));
             (tvShows || []).forEach(s => candidateIds.add(s.id));
             (popularShows || []).forEach(s => candidateIds.add(s.id));
             (trackedTvShowIds || []).forEach(id => candidateIds.add(id));
 
-            for (const id of candidateIds) {
-                try {
-                    const detailsRes = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}&language=en-US&append_to_response=next_episode_to_air`);
-                    const details = await detailsRes.json();
-                    const seasonNumber = (details && details.next_episode_to_air && details.next_episode_to_air.season_number) ||
-                        (Array.isArray(details?.seasons) && details.seasons.filter(se => se.season_number > 0).sort((a,b)=>b.season_number-a.season_number)[0]?.season_number) || null;
-                    if (!seasonNumber) continue;
+            const ids = Array.from(candidateIds);
+            const detailsResults = await Promise.allSettled(
+                ids.map(id => fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}&language=en-US&append_to_response=next_episode_to_air`).then(r => r.json()))
+            );
 
-                    const seasonRes = await fetch(`https://api.themoviedb.org/3/tv/${id}/season/${seasonNumber}?api_key=${apiKey}&language=en-US`);
-                    const season = await seasonRes.json();
-                    const episodes = Array.isArray(season?.episodes) ? season.episodes : [];
+            const detailsList = [];
+            for (let i = 0; i < ids.length; i++) {
+                const res = detailsResults[i];
+                if (res.status !== 'fulfilled') continue;
+                const details = res.value;
+                if (!details) continue;
+                if (details.original_language !== TV_LANG) continue;
+                const vc = details.vote_count || 0;
+                const va = details.vote_average || 0;
+                if (vc < TV_VOTE_COUNT_MIN || va < TV_VOTE_AVG_MIN) continue;
+                const nea = details.next_episode_to_air;
+                if (!nea) continue;
+                const air = nea.air_date;
+                if (!air || air < startDate || air > endDate) continue;
+                detailsList.push({ id: ids[i], details, seasonNumber: nea.season_number });
+            }
 
-                    for (const ep of episodes) {
-                        const air = ep.air_date;
-                        if (!air) continue;
-                        if (air >= startDate && air <= endDate) {
-                            episodeItems.push({
-                                id: details.id,
-                                type: 'tv',
-                                title: `${details.name} S${String(seasonNumber).padStart(2,'0')}E${String(ep.episode_number || 0).padStart(2,'0')}`,
-                                name: `${details.name} S${String(seasonNumber).padStart(2,'0')}E${String(ep.episode_number || 0).padStart(2,'0')}`,
-                                display_title: `${details.name} S${String(seasonNumber).padStart(2,'0')}E${String(ep.episode_number || 0).padStart(2,'0')}`,
-                                overview: ep.overview,
-                                release_date: air,
-                                first_air_date: air,
-                                poster_path: ep.still_path || details.poster_path,
-                                backdrop_path: details.backdrop_path,
-                                detail_url: `tv-details.html?id=${details.id}`,
-                                is_new_season: ep.episode_number === 1
-                            });
-                        }
-                    }
-                } catch (err) {
-                    console.error(`Error fetching episodes for show ${id}:`, err);
+            const seasonResults = await Promise.allSettled(
+                detailsList.map(x => fetch(`https://api.themoviedb.org/3/tv/${x.id}/season/${x.seasonNumber}?api_key=${apiKey}&language=en-US`).then(r => r.json()))
+            );
+
+            for (let i = 0; i < detailsList.length; i++) {
+                const res = seasonResults[i];
+                if (res.status !== 'fulfilled') continue;
+                const season = res.value;
+                const episodes = Array.isArray(season?.episodes) ? season.episodes : [];
+                const d = detailsList[i].details;
+                const sn = detailsList[i].seasonNumber;
+                for (const ep of episodes) {
+                    const air = ep.air_date;
+                    if (!air || air < startDate || air > endDate) continue;
+                    episodeItems.push({
+                        id: d.id,
+                        type: 'tv',
+                        title: `${d.name} S${String(sn).padStart(2,'0')}E${String(ep.episode_number || 0).padStart(2,'0')}`,
+                        name: `${d.name} S${String(sn).padStart(2,'0')}E${String(ep.episode_number || 0).padStart(2,'0')}`,
+                        display_title: `${d.name} S${String(sn).padStart(2,'0')}E${String(ep.episode_number || 0).padStart(2,'0')}`,
+                        overview: ep.overview,
+                        release_date: air,
+                        first_air_date: air,
+                        poster_path: ep.still_path || d.poster_path,
+                        backdrop_path: d.backdrop_path,
+                        detail_url: `tv-details.html?id=${d.id}`,
+                        is_new_season: ep.episode_number === 1
+                    });
                 }
             }
         } catch (err) {

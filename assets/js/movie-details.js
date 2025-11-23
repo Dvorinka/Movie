@@ -882,7 +882,8 @@ document.addEventListener( 'DOMContentLoaded', () =>
                 if ( !imdbId ) throw new Error( "IMDb ID not available for this movie." );
     
                 // Now, use the IMDb ID to query YTS
-                const ytsUrl = `https://yts.mx/api/v2/list_movies.json?query_term=${imdbId}`;
+                const ytsBase = (window.getYtsBaseUrlSync ? window.getYtsBaseUrlSync() : 'https://yts.lt/api/v2');
+                const ytsUrl = `${ytsBase}/list_movies.json?query_term=${imdbId}`;
                 const response = await fetch( ytsUrl );
                 if ( !response.ok ) throw new Error( "Error fetching movie list" );
     
@@ -900,7 +901,7 @@ document.addEventListener( 'DOMContentLoaded', () =>
                 const movieIdYTS = movie.id; // Extract the YTS movie ID
     
                 // Fetch detailed movie info using movie_id
-                const movieDetailsUrl = `https://yts.mx/api/v2/movie_details.json?movie_id=${movieIdYTS}`;
+                const movieDetailsUrl = `${ytsBase}/movie_details.json?movie_id=${movieIdYTS}`;
                 const movieDetailsResponse = await fetch( movieDetailsUrl );
                 if ( !movieDetailsResponse.ok ) throw new Error( "Error fetching movie details" );
     
@@ -1136,7 +1137,8 @@ document.addEventListener( 'DOMContentLoaded', () =>
                 if ( !imdbId ) throw new Error( "IMDb ID not available for this movie." );
     
                 // Use IMDb ID to query YTS for the torrent
-                const ytsUrl = `https://yts.mx/api/v2/list_movies.json?query_term=${imdbId}`;
+                const ytsBase = (window.getYtsBaseUrlSync ? window.getYtsBaseUrlSync() : 'https://yts.lt/api/v2');
+                const ytsUrl = `${ytsBase}/list_movies.json?query_term=${imdbId}`;
                 const response = await fetch( ytsUrl );
                 const data = await response.json();
     
