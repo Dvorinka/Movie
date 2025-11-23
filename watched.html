@@ -408,11 +408,14 @@
     const displayItem = async (itemDetails, itemTitle, watchedAt, format) => {
       if (!itemDetails.poster_path) return;
 
-      const itemElement = document.createElement('div');
+      const itemElement = document.createElement('a');
       itemElement.classList.add('movie-card');
       itemElement.dataset.genre = itemDetails.genres ? itemDetails.genres.map(genre => genre.id).join(',') : '';
       itemElement.dataset.format = format;
       itemElement.dataset.rating = itemDetails.vote_average || 'N/A';
+      itemElement.href = format === 'movie'
+        ? `movie-details.html?id=${itemDetails.id}`
+        : `tv-details.html?id=${itemDetails.id}`;
 
       let certification = { rating: 'NR', hint: 'Not Rated' };
       let duration = 'N/A';
@@ -451,15 +454,7 @@
           </div>
         </div>
       `;
-
-      itemElement.addEventListener('click', () => {
-        if (format === 'movie') {
-          window.location.href = `movie-details.html?id=${itemDetails.id}`;
-        } else {
-          window.location.href = `tv-details.html?id=${itemDetails.id}`;
-        }
-      });
-
+      
       moviesContainer.appendChild(itemElement);
     };
 

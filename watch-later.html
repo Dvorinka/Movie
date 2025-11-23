@@ -417,7 +417,6 @@
       document.querySelector('.runtime-stats').innerHTML = statsHTML;
     };
 
-
     // Helper for TV show certification (from tv-details.js)
     const getShowCertification = (show) => {
       const userLanguage = navigator.language.split('-')[0];
@@ -448,10 +447,13 @@
     const displayItem = async (itemDetails, itemTitle, addedAt, format) => {
       if (!itemDetails.poster_path) return;
 
-      const itemElement = document.createElement('div');
+      const itemElement = document.createElement('a');
       itemElement.classList.add('movie-card');
       itemElement.dataset.genre = itemDetails.genres ? itemDetails.genres.map(genre => genre.id).join(',') : '';
       itemElement.dataset.format = format;
+      itemElement.href = format === 'movie'
+        ? `movie-details.html?id=${itemDetails.id}`
+        : `tv-details.html?id=${itemDetails.id}`;
 
       // Format runtime
       let runtime = 'N/A';
@@ -485,8 +487,8 @@
       const formattedDate = new Date(addedAt).toLocaleDateString();
       itemElement.innerHTML = `
         <div class="card-banner">
-          <img src="https://image.tmdb.org/t/p/w500${itemDetails.poster_path}" 
-               alt="${itemDetails.title || itemDetails.name}" 
+          <img src="https://image.tmdb.org/t/p/w500${itemDetails.poster_path}"
+               alt="${itemDetails.title || itemDetails.name}"
                loading="lazy">
         </div>
         <div class="title-wrapper">
@@ -502,14 +504,6 @@
           ${(itemDetails.vote_average ? `<div class="rating"><ion-icon name="star"></ion-icon><span>${itemDetails.vote_average.toFixed(1)}</span></div>` : '')}
         </div>
       `;
-
-      itemElement.addEventListener('click', () => {
-        if (format === 'movie') {
-          window.location.href = `movie-details.html?id=${itemDetails.id}`;
-        } else {
-          window.location.href = `tv-details.html?id=${itemDetails.id}`;
-        }
-      });
 
       moviesContainer.appendChild(itemElement);
     };
@@ -543,7 +537,7 @@
           const all = [
             ...movies.map(m => ({...m, format: 'movie'})),
             ...tvshows.map(t => ({...t, format: 'tv'}))
-          ]; 
+          ];
           all.sort((a, b) => new Date(a.added_at) - new Date(b.added_at));
           let loadedCount = 0;
 

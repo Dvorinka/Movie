@@ -287,31 +287,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }           
     };
 
-    const redirectToStream = (event) => {
-        event.preventDefault();  // Prevents the default link behavior
-        
-        const streamUrl = `https://rivestream.org/embed?type=tv&id=${showId}&season=1&episode=1`;
-    
-        // Create an iframe element
-        const iframe = document.createElement('iframe');
-        iframe.src = streamUrl;
-        iframe.width = '100%';
-        iframe.height = '100%';
-        iframe.frameBorder = '0';
-        iframe.allow = 'autoplay; fullscreen';  // Allow fullscreen and autoplay
-        iframe.allowfullscreen = true;          // Explicitly set the allowfullscreen attribute
-        
-        // Insert the iframe into the container
-        const container = document.getElementById('stream-container');
-        container.innerHTML = '';  // Clear any previous content in the container
-        container.appendChild(iframe);
-        
-        // Display the container
-        container.style.display = 'flex';  // Show the stream container
-    
-        // Add event listener to close the iframe when clicking outside
-        document.addEventListener('click', closeIframeOnClickOutside);
-    };
+// main handler
+const redirectToStream = async (event) => {
+  event.preventDefault();
+
+  if (!supabase || !supabase.auth) {
+    console.error('Supabase client is not initialized.');
+    return;
+  }
+
+  // get session (to obtain access token) and user id
+  const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
+  if (sessionErr || !session) {
+    alert('Please log in to watch this show.');
+    return;
+  }
+
+  const accessToken = session.access_token; // pass this to proxy for verification
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) {
+    alert('Please log in to watch this show.');
+    return;
+  }
+
+  const userId = user.id;
+  const tvId = showId.toString(); // your global showId
+  const getProgressUrl = `http://localhost:8080/get-progress?user_id=${encodeURIComponent(userId)}&tv_id=${encodeURIComponent(tvId)}`;
+
+  try {
+    // 1) fetch last saved progress
+    const res = await fetch(getProgressUrl, { method: 'GET' });
+    if (!res.ok) throw new Error('get-progress failed');
+    const data = await res.json();
+
+    let season = 1;
+    let episode = 1;
+    if (Array.isArray(data) && data.length > 0) {
+      season = data[0].season || 1;
+      episode = data[0].episode || 1;
+    }
+
+    // 2) Build proxy embed URL (proxy will rewrite backendfetch -> /proxy/api/backendfetch)
+    // Pass the access token (proxy should validate token and extract user_id server-side)
+    const proxyEmbedUrl =
+      `http://localhost:8080/proxy/embed?tv_id=${encodeURIComponent(tvId)}&season=${encodeURIComponent(season)}&episode=${encodeURIComponent(episode)}&access_token=${encodeURIComponent(accessToken)}`;
+
+    // 3) Optional: send initial update so DB contains record immediately (not required if proxy will do it)
+    // await fetch(`${PROXY_BASE}/update-progress`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ user_id: userId, tv_id: tvId, season, episode })
+    // });
+
+    // 4) Create iframe with proxy URL
+    const iframe = document.createElement('iframe');
+    iframe.src = proxyEmbedUrl;
+    iframe.width = '100%';
+    iframe.height = '100%';
+    iframe.frameBorder = '0';
+    iframe.allow = 'autoplay; fullscreen';
+    iframe.allowFullscreen = true;
+
+    const container = document.getElementById('stream-container');
+    container.innerHTML = '';
+    container.appendChild(iframe);
+    container.style.display = 'flex';
+
+    document.addEventListener('click', closeIframeOnClickOutside);
+  } catch (err) {
+    console.error('Failed to fetch last watched episode:', err);
+    alert('Could not load the stream. Please try again later.');
+  }
+};
+
+      
     
     const closeIframeOnClickOutside = (event) => {
         const container = document.getElementById('stream-container');
